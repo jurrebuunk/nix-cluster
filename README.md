@@ -2,6 +2,9 @@
 
 Minimal NixOS 26.05 configs for `pve0`, `pve1`, and `pve2` (x86_64).
 
+See [DEVELOPMENT.md](DEVELOPMENT.md) for the edit, validate, deploy, verify,
+and rollback workflow. Manage changes from this repo on the laptop.
+
 - Shared config: `hosts/common.nix`
 - Per-host config: `hosts/<host>/default.nix`
 - DHCP networking; mDNS discovery as `<hostname>.local` on the local LAN.
@@ -18,14 +21,6 @@ Do not also import the installer's generated `configuration.nix`.
 
 For an existing fresh install, preserve its `system.stateVersion` and working
 bootloader settings when adopting this config.
-
-Stage any added files before using the flake:
-
-```sh
-git add .
-# On the configured host (substitute pve1 or pve2 as needed):
-sudo nixos-rebuild switch --flake .#pve0
-```
 
 ## pve0
 
@@ -89,9 +84,6 @@ requires an mDNS-capable client on the same LAN. This laptop currently uses
 the router's DNS (`<hostname>.home`), not an mDNS resolver.
 No laptop networking configuration was changed.
 
-Installed configuration lives at `/etc/nixos` on each node. To rebuild there
-(substitute `pve1` or `pve2` on those nodes):
-
-```sh
-sudo nixos-rebuild switch --flake /etc/nixos#pve0
-```
+`/etc/nixos` on each node is an installation-time snapshot, not an automatically
+synchronized checkout. For ongoing development, use the laptop repo and the
+remote deployment commands in [DEVELOPMENT.md](DEVELOPMENT.md).
