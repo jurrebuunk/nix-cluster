@@ -9,14 +9,12 @@ Minimal NixOS 26.05 configs for `pve0`, `pve1`, and `pve2` (x86_64).
   laptop's `~/.ssh/id_ed25519`.
 - Key-only SSH; root SSH disabled; `jurre` has passwordless sudo.
 
-## Before installing each host
+## Installation
 
-`pve0` and `pve1` are installed and verified. `pve2` still has a placeholder
-hardware file and is **not bootable yet**.
-We will choose disks and a bootloader separately for each remaining host. Replace that
-host's `hardware-configuration.nix` with the generated hardware configuration
-and add its bootloader settings before installation. Do not import the
-installer's generated `configuration.nix` as well.
+All three hosts are installed and verified. Each has its own generated hardware
+configuration, UEFI systemd-boot, a 1 GiB EFI partition, and an ext4 root using
+the remaining NVMe space. `/srv/volumes` shares that root filesystem.
+Do not also import the installer's generated `configuration.nix`.
 
 For an existing fresh install, preserve its `system.stateVersion` and working
 bootloader settings when adopting this config.
@@ -56,20 +54,43 @@ sudo nixos-rebuild switch --flake .#pve0
   left blank for future Ceph. SMART passed, no reallocated or pending sectors.
 - UEFI boot using systemd-boot; no swap.
 
+## pve2
+
+- DHCP on `enp2s0`, MAC `fc:3f:db:0a:c1:42`; hostname `pve2`.
+- Verified after reboot at `192.168.2.36`, resolved by the router as `pve2.home`.
+  This is a DHCP lease, not a fixed address.
+- Key-only SSH and passwordless sudo verified from the laptop; no failed units.
+- NVMe `HFM256GD3GX013N-SKhynix`, serial `FYB4N002812204212`:
+  GPT, 1 GiB FAT32 `/boot`, remaining space ext4 `/`.
+  SMART passed, 60% endurance used, 100% spare, zero media errors.
+- `/srv/volumes` shares the root filesystem.
+- HDD `HGST HTS721010A9E630`, serial `JR1000D30JXYRF`:
+  NTFS signatures and partition table removed after installation/reboot;
+  left blank for future Ceph. SMART and a fresh short self-test passed,
+  zero reallocated/pending/offline-uncorrectable sectors. Historical runtime
+  bad-block counter is 1; run an extended self-test before Ceph deployment.
+- UEFI boot using systemd-boot; no swap.
+
 ## Discovery and rebuilding
 
-Discovery fallback: `nmap -sn -PS22 192.168.2.0/24`. Verified that nmap reports
-`pve0.home (192.168.2.34)` and `pve1.home (192.168.2.35)`.
-Hostname display depends on DNS. If nmap is not
-installed, use `nix shell nixpkgs#nmap` first.
+Discovery fallback: `nmap -sn -PS22 192.168.2.0/24`. Verified names and leases:
 
-Avahi also advertises `pve0.local` and `pve1.local`; resolution requires an
-mDNS-capable client on the same LAN. This laptop currently uses the router's DNS
-(`pve0.home` / `pve1.home`), not an
-mDNS resolver. No laptop networking configuration was changed.
+| Hostname | DHCP IP |
+| --- | --- |
+| pve0.home | 192.168.2.34 |
+| pve1.home | 192.168.2.35 |
+| pve2.home | 192.168.2.36 |
+
+Hostname display depends on DNS. If nmap is not installed, use
+`nix shell nixpkgs#nmap` first.
+
+Avahi also advertises `pve0.local`, `pve1.local`, and `pve2.local`; resolution
+requires an mDNS-capable client on the same LAN. This laptop currently uses
+the router's DNS (`<hostname>.home`), not an mDNS resolver.
+No laptop networking configuration was changed.
 
 Installed configuration lives at `/etc/nixos` on each node. To rebuild there
-(substitute `pve1` on pve1):
+(substitute `pve1` or `pve2` on those nodes):
 
 ```sh
 sudo nixos-rebuild switch --flake /etc/nixos#pve0
