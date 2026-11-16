@@ -3,6 +3,17 @@
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   networking.useDHCP = true;
 
+  # Advertise <hostname>.local for headless discovery on the local network.
+  services.avahi = {
+    enable = true;
+    nssmdns4 = true;
+    openFirewall = true;
+    publish = {
+      enable = true;
+      addresses = true;
+    };
+  };
+
   services.openssh = {
     enable = true;
     openFirewall = true;
