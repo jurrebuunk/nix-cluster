@@ -1,7 +1,7 @@
 { ... }:
 {
   imports = [ ./hardware-configuration.nix ];
-  networking.hostName = "pve2";
+  networking.hostName = "hgd1-hv03";
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
