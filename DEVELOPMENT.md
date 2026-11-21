@@ -17,14 +17,19 @@ No deployment framework or CI is configured; deployments are manual.
 When a feature grows, create a reusable module such as `modules/monitoring.nix`
 and import it from `hosts/common.nix` or selected host configs. For example,
 a host can add `../../modules/monitoring.nix` to its existing `imports` list.
-The `modules/` directory does not exist yet; nothing there is imported automatically.
+Modules in `modules/` are imported for every host from `flake.nix`. Cluster-wide
+facts (addresses, disks, keys) live in `inventory.nix`.
 Keep hardware configuration specific to its node.
 
 ## Normal workflow
 
-Examples below use `pve0`. Run them from the laptop's repo directory.
-The nodes must be online, and `ssh jurre@pve0.home` must work without a password.
-The laptop needs Nix with flakes and `nixos-rebuild`; both are currently available.
+Examples below use `hgd1-hv01`. Run them from the laptop's repo directory.
+The nodes must be online, and `ssh jurre@10.10.20.11` must work without a password
+(from outside the site: through Cloudflare WARP, see
+[network/REMOTE-ACCESS.md](network/REMOTE-ACCESS.md)). Host IPs are static, see
+`inventory.nix`. For the first deployment onto the VLAN network, follow
+[ROLLOUT.md](ROLLOUT.md) instead.
+`nix develop` provides the tools (nixos-rebuild, agenix, cloudflared, jq, …).
 
 ### 1. Edit and validate
 
@@ -36,7 +41,7 @@ cd /home/jurre/repos/nix-cluster
 git add .
 git diff --cached
 nix flake check --no-build
-nix build --no-link .#nixosConfigurations.pve0.config.system.build.toplevel
+nix build --no-link .#nixosConfigurations.hgd1-hv01.config.system.build.toplevel
 ```
 
 `flake check --no-build` evaluates all three configurations but does not build
@@ -44,7 +49,10 @@ their systems or test running services. The `nix build` command builds the
 selected node's system without activating it. For shared changes, also build
 the other affected nodes before deploying to them.
 
-Never stage passwords, private keys, or other secrets.
+Never stage passwords, private keys, or other secrets in plain text. Secrets are
+`secrets/*.age` files encrypted with agenix to the laptop key and every host key
+(`secrets/secrets.nix`); edit them with `cd secrets && agenix -e <name>.age`.
+After changing a host key in `inventory.nix`, run `agenix -r` there.
 
 ### 2. Commit
 
@@ -54,21 +62,22 @@ git status --short
 ```
 
 Deploy with a clean working tree so the deployed configuration matches a
-recorded commit. A local `.#pve0` deployment otherwise includes working-tree
+recorded commit. A local `.#hgd1-hv01` deployment otherwise includes working-tree
 changes, not just the latest commit. Keep a private Git remote or another
 backup of this repo; no remote is set up by this workflow.
 
 ### 3. Preview and deploy one node
 
 ```sh
-nixos-rebuild dry-activate \
-  --flake .#pve0 \
-  --build-host jurre@pve0.home --target-host jurre@pve0.home --sudo
-
-nixos-rebuild switch \
-  --flake .#pve0 \
-  --build-host jurre@pve0.home --target-host jurre@pve0.home --sudo
+scripts/deploy.sh hgd1-hv01 dry-activate
+scripts/deploy.sh hgd1-hv01 switch
 ```
+
+`scripts/deploy.sh` takes the address from `inventory.nix`, refuses a dirty
+working tree, checks that the host's SSH key matches the inventory, and runs
+`nixos-rebuild <action> --build-host <host> --target-host <host> --sudo
+--use-substitutes`. `TARGET=<addr>` overrides the address and `JUMP=<user@addr>`
+adds an SSH jump host.
 
 The laptop evaluates this repo, sends the build inputs over SSH, and builds on
 the selected node. Activation uses that node's passwordless sudo. Do not run
@@ -92,7 +101,7 @@ existing session open and arrange console access for risky changes.
 ### 4. Verify, then roll out
 
 ```sh
-ssh jurre@pve0.home \
+ssh jurre@10.10.20.11 \
   'hostname; nixos-version; systemctl is-system-running; systemctl --failed --no-pager'
 ```
 
@@ -100,9 +109,9 @@ Also test the service you changed and check its logs. Confirm a new SSH
 connection still works. If a reboot is needed, reboot this node and verify it
 again before proceeding.
 
-Only then deploy the same change to `pve1` and `pve2`, one at a time. Match the
-flake output, build host, and target host: `.#pve1` goes to `jurre@pve1.home`,
-not another node.
+Only then deploy the same change to `hgd1-hv02` and `hgd1-hv03`, one at a time. Match the
+`scripts/deploy.sh` always pairs the flake output with that host's address and
+verifies its host key, so `.#hgd1-hv02` cannot land on another node.
 Once clustered services exist, respect their health and quorum requirements
 before restarting or updating any node.
 
@@ -111,7 +120,7 @@ before restarting or updating any node.
 If SSH still works, return a node to its previous system generation:
 
 ```sh
-ssh jurre@pve0.home 'sudo nixos-rebuild switch --rollback'
+ssh jurre@10.10.20.11 'sudo nixos-rebuild switch --rollback'
 ```
 
 If it cannot boot or cannot be reached, use the console and choose a previous
