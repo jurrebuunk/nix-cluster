@@ -62,11 +62,6 @@ Still to do outside the repo:
 
 - Reserve WAN `192.168.2.12` on the home router for MAC `90:1b:0e:fa:70:dd`.
 - Update the Aruba firmware (still `YA.16.02.0012`).
-- Rotate the passwords I used during bootstrap.
-- Test Moonlight streaming to the gaming VM.
-
-Router and switch backups stay on my laptop, not in Git: the OPNsense config
-export contains secrets.
 
 ## Nodes
 
