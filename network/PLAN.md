@@ -41,10 +41,10 @@ Site range `10.10.0.0/16`; third octet = VLAN ID. Avoid `10.42.0.0/16` and
 | VLAN | Name | Subnet | Gateway | DHCP | Members |
 | --- | --- | --- | --- | --- | --- |
 | 10 | mgmt | 10.10.10.0/24 | 10.10.10.1 | small pool .100–.199 | OPNsense, switch, (later AP, AMT) |
-| 20 | infra | 10.10.20.0/24 | 10.10.20.1 | no | hypervisors |
+| 20 | infra | 10.10.20.0/24 | 10.10.20.1 | no | hypervisors, compute01 host |
 | 30 | storage | 10.10.30.0/24 | none | no | Ceph: hosts + k3s VMs, **not routed** |
 | 40 | k8s | 10.10.40.0/24 | 10.10.40.1 | no | k3s VMs, LB IPs .200–.249 |
-| 100 | users | 10.10.100.0/24 | 10.10.100.1 | .100–.249 | wired users |
+| 100 | users | 10.10.100.0/24 | 10.10.100.1 | .100–.249 | wired users, Windows gaming VM |
 
 VLAN 10 is untagged on the router↔switch trunk (it is the bootstrap LAN);
 20, 40 and 100 are tagged. VLAN 30 never reaches the router.
@@ -61,19 +61,28 @@ VLAN 10 is untagged on the router↔switch trunk (it is the bootstrap LAN);
 | hgd1-k8m01–03 | – | – | .21–.23 | .11–.13 |
 | hgd1-k8w01–02 | – | – | .31–.32 | .21–.22 |
 
+The separate `nix-compute01` host is static **10.10.20.50** (VLAN 20).
+Its `win11-gaming` VM uses **10.10.100.50** (VLAN 100), reserved for MAC
+`52:54:00:39:2c:95`, outside the dynamic pool. The VM bridge is unnumbered on
+the host; host firewall rules prevent routing around OPNsense between VLANs.
+
 Internal DNS zone: `hgd1.lan.buunk.org`, served by OPNsense (Unbound).
 
 ### Switch ports
 
-| Port role | Untagged | Tagged |
-| --- | --- | --- |
-| Router trunk (PCIe port 1) | 10 | 20, 40, 100 |
-| Hypervisor (×3) | 20 | 30, 40 |
-| Wired user | 100 | – |
-| Unused | 999 (dead VLAN) | – |
+| Port role | Switch ports | Untagged | Tagged |
+| --- | --- | --- | --- |
+| Router trunk (PCIe port 1 / igb0) | 14 | 10 | 20, 40, 100 |
+| Cluster hypervisors | 5, 7, 9 | 20 after N5; **10 during bootstrap** | 30, 40 |
+| compute01 host + gaming VM | 19 | 20 | 100 |
+| Wired users / setup | 2, 4, 48 | 100 | – |
+| Management recovery | 1 | 10 | – |
+| Router spare links | 16, 18 | 999, disabled | – |
+| All other ports | remaining ports | 999, disabled | – |
 
-Exact port numbers are decided in N3, once the switch model and cabling are
-known.
+Switch: HP/Aruba 2530-48G J9775A. Verify the cluster host MACs before assigning
+hv01–03 to slots 5/7/9; port order alone does not identify a host. WAN stays on
+the router's onboard re0 and does not pass through the Aruba.
 
 ### Firewall policy
 
@@ -83,11 +92,31 @@ known.
 | infra (20) | internet (Nix caches), DNS/NTP on OPNsense | mgmt, users |
 | k8s (40) | internet (registries), DNS/NTP on OPNsense | mgmt, infra, users |
 | users (100) | internet; k8s LB/ingress IPs on 80/443 | mgmt, infra, k8s nodes |
-| WAN | during build: SSH/HTTPS from 192.168.2.0/24 to OPNsense and SSH to the internal nets; after N7: nothing | everything else |
+| WAN | during build: SSH/HTTPS from 192.168.2.0/24 to OPNsense and SSH to the internal nets; permanently: Sunshine streaming from the whole home subnet to the gaming VM via DNAT (below) | everything else |
 
 Admin access after N7: Cloudflare Zero Trust. `cloudflared` on all three
 hypervisors routes `10.10.0.0/16`; the laptop uses the WARP client (see N7).
 Locally, a mgmt switch port or the OPNsense console always works.
+
+### Gaming streaming: permanent home-WAN exception
+
+- Source: **all 192.168.2.0/24**, not selected client IPs.
+- Destination: OPNsense WAN address (currently **192.168.2.12**).
+- DNAT target: **10.10.100.50**, same internal/external port numbers.
+- TCP: **47984, 47989, 48010**.
+- UDP: **47998–48000, 48002, 48010**.
+- Destination NAT rules register their matching firewall pass rules.
+- No WAN forwards for the admin UI (47990), RDP (3389), or discovery multicast.
+
+USERS clients reach the VM directly at 10.10.100.50. Home/WAN Moonlight clients
+manually add 192.168.2.12; no home-router static route is needed. Pairing remains
+Sunshine's normal per-client PIN/certificate process. This is local home access,
+not public-internet streaming. Reserve the WAN address for onboard MAC
+`90:1b:0e:fa:70:dd` on the home router.
+
+**Do not re-enable WAN "Block private networks" in N7:** the WAN is the private
+home network, so that blanket block would override the streaming exception.
+Default-deny plus the narrow streaming rules enforce the boundary instead.
 
 ---
 
@@ -165,7 +194,7 @@ OPNsense and ping each other on `10.10.30.0/24`.
 - Host internet access (`nix build` pulling from cache.nixos.org).
 - Reboot OPNsense and the switch once; everything comes back.
 
-## N7: Remote access (Cloudflare) and close WAN
+## N7: Remote access (Cloudflare) and close bootstrap WAN management
 
 Goal: reach the whole internal network from anywhere (school, …) as if on the
 LAN, independent of k3s. Nothing inside the network depends on it.
@@ -182,8 +211,10 @@ LAN, independent of k3s. Nothing inside the network depends on it.
   - Policy: only your account may use the private network.
 - OPNsense: allow `10.10.20.11–13` to reach mgmt, infra, k8s and users
   (storage stays unreachable; it is not routed).
-- Then remove the temporary WAN rules; re-enable "Block private networks" on
-  WAN. Final config backup of OPNsense and the switch.
+- Then remove **only temporary bootstrap WAN management** rules (router SSH/HTTPS
+  and internal SSH). Preserve the Sunshine DNAT/registered pass rules. Leave
+  "Block private networks" **off** on this private home-WAN; all other inbound
+  traffic remains default-denied. Final config backup of OPNsense and the switch.
 
 Differences from a real LAN port: no `.local`/mDNS discovery, no DHCP address
 of your own, internal servers see traffic from the hypervisors, and per-user
@@ -193,7 +224,8 @@ far under the limits (50 users).
 
 **Done when:** from outside the home network, `ssh` to a hypervisor, the
 OPNsense web UI and an internal name in `hgd1.lan.buunk.org` work through WARP
-with one hypervisor powered off; the WAN side has no management access.
+with one hypervisor powered off; the WAN side has no bootstrap management
+access, while home Moonlight streaming through 192.168.2.12 still works.
 
 After N7, continue with cluster [PLAN.md](../PLAN.md) step 2 (Ceph).
 

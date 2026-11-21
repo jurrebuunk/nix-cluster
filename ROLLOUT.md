@@ -139,12 +139,14 @@ ssh -J "$JUMP" jurre@10.10.20.11 'sudo ceph -s'
 ssh -J "$JUMP" jurre@10.10.20.11 'sudo ceph osd unset noout'
 ```
 
-## F. Remote access and closing WAN (network plan N7)
+## F. Remote access and closing bootstrap WAN management (network plan N7)
 
 Follow [network/REMOTE-ACCESS.md](network/REMOTE-ACCESS.md): Zero Trust
 organisation and tunnel (you, in the dashboard and `cloudflared tunnel login`),
 secret and deploy to all three hosts, WARP client settings, OPNsense rule, then
-remove the temporary WAN rules. From then on, no `JUMP` is needed: with WARP
+remove only the temporary WAN management rules. Keep the permanent home-WAN
+Sunshine forwards and leave the WAN private-network block off (see the network
+plan's gaming exception). From then on, no `JUMP` is needed: with WARP
 connected, `ssh jurre@10.10.20.11` works from anywhere.
 
 Next: PLAN step 3 (VM platform).

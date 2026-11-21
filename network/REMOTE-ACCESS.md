@@ -73,9 +73,13 @@ cloudflared tunnel route ip add 10.10.0.0/16 hgd1-admin
 
 - [ ] Firewall → Rules → INFRA: allow source `10.10.20.11–13` to MGMT, K8S and
       USERS (everything internal except storage, which is not routed).
-- [ ] Once remote access works: remove the temporary WAN rules (22/443 from
-      `192.168.2.0/24`, SSH to `10.10.0.0/16`) and tick "Block private
-      networks" on WAN again (network plan N7).
+- [ ] Once remote access works: remove **only bootstrap management** WAN rules
+      (router 22/443 from `192.168.2.0/24`, SSH to `10.10.0.0/16`). Preserve the
+      permanent Sunshine DNAT/registered pass rules from the whole home subnet
+      to `10.10.100.50` (TCP 47984/47989/48010; UDP 47998–48000/48002/48010).
+- [ ] Leave WAN **"Block private networks" off**: this WAN is the private home
+      network, and the blanket block would break Moonlight clients. Default-deny
+      plus the explicit streaming exceptions remain the inbound policy.
 
 ## 5. Laptop
 
@@ -93,7 +97,10 @@ curl -kI https://10.10.10.1                       # OPNsense web UI
 ```
 
 Then power off (or stop `cloudflared` on) one hypervisor and repeat: access must
-keep working through the other two.
+keep working through the other two. Also test Moonlight from the home WAN after
+removing bootstrap rules: manually add `192.168.2.12`, not the VM's private
+address. USERS clients use `10.10.100.50` directly. Do not expose the Sunshine
+admin UI or RDP through these streaming rules.
 
 ## Notes
 
