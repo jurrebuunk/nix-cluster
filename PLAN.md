@@ -105,8 +105,9 @@ S3, or nowhere.
 
 ## Step 0: Site network (OPNsense + Aruba)
 
-**Repo:** `nix-cluster` (`network/`) · **Status:** planned; see
-[network/PLAN.md](network/PLAN.md) and [network/BOOTSTRAP.md](network/BOOTSTRAP.md)
+**Repo:** `nix-cluster` (`network/`) · **Status:** N0–N4 done 2026-11-21,
+N6 partly verified, N5 and N7 wait for the hosts to come online; see
+[network/PLAN.md](network/PLAN.md) and the roadmap in [README.md](README.md)
 
 OPNsense router and Aruba switch with VLANs: 10 mgmt, 20 infra (hypervisors),
 30 storage (Ceph, not routed), 40 k8s, 100 wired users, in `10.10.0.0/16`.

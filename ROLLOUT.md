@@ -17,6 +17,8 @@ refuses otherwise).
 
 ## A. Network bootstrap (you)
 
+**Status: done 2026-11-21.** OPNsense WAN is `192.168.2.12`, so `JUMP=root@192.168.2.12`.
+
 Follow [network/BOOTSTRAP.md](network/BOOTSTRAP.md): cabling, OPNsense with WAN
 and LAN `10.10.10.1/24`, SSH key access from the WAN side, switch reachable.
 Hand over the WAN IP, switch IP/model/user and the port map.
@@ -31,6 +33,8 @@ export JUMP=root@<opnsense-wan-ip>
 ```
 
 ## B. Router and switch (Claude, network plan N1–N4)
+
+**Status: done 2026-11-21**, except the SMART long tests: the hypervisors were still offline, so run them first thing in part C.
 
 1. N1: OPNsense base (DNS, NTP, hostname, backup).
 2. N2: VLAN interfaces 20/40/100, DHCP on 10 and 100.
@@ -48,6 +52,8 @@ done
 ```
 
 ## C. Move the hypervisors (network plan N5, one host at a time)
+
+**Status: next.** Connect and boot the hosts on switch ports 5/7/9 (untagged VLAN 10).
 
 Deploying also renames the host (`pveN` → `hgd1-hvNN`) and installs the Ceph
 module, which stays idle until part E.
@@ -85,6 +91,8 @@ ssh -J "$JUMP" jurre@10.10.20.11 'ping -c2 10.10.30.12; ping -c2 10.10.30.13'
 ```
 
 ## D. Verify the network (network plan N6)
+
+**Status: partial.** Router/switch checks and reboots passed; host-side checks follow part C.
 
 Inter-VLAN policy, internet from the hosts (`nix build` from the cache), and
 one reboot of OPNsense and the switch.

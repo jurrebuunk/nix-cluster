@@ -122,6 +122,8 @@ Default-deny plus the narrow streaming rules enforce the boundary instead.
 
 ## N0: Bootstrap (you)
 
+**Status: done 2026-11-21.** WAN on onboard `re0` (`192.168.2.12`), MGMT on `igb0` (`10.10.10.1`). The switch was configured over its serial console as `manager` without a factory reset.
+
 Follow [BOOTSTRAP.md](BOOTSTRAP.md): cabling, OPNsense install with WAN and an
 untagged LAN on `10.10.10.1/24`, SSH key access from the WAN side, switch
 reachable over SSH through OPNsense.
@@ -130,6 +132,8 @@ reachable over SSH through OPNsense.
 `ssh -J root@<opnsense-wan-ip> <user>@<switch-ip>` work from the laptop.
 
 ## N1: OPNsense base
+
+**Status: done 2026-11-21.** Upgraded step by step to OPNsense 26.7.9_3 (boot-environment snapshot before each upgrade; `os-isc-dhcp` and `os-firewall-legacy` plugins keep the DHCP service and classic rule pages). NTP uses iburst so it serves synchronised time soon after a reboot.
 
 - Firmware update, hostname `hgd1-fw01`, domain `hgd1.lan.buunk.org`, timezone,
   NTP.
@@ -143,6 +147,8 @@ exists.
 
 ## N2: OPNsense VLANs and DHCP
 
+**Status: done 2026-11-21.**
+
 - VLAN interfaces 20 (`INFRA`), 40 (`K8S`), 100 (`USERS`) on PCIe port 1,
   addresses as in the table.
 - DHCP only on MGMT and USERS.
@@ -152,6 +158,8 @@ exists.
 yet.
 
 ## N3: Switch
+
+**Status: done 2026-11-21.** HP/Aruba 2530-48G J9775A, firmware `YA.16.02.0012` (update still open). Key-based SSH as `manager` via OPNsense; saved-config reboot test passed. Router trunk is port 14.
 
 - Admin hardening: SSH only, own admin user, SNTP from OPNsense, hostname
   `hgd1-sw01`.
@@ -166,6 +174,8 @@ switch reachable at `10.10.10.2`.
 
 ## N4: Firewall rules
 
+**Status: done 2026-11-21.** Temporary WAN management rules are still in place, plus the permanent Sunshine forwards (see above).
+
 - Rules per interface as in the policy table, default deny between VLANs.
 - Keep the temporary WAN management rules until N7.
 
@@ -173,6 +183,8 @@ switch reachable at `10.10.10.2`.
 management access from the laptop still works.
 
 ## N5: Move the hypervisors (with nix-cluster)
+
+**Status: next.** Hosts are offline; ports 5/7/9 wait untagged on VLAN 10 for their bootstrap leases. `nix-compute01` (not part of this flake) was already moved to `10.10.20.50` on 2026-11-21.
 
 - NixOS side is configured (`inventory.nix`, `modules/network.nix`): host on
   untagged VLAN 20 (`10.10.20.1x`, gateway `.1`, DNS/NTP OPNsense),
@@ -190,11 +202,15 @@ OPNsense and ping each other on `10.10.30.0/24`.
 
 ## N6: Verify
 
+**Status: partial.** With temporary test clients on the spare links: 64/64 checks passed (DHCP, DNS, NTP, NAT, inter-VLAN blocking, k8s LB range, storage VLAN isolation), and both OPNsense and the switch came back cleanly after a reboot. Host internet / `nix build` checks follow N5.
+
 - Inter-VLAN policy tests from each VLAN.
 - Host internet access (`nix build` pulling from cache.nixos.org).
 - Reboot OPNsense and the switch once; everything comes back.
 
 ## N7: Remote access (Cloudflare) and close bootstrap WAN management
+
+**Status: planned**, after N5.
 
 Goal: reach the whole internal network from anywhere (school, …) as if on the
 LAN, independent of k3s. Nothing inside the network depends on it.

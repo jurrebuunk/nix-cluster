@@ -20,6 +20,40 @@ and rollback workflow. Manage changes from this repo on the laptop.
   `~/.ssh/id_ed25519`.
 - Key-only SSH; root SSH disabled; `jurre` has passwordless sudo.
 
+## Roadmap
+
+Where the site stands (updated 2026-11-22). Network steps `N*` are in
+[network/PLAN.md](network/PLAN.md), cluster steps in [PLAN.md](PLAN.md), the
+order of work in [ROLLOUT.md](ROLLOUT.md).
+
+| Step | What | Status |
+| --- | --- | --- |
+| N0 | Network bootstrap: cabling, OPNsense install, SSH access | **Done** 2026-11-21 |
+| N1 | OPNsense base: firmware 26.7.9_3, `hgd1-fw01`, Unbound DNSSEC, NTP, backups | **Done** 2026-11-21 |
+| N2 | OPNsense VLANs 20/40/100, DHCP on mgmt and users, outbound NAT | **Done** 2026-11-21 |
+| N3 | Aruba `hgd1-sw01` at `10.10.10.2`, VLANs, port roles, key-based SSH | **Done** 2026-11-21 |
+| N4 | Firewall policy between VLANs (temporary WAN management rules still on) | **Done** 2026-11-21 |
+| – | `nix-compute01` host to INFRA `10.10.20.50`, gaming VM to USERS `10.10.100.50`, Sunshine forwards from home WAN | **Done** 2026-11-21 |
+| N5 / 1 | Move `hgd1-hv01..03` to static VLAN 20/30/40 addresses | **Next**: configured in Nix; hosts still offline (switch ports 5/7/9 wait on VLAN 10) |
+| N6 | Verify network | **Partial**: 64 traffic checks via test clients and router/switch reboot tests passed; host-side checks wait for N5 |
+| N7 | Cloudflare Zero Trust remote access, remove bootstrap WAN management | Planned, after N5 |
+| 2 | Ceph on the hosts (mon/mgr/osd/rgw) | Configured, not deployed; run SMART long tests first |
+| 3 | VM platform (microvm.nix) | Planned |
+| 4 | k3s nodes (3 servers, 2 agents) | Planned |
+| 5 | Operations docs | Planned |
+| 6 | Platform add-ons on k3s (workloads repo) | Planned |
+| 7 | Monitoring and logs | Planned |
+| 8 | Apps, Cloudreve first | Planned |
+| 9 | Own backend for monitoring and actions | Later |
+
+Open items outside the repo: reserve WAN `192.168.2.12` on the home router for
+MAC `90:1b:0e:fa:70:dd`; Aruba firmware is still `YA.16.02.0012` (needs a
+verified vendor image); rotate passwords that were shared during bootstrap;
+test actual Moonlight playback against the gaming VM. Router/switch backups,
+test logs and the full handoff are in
+`~/.local/state/nix-cluster/network-rollout/` on the laptop (not in Git: the
+router XML contains secrets).
+
 ## Installation
 
 The per-host notes below record the installation (DHCP era).
@@ -78,7 +112,17 @@ bootloader settings when adopting this config.
 
 ## Discovery and rebuilding
 
-Discovery fallback: `nmap -sn -PS22 192.168.2.0/24`. Verified names and leases:
+Since the site network went live (N0–N4), the hosts no longer sit on the home
+network. Until N5 they get temporary `10.10.10.100–199` leases from OPNsense
+on switch ports 5/7/9: match their MACs in OPNsense → Services → DHCPv4 →
+Leases, or from the laptop:
+
+```sh
+ssh root@192.168.2.12 'arp -an -i igb0'
+```
+
+The table below records the original home-router leases (pre-OPNsense,
+historical). Old discovery fallback: `nmap -sn -PS22 192.168.2.0/24`:
 
 | Hostname | DHCP IP |
 | --- | --- |
