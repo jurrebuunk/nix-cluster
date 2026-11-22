@@ -50,20 +50,12 @@ cloudflared tunnel route ip add 10.10.0.0/16 hgd1-admin
 ## 3. WARP client settings (dashboard)
 
 - [x] Settings → WARP Client → Device settings → Default profile → **Split
-      Tunnels** (Exclude mode): replace the entry `10.0.0.0/8` by these
-      ranges, which are all of `10.0.0.0/8` except `10.10.0.0/16`:
-      ```
-      10.0.0.0/13
-      10.8.0.0/15
-      10.11.0.0/16
-      10.12.0.0/14
-      10.16.0.0/12
-      10.32.0.0/11
-      10.64.0.0/10
-      10.128.0.0/9
-      ```
-      (Removing `10.0.0.0/8` entirely would also send other `10.x` networks,
-      e.g. at school, into the tunnel.)
+      Tunnels**: **Include** mode with only `10.10.0.0/16` and the team domain
+      `buunk.cloudflareaccess.com`. Everything else, including normal internet
+      traffic and the home network, goes direct; WARP only carries site traffic.
+      On the USERS VLAN, run `warp-cli disconnect` so site traffic goes straight
+      through OPNsense instead of out to Cloudflare and back (`warp-cli connect`
+      when away).
 - [x] Same profile → **Local Domain Fallback**: add `lan.buunk.org` with
       DNS server `10.10.20.1` (OPNsense).
 - [x] Settings → Network → **Proxy**: TCP and UDP on (needed for WARP traffic
