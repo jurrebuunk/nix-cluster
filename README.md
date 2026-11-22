@@ -3,9 +3,32 @@
 NixOS configuration for my homelab at site `hgd1`: three small x86_64 nodes
 (`hgd1-hv01`, `hgd1-hv02`, `hgd1-hv03`) that will run Ceph on their HDDs and a
 k3s cluster in microVMs on top. The site network (OPNsense router and Aruba
-switch) is planned and documented here too.
+switch) is configured, verified and documented here too.
 
 I manage everything from this repo on my laptop and deploy over SSH.
+
+## Current state — 2026-11-22
+
+**Done:** network rollout N0–N6 and the step-3 VM platform. All three hosts
+are on their static INFRA/storage addresses. The network passed 83/83 checks
+and router/switch reboot tests. One base VM, `hgd1-k8m01`, is live; its data
+and SSH identity survived VM restarts, and a host deploy did not restart it.
+
+**Still pending:**
+
+- **Ceph:** HDD extended SMART tests are still running. No OSDs, pools, S3
+  endpoints or buckets have been initialized. Zero current bad-sector counters
+  do not mean the disks are qualified; hv01's HDD has concerning historical
+  read errors and hv03 has a historical bad-block indicator.
+- **hv02 virtualization:** enable VT-x in BIOS only after its disk test finishes,
+  then verify KVM before enabling guests there. Do not reboot hosts during tests.
+- **k3s (step 4):** not installed. The other four VM definitions remain disabled.
+- **N7:** explicitly deferred; bootstrap WAN management remains available.
+
+Deployment, VM and storage runbooks are linked below. Network/VM work has not
+initialized the reserved HDDs or changed the separate GPU server's VM setup.
+
+## Documentation
 
 - [PLAN.md](PLAN.md): the overall design and the steps to get there
 - [ROLLOUT.md](ROLLOUT.md): the order of work for network, hosts, Ceph and
@@ -56,7 +79,7 @@ Status as of 2026-11-22. Network steps `N*` are in
 | 2 | Ceph on the nodes (mon/mgr/osd/rgw) | Configuration deployed, services gated off; extended SMART tests pending, no disks initialized |
 | 3 | VM platform (microvm.nix) | **Done** 2026-11-22; one empty VM live, SSH/storage/internet and restart persistence verified; host deploy does not restart guests |
 | 4 | k3s nodes (3 servers, 2 agents) | Planned |
-| 5 | Operations docs | Planned |
+| 5 | Operations docs | **Partial**: deployment, VM lifecycle and Ceph/S3 runbooks written; workload-aware procedures follow step 4 |
 | 6 | Platform add-ons on k3s (workloads repo) | Planned |
 | 7 | Monitoring and logs | Planned |
 | 8 | Apps, Cloudreve first | Planned |
@@ -81,8 +104,9 @@ its HDD test completes before enabling guests there. hv01/hv03 expose KVM.
 
 All three run NixOS 26.05 with UEFI systemd-boot, a 1 GiB EFI partition and
 an ext4 root on the rest of the NVMe; `/srv/volumes` lives on that root. No
-swap. The HDDs are wiped and reserved for Ceph. Each node has one NIC,
-`enp2s0`. They used to run Proxmox as `pve0`–`pve2`.
+swap. The HDDs had no filesystem signatures at preflight and have not been
+initialized for Ceph. Each node has one NIC, `enp2s0`. They used to run Proxmox
+as `pve0`–`pve2`.
 
 | Node | Was | MAC | NVMe | Ceph HDD |
 | --- | --- | --- | --- | --- |
