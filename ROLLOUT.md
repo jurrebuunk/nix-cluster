@@ -60,6 +60,14 @@ module, which stays idle until part E.
 
 For `hgd1-hv01` (then `hv02`, then `hv03`):
 
+0. **Prepare the timed recovery guard** on this host (root-only state):
+   ```sh
+   ssh -J "$JUMP" jurre@10.10.10.<lease> 'sudo sh -c '\''umask 077; mkdir -p /var/lib/n5-rollout/before; readlink -f /run/current-system > /var/lib/n5-rollout/before/current-system; touch /var/lib/n5-rollout/pending'\'''
+   ```
+   `modules/rollout-safety.nix` returns to that saved boot generation and
+   reboots after ten minutes unless confirmed. It cannot repair a kernel that
+   fails before systemd starts; the console/previous boot entry remains the
+   fallback for that case.
 1. **Install the new config for the next boot**, via its temporary lease:
    ```sh
    TARGET=10.10.10.<lease> scripts/deploy.sh hgd1-hv01 boot
@@ -80,9 +88,18 @@ For `hgd1-hv01` (then `hv02`, then `hv03`):
    with `10.10.30.11/24`, `br-k8s` up without an address, chrony using
    `10.10.20.1`, no failed units (Ceph units are skipped, not failed).
 
-**If the host does not come back:** switch port back to untagged 10, then at
-its console choose the previous generation in the systemd-boot menu. It boots
-with DHCP and gets a `10.10.10.x` lease again.
+4. **Disarm recovery only after checking key-based SSH, addresses, routes,
+   clock sync and service health**:
+   ```sh
+   ssh -J "$JUMP" jurre@10.10.20.11 \
+     'sudo rm /var/lib/n5-rollout/pending; sudo systemctl stop n5-rollback.timer'
+   ```
+
+**If the host does not come back:** restore its switch port to untagged 10
+and wait for the ten-minute guard to restore the old generation and reboot.
+It boots with DHCP and gets a `10.10.10.x` lease again. If it failed before
+systemd could run the guard, use its console to choose the previous generation
+in the systemd-boot menu. Never move another node until this one is confirmed.
 
 After all three: the hosts ping each other on the storage VLAN:
 

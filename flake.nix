@@ -24,6 +24,7 @@
             agenix.nixosModules.default
             ./hosts/common.nix
             ./modules/network.nix
+            ./modules/rollout-safety.nix
             ./modules/ceph.nix
             ./modules/remote-access.nix
             (./hosts + "/${host}")
