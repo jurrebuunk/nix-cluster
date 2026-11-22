@@ -67,6 +67,8 @@
   vms = {
     hgd1-k8m01 = {
       host = "hgd1-hv01"; enabled = true; id = 11; role = "server";
+      # Verified from the trusted hypervisor console; private key is on var-lib.img.
+      hostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIF0QRgl9LwkEUSkSxh/MY5wlrIqLS299vkPkc+YVzq1D";
       vcpu = 2; memMB = 4096; diskGB = 60;
       ip = { k8s = "10.10.40.11"; storage = "10.10.30.21"; };
     };

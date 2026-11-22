@@ -82,8 +82,7 @@ in
     requires = [ "sshd.service" ];
     serviceConfig = { Type = "oneshot"; StandardOutput = "journal+console"; };
     script = ''
-      printf 'VM_HOST_KEY ${vmName} '
-      cat ${key}.pub
+      printf 'VM_HOST_KEY ${vmName} %s\n' "$(cat ${key}.pub)"
     '';
   };
 
