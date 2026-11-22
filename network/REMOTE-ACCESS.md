@@ -64,7 +64,7 @@ cloudflared tunnel route ip add 10.10.0.0/16 hgd1-admin
       ```
       (Removing `10.0.0.0/8` entirely would also send other `10.x` networks,
       e.g. at school, into the tunnel.)
-- [ ] Same profile → **Local Domain Fallback**: add `hgd1.lan.buunk.org` with
+- [ ] Same profile → **Local Domain Fallback**: add `lan.buunk.org` with
       DNS server `10.10.20.1` (OPNsense).
 - [ ] Gateway → Firewall policies → Network: allow destination
       `10.10.0.0/16` for your email; block `10.10.0.0/16` for everyone else.
@@ -92,7 +92,7 @@ cloudflared tunnel route ip add 10.10.0.0/16 hgd1-admin
 ```sh
 warp-cli status                                   # Connected
 ssh jurre@10.10.20.11 hostname                    # hgd1-hv01
-getent hosts hgd1-hv02.hgd1.lan.buunk.org         # 10.10.20.12
+getent hosts hgd1-hv02.lan.buunk.org            # 10.10.20.12
 curl -kI https://10.10.10.1                       # OPNsense web UI
 ```
 
@@ -108,7 +108,7 @@ admin UI or RDP through these streaming rules.
   (`10.10.20.11–13`), not from the laptop. Per-user control lives in the Zero
   Trust policies.
 - No `.local`/mDNS discovery and no DHCP address over the tunnel; use names in
-  `hgd1.lan.buunk.org` or IPs.
+  `lan.buunk.org` or IPs.
 - Connections from the site back to the laptop are not possible with a tunnel;
   that needs Cloudflare Mesh (only add it if ever needed).
 - At home without Cloudflare: a mgmt switch port or the OPNsense console.

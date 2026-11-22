@@ -41,7 +41,7 @@ Site range `10.10.0.0/16`; third octet = VLAN ID. Avoid `10.42.0.0/16` and
 | VLAN | Name | Subnet | Gateway | DHCP | Members |
 | --- | --- | --- | --- | --- | --- |
 | 10 | mgmt | 10.10.10.0/24 | 10.10.10.1 | small pool .100–.199 | OPNsense, switch, (later AP, AMT) |
-| 20 | infra | 10.10.20.0/24 | 10.10.20.1 | no | hypervisors, compute01 host |
+| 20 | infra | 10.10.20.0/24 | 10.10.20.1 | no | hypervisors, hgd1-gpu1 host |
 | 30 | storage | 10.10.30.0/24 | none | no | Ceph: hosts + k3s VMs, **not routed** |
 | 40 | k8s | 10.10.40.0/24 | 10.10.40.1 | no | k3s VMs, LB IPs .200–.249 |
 | 100 | users | 10.10.100.0/24 | 10.10.100.1 | .100–.249 | wired users, Windows gaming VM |
@@ -61,12 +61,12 @@ VLAN 10 is untagged on the router↔switch trunk (it is the bootstrap LAN);
 | hgd1-k8m01–03 | – | – | .21–.23 | .11–.13 |
 | hgd1-k8w01–02 | – | – | .31–.32 | .21–.22 |
 
-The separate `nix-compute01` host is static **10.10.20.50** (VLAN 20).
+The separate GPU server `hgd1-gpu1` (repo `nix-hgd1-gpu1`) is static **10.10.20.50** (VLAN 20).
 Its `win11-gaming` VM uses **10.10.100.50** (VLAN 100), reserved for MAC
 `52:54:00:39:2c:95`, outside the dynamic pool. The VM bridge is unnumbered on
 the host; host firewall rules prevent routing around OPNsense between VLANs.
 
-Internal DNS zone: `hgd1.lan.buunk.org`, served by OPNsense (Unbound).
+Internal DNS zone: `lan.buunk.org`, served by OPNsense (Unbound).
 
 ### Switch ports
 
@@ -74,7 +74,7 @@ Internal DNS zone: `hgd1.lan.buunk.org`, served by OPNsense (Unbound).
 | --- | --- | --- | --- |
 | Router trunk (PCIe port 1 / igb0) | 14 | 10 | 20, 40, 100 |
 | Cluster hypervisors | 5, 7, 9 | 20 after N5; **10 during bootstrap** | 30, 40 |
-| compute01 host + gaming VM | 19 | 20 | 100 |
+| hgd1-gpu1 host + gaming VM | 19 | 20 | 100 |
 | Wired users / setup | 2, 4, 48 | 100 | – |
 | Management recovery | 1 | 10 | – |
 | Router spare links | 16, 18 | 999, disabled | – |
@@ -135,7 +135,7 @@ reachable over SSH through OPNsense.
 
 **Status: done 2026-11-21.** Upgraded step by step to OPNsense 26.7.9_3 (boot-environment snapshot before each upgrade; `os-isc-dhcp` and `os-firewall-legacy` plugins keep the DHCP service and classic rule pages). NTP uses iburst so it serves synchronised time soon after a reboot.
 
-- Firmware update, hostname `hgd1-fw01`, domain `hgd1.lan.buunk.org`, timezone,
+- Firmware update, hostname `hgd1-fw01`, domain `lan.buunk.org`, timezone,
   NTP.
 - Unbound DNS with DNSSEC; register DHCP leases; host overrides for fixed
   addresses.
@@ -182,9 +182,9 @@ switch reachable at `10.10.10.2`.
 **Done when:** a user port reaches the internet but not `10.10.20.0/24`, and
 management access from the laptop still works.
 
-## N5: Move the hypervisors (with nix-cluster)
+## N5: Move the hypervisors (with nix-hgd1-cluster)
 
-**Status: next.** Hosts are offline; ports 5/7/9 wait untagged on VLAN 10 for their bootstrap leases. `nix-compute01` (not part of this flake) was already moved to `10.10.20.50` on 2026-11-21.
+**Status: next.** Hosts are offline; ports 5/7/9 wait untagged on VLAN 10 for their bootstrap leases. The GPU server `hgd1-gpu1` (repo `nix-hgd1-gpu1`, not part of this flake) was already moved to `10.10.20.50` on 2026-11-21.
 
 - NixOS side is configured (`inventory.nix`, `modules/network.nix`): host on
   untagged VLAN 20 (`10.10.20.1x`, gateway `.1`, DNS/NTP OPNsense),
@@ -216,14 +216,14 @@ Goal: reach the whole internal network from anywhere (school, …) as if on the
 LAN, independent of k3s. Nothing inside the network depends on it.
 
 - `cloudflared` on **all three hypervisors** (one tunnel, three replicas), as
-  `modules/remote-access.nix` in `nix-cluster` using `services.cloudflared`;
+  `modules/remote-access.nix` in `nix-hgd1-cluster` using `services.cloudflared`;
   tunnel credentials as an agenix secret. Any one host keeps access up.
   Setup steps: [REMOTE-ACCESS.md](REMOTE-ACCESS.md).
 - Tunnel private network route: `10.10.0.0/16`.
 - Laptop: Cloudflare One (WARP) client enrolled in your Zero Trust org.
 - Zero Trust settings:
   - Split Tunnels: remove `10.10.0.0/16` from the default `10.0.0.0/8` exclude.
-  - Local Domain Fallback: `hgd1.lan.buunk.org` → OPNsense DNS.
+  - Local Domain Fallback: `lan.buunk.org` → OPNsense DNS.
   - Policy: only your account may use the private network.
 - OPNsense: allow `10.10.20.11–13` to reach mgmt, infra, k8s and users
   (storage stays unreachable; it is not routed).
@@ -239,7 +239,7 @@ Cloudflare Mesh (only add if ever needed). Free plan: 1 user and 3 replicas are
 far under the limits (50 users).
 
 **Done when:** from outside the home network, `ssh` to a hypervisor, the
-OPNsense web UI and an internal name in `hgd1.lan.buunk.org` work through WARP
+OPNsense web UI and an internal name in `lan.buunk.org` work through WARP
 with one hypervisor powered off; the WAN side has no bootstrap management
 access, while home Moonlight streaming through 192.168.2.12 still works.
 

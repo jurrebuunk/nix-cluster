@@ -1,4 +1,4 @@
-# nix-cluster
+# nix-hgd1-cluster
 
 NixOS configuration for my homelab at site `hgd1`: three small x86_64 nodes
 (`hgd1-hv01`, `hgd1-hv02`, `hgd1-hv03`) that will run Ceph on their HDDs and a
@@ -45,7 +45,7 @@ Status as of 2026-11-22. Network steps `N*` are in
 | N2 | OPNsense VLANs 20/40/100, DHCP on mgmt and users, outbound NAT | **Done** 2026-11-21 |
 | N3 | Aruba `hgd1-sw01` at `10.10.10.2`, VLANs, port roles, key-based SSH | **Done** 2026-11-21 |
 | N4 | Firewall policy between VLANs (temporary WAN management rules still on) | **Done** 2026-11-21 |
-| – | `compute01` on INFRA `10.10.20.50`, gaming VM on USERS `10.10.100.50`, Sunshine reachable from the home network | **Done** 2026-11-21 |
+| – | `hgd1-gpu1` on INFRA `10.10.20.50`, gaming VM on USERS `10.10.100.50`, Sunshine reachable from the home network | **Done** 2026-11-21 |
 | N5 / 1 | Move `hgd1-hv01..03` to their static VLAN 20/30/40 addresses | **Next**: configured in Nix, nodes not connected yet (switch ports 5/7/9) |
 | N6 | Verify the network | **Partial**: router, switch and VLAN tests pass; host checks follow N5 |
 | N7 | Cloudflare Zero Trust remote access, close bootstrap WAN management | Planned |

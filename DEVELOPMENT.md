@@ -1,7 +1,7 @@
 # Development and deployment
 
 This repo is the source of truth for all three nodes. Work from
-`/home/jurre/repos/nix-cluster` on the laptop, then deploy over SSH.
+`/home/jurre/repos/nix-hgd1-cluster` on the laptop, then deploy over SSH.
 No deployment framework or CI is configured; deployments are manual.
 
 ## Where changes belong
@@ -37,7 +37,7 @@ Make a small, focused change. Stage new files so the Git-backed flake can see
 them, and review exactly what will be committed:
 
 ```sh
-cd /home/jurre/repos/nix-cluster
+cd /home/jurre/repos/nix-hgd1-cluster
 git add .
 git diff --cached
 nix flake check --no-build

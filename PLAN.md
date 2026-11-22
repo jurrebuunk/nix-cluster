@@ -43,7 +43,7 @@ Rough RAM budget per node: ~3–4 GB Ceph, ~1 GB host, ~11 GB for VMs.
 
 | Repo | Owns | Tooling |
 | --- | --- | --- |
-| `nix-cluster` (this repo) | Hosts, networking, Ceph, VM inventory, the k3s node OS, later the backend | Nix flake, `nixos-rebuild` |
+| `nix-hgd1-cluster` (this repo) | Hosts, networking, Ceph, VM inventory, the k3s node OS, later the backend | Nix flake, `nixos-rebuild` |
 | Workloads repo (later) | Everything running *on* k3s: ceph-csi, ingress, cert-manager, CloudNativePG, monitoring, apps (Cloudreve, …) | Kubernetes API (Helm/Terraform from `k3s-infra`, or Flux/Argo CD) |
 
 The workloads repo only needs a kubeconfig; it does not depend on this flake.
@@ -105,7 +105,7 @@ S3, or nowhere.
 
 ## Step 0: Site network (OPNsense + Aruba)
 
-**Repo:** `nix-cluster` (`network/`) · **Status:** N0–N4 done 2026-11-21,
+**Repo:** `nix-hgd1-cluster` (`network/`) · **Status:** N0–N4 done 2026-11-21,
 N6 partly verified, N5 and N7 wait for the hosts to come online; see
 [network/PLAN.md](network/PLAN.md) and the roadmap in [README.md](README.md)
 
@@ -120,7 +120,7 @@ Step 1 (host networking) is deployed as part of network plan N5; step 2
 
 ## Step 1: Host networking
 
-**Repo:** `nix-cluster` (`inventory.nix`, `modules/network.nix`) · **Status:**
+**Repo:** `nix-hgd1-cluster` (`inventory.nix`, `modules/network.nix`) · **Status:**
 configured for the VLAN design, not yet deployed; deployed during network plan
 N5, see [ROLLOUT.md](ROLLOUT.md)
 
@@ -129,7 +129,7 @@ N5, see [ROLLOUT.md](ROLLOUT.md)
   (`10.10.30.11–13`), `enp2s0.40` → bridge `br-k8s` without a host address
   (for the k3s VMs in step 3).
 - Time from OPNsense via chrony (public pool as fallback); internal domain
-  `hgd1.lan.buunk.org`.
+  `lan.buunk.org`.
 - Rolled out one host at a time: `scripts/deploy.sh <host> boot`, switch the
   port to untagged 20 / tagged 30,40, reboot, verify.
 
@@ -138,7 +138,7 @@ a reboot and reach each other on `10.10.30.0/24`.
 
 ## Step 2: Ceph on the hosts
 
-**Repo:** `nix-cluster` (`modules/ceph.nix`, `scripts/ceph-bootstrap.sh`) · **Status:** configured on the storage VLAN, not yet deployed; see [ROLLOUT.md](ROLLOUT.md)
+**Repo:** `nix-hgd1-cluster` (`modules/ceph.nix`, `scripts/ceph-bootstrap.sh`) · **Status:** configured on the storage VLAN, not yet deployed; see [ROLLOUT.md](ROLLOUT.md)
 
 - Run an extended SMART self-test on all HDDs first (`hgd1-hv03`'s HDD has a
   historical bad-block count of 1).
@@ -155,7 +155,7 @@ RBD image and S3 bucket work.
 
 ## Step 3: VM platform (microvm.nix)
 
-**Repo:** `nix-cluster` (`inventory.nix`, `modules/hypervisor.nix`, `modules/vm-guest.nix`)
+**Repo:** `nix-hgd1-cluster` (`inventory.nix`, `modules/hypervisor.nix`, `modules/vm-guest.nix`)
 
 - Add microvm.nix as a flake input.
 - Add a `vms` section to `inventory.nix`: one entry per VM with `host`, `vcpu`,
@@ -171,7 +171,7 @@ and its `/var/lib` volume survives a restart.
 
 ## Step 4: k3s nodes
 
-**Repo:** `nix-cluster` (`modules/k3s.nix`, ported from `k3s-infra`)
+**Repo:** `nix-hgd1-cluster` (`modules/k3s.nix`, ported from `k3s-infra`)
 
 - 5 VMs: `hgd1-k8m01..03` (servers, one per host, embedded etcd, larger disk,
   e.g. `diskGB = 60` for local DB volumes) and agents `hgd1-k8w01..02`.
@@ -190,7 +190,7 @@ server VM can be restarted without losing quorum.
 
 ## Step 5: Document operations
 
-**Repo:** `nix-cluster` (`DEVELOPMENT.md`)
+**Repo:** `nix-hgd1-cluster` (`DEVELOPMENT.md`)
 
 - Add a VM: inventory line, deploy the host.
 - Move a VM: drain, `kubectl delete node`, change `host`, deploy the old host
@@ -240,7 +240,7 @@ bucket, and the DB survives a server VM restart.
 
 ## Step 9: Backend (later)
 
-**Repo:** `nix-cluster` (package + `services.clusterd` NixOS module)
+**Repo:** `nix-hgd1-cluster` (package + `services.clusterd` NixOS module)
 
 - Runs on the hosts as its own user; a polkit rule allows managing only
   `microvm@*.service`.

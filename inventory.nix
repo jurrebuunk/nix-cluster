@@ -3,7 +3,7 @@
 {
   site = {
     name = "hgd1";
-    domain = "hgd1.lan.buunk.org";
+    domain = "lan.buunk.org";
   };
 
   # Third octet = VLAN ID. Storage is not routed (no gateway).
