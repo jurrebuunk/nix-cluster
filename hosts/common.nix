@@ -1,4 +1,4 @@
-{ config, inventory, ... }:
+{ config, lib, inventory, ... }:
 {
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   nix.settings.auto-optimise-store = true;
@@ -12,7 +12,11 @@
   # Ceph mons need closely synced clocks: OPNsense first, public pool as fallback.
   services.chrony = {
     enable = true;
-    servers = inventory.ntp ++ config.networking.timeServers;
+    servers = config.networking.timeServers;
+    # Listing a server first does not make chrony prefer it. Keep public pool
+    # servers as fallbacks, but explicitly prefer the site's clock.
+    extraConfig = lib.concatMapStringsSep "\n"
+      (server: "server ${server} iburst prefer") inventory.ntp;
   };
 
   services.journald.extraConfig = ''
