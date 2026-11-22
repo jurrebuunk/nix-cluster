@@ -2,7 +2,13 @@
 # storage VLAN (br-stor, see modules/network.nix).
 # Daemons only start once their keyring exists, so this can be deployed before
 # scripts/ceph-bootstrap.sh has created the cluster. See CEPH.md.
-{ config, lib, pkgs, inventory, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  inventory,
+  ...
+}:
 let
   hostName = config.networking.hostName;
   host = inventory.hosts.${hostName};
@@ -20,6 +26,13 @@ in
       publicNetwork = inventory.vlans.storage.subnet;
     };
 
+    # Pool/CRUSH defaults are read by the monitors, not just the OSDs.
+    extraConfig = {
+      "osd pool default size" = "3";
+      "osd pool default min size" = "2";
+      "osd crush chooseleaf type" = "1";
+    };
+
     mon = {
       enable = true;
       daemons = [ hostName ];
@@ -34,10 +47,6 @@ in
       enable = true;
       daemons = [ host.osd.id ];
       extraConfig = {
-        "osd pool default size" = "3";
-        "osd pool default min size" = "2";
-        # Place replicas on different hosts.
-        "osd crush chooseleaf type" = "1";
         # 16 GiB nodes also run VMs; keep each OSD around 2 GiB.
         "osd memory target" = toString (2 * 1024 * 1024 * 1024);
       };
@@ -50,7 +59,7 @@ in
 
     client = {
       enable = true;
-      extraConfig."client.${rgwId}"."rgw frontends" = "beast port=7480";
+      extraConfig."client.${rgwId}"."rgw frontends" = "beast endpoint=${host.ip.storage}:7480";
     };
   };
 
@@ -70,7 +79,10 @@ in
       9283 # mgr prometheus module
     ];
     allowedTCPPortRanges = [
-      { from = 6800; to = 7300; } # osd / mgr / mds
+      {
+        from = 6800;
+        to = 7300;
+      } # osd / mgr / mds
     ];
   };
 }

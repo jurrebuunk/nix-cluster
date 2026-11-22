@@ -226,7 +226,9 @@ EOF
   [ "$answer" = "wipe" ] || { echo "aborted"; exit 1; }
 
   local bootstrap
-  bootstrap=$(on "$FIRST" <<<'ceph auth get-or-create client.bootstrap-osd mon "allow profile bootstrap-osd" mgr "allow r"')
+  # Monitor creation already seeds this entity with the bootstrap-osd mon
+  # profile. Extra caps would make get-or-create reject that existing identity.
+  bootstrap=$(on "$FIRST" <<<'ceph auth get-or-create client.bootstrap-osd mon "allow profile bootstrap-osd"')
 
   for h in "${HOSTS[@]}"; do
     say "osd: osd.$(field "$h" osd.id) on $h"
@@ -264,7 +266,11 @@ EOF
 phase_pools() {
   say "pools: k8s (RBD) and mgr modules"
   on "$FIRST" <<'EOF'
-ceph osd pool ls | grep -qx k8s || { ceph osd pool create k8s; rbd pool init k8s; }
+ceph osd pool ls | grep -qx k8s || ceph osd pool create k8s
+# Idempotent even if a previous run stopped after creating the pool.
+rbd pool init k8s
+ceph osd pool set k8s size 3
+ceph osd pool set k8s min_size 2
 ceph mgr module enable prometheus
 ceph osd pool ls detail
 EOF
