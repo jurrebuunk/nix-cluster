@@ -13,6 +13,7 @@ I manage everything from this repo on my laptop and deploy over SSH.
 - [DEVELOPMENT.md](DEVELOPMENT.md): how I edit, validate, deploy, verify and
   roll back
 - [CEPH.md](CEPH.md): disk qualification, S3 endpoints and bucket access
+- [VMS.md](VMS.md): live VM inventory, persistence, lifecycle and updates
 - [network/](network/): the site network design, bootstrap and remote access
 
 ## Layout
@@ -25,6 +26,8 @@ I manage everything from this repo on my laptop and deploy over SSH.
 | `modules/network.nix` | VLAN networking |
 | `modules/ceph.nix` | Ceph mon, mgr, osd and rgw |
 | `modules/remote-access.nix` | Cloudflare tunnel for remote access |
+| `modules/hypervisor.nix`, `modules/vm-guest.nix` | Declarative microVM host/guest platform |
+| `scripts/vm.sh` | Inventory/key-checked VM lifecycle commands |
 | `secrets/` | agenix recipients and encrypted secrets |
 | `scripts/deploy.sh` | `scripts/deploy.sh <host> [switch\|boot\|test\|dry-activate]` |
 | `scripts/ceph-bootstrap.sh` | One-time Ceph bootstrap |
@@ -51,7 +54,7 @@ Status as of 2026-11-22. Network steps `N*` are in
 | N6 | Verify the network | **Done** 2026-11-22; 83/83 probes, router/switch reboots, saved VLANs, node isolation and unrouted storage verified |
 | N7 | Cloudflare Zero Trust remote access, close bootstrap WAN management | **Deferred by request**; temporary management rules remain |
 | 2 | Ceph on the nodes (mon/mgr/osd/rgw) | Configuration deployed, services gated off; extended SMART tests pending, no disks initialized |
-| 3 | VM platform (microvm.nix) | In progress; NVMe-backed test VM, independent of Ceph qualification |
+| 3 | VM platform (microvm.nix) | **Done** 2026-11-22; one empty VM live, SSH/storage/internet and restart persistence verified; host deploy does not restart guests |
 | 4 | k3s nodes (3 servers, 2 agents) | Planned |
 | 5 | Operations docs | Planned |
 | 6 | Platform add-ons on k3s (workloads repo) | Planned |
@@ -63,6 +66,16 @@ Still to do outside the repo:
 
 - Reserve WAN `192.168.2.12` on the home router for MAC `90:1b:0e:fa:70:dd`.
 - Update the Aruba firmware (still `YA.16.02.0012`).
+
+## VM platform
+
+`hgd1-k8m01` is running on hv01 at `10.10.40.11` with storage `10.10.30.21`,
+2 vCPUs, 4 GiB RAM and a persistent 60 GiB sparse NVMe volume. It is a base
+NixOS VM, **not yet a k3s server**. The other four entries remain disabled until
+step 4. See [VMS.md](VMS.md) for lifecycle, SSH and update commands.
+
+hv02 currently exposes no VT-x/KVM: enable virtualization in its BIOS after
+its HDD test completes before enabling guests there. hv01/hv03 expose KVM.
 
 ## Nodes
 

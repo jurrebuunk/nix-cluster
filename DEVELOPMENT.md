@@ -131,6 +131,16 @@ Generations are not data backups. Rollback does not undo volume contents,
 filesystem changes, database migrations, or Ceph operations. Do not delete
 known-good generations until the replacement has been verified.
 
+## VM deployment and lifecycle
+
+Step 3 is live; see [VMS.md](VMS.md). Guests are built with their owning host
+and kept on local NVMe. `scripts/vm.sh list` shows enabled versus reserved
+inventory entries. Run `JUMP=root@192.168.2.12 scripts/vm.sh hgd1-k8m01 status`
+for the current test VM. Host deployments install updated runners but do not
+restart guests; apply those changes through a deliberate per-VM restart.
+Persistence/SSH identity and unchanged VM PID across host deployment were
+verified. k3s drain/quorum operations are not implemented by the lifecycle CLI.
+
 ## Dependency updates
 
 Update deliberately, as a separate change:

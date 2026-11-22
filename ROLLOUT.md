@@ -126,6 +126,10 @@ to disabled VLAN 999 and test namespaces removed.
 Inter-VLAN policy, internet from the hosts (`nix build` from the cache), and
 one reboot of OPNsense and the switch.
 
+The original N6 disposable node fixture used `10.10.40.11` before step 3.
+That address now belongs to the live VM: do not rerun an old fixture that
+aliases it. Pick unused addresses and verify inventory before any future test.
+
 ## E. Ceph (PLAN step 2)
 
 **Status: pending disk qualification.** Services/configuration are deployed
@@ -179,6 +183,16 @@ ssh -J "$JUMP" jurre@10.10.20.12 'sudo systemctl reboot'
 ssh -J "$JUMP" jurre@10.10.20.11 'sudo ceph -s'
 ssh -J "$JUMP" jurre@10.10.20.11 'sudo ceph osd unset noout'
 ```
+
+## VM platform (PLAN step 3)
+
+**Done 2026-11-22 while HDD qualification was running.** The platform is deployed
+on all hosts, and one empty VM (`hgd1-k8m01`) runs on hv01 at `10.10.40.11`
+with storage `10.10.30.21`. Actual VM restart preserved data/SSH identity, and
+host deployment left its QEMU PID unchanged. Seven additional checks confirmed
+no management SSH bypass through either guest-facing host bridge and no guest
+SSH exposure on storage. See [VMS.md](VMS.md) for operations and hv02's pending
+BIOS virtualization prerequisite. No k3s services are installed yet.
 
 ## F. Remote access and closing bootstrap WAN management (network plan N7)
 

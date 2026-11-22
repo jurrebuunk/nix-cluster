@@ -66,6 +66,11 @@ Its `win11-gaming` VM uses **10.10.100.50** (VLAN 100), reserved for MAC
 `52:54:00:39:2c:95`, outside the dynamic pool. The VM bridge is unnumbered on
 the host; host firewall rules prevent routing around OPNsense between VLANs.
 
+Step 3's live base VM `hgd1-k8m01` is on VLAN 40 at `10.10.40.11` and
+VLAN 30 at `10.10.30.21`, hosted by hv01. Do not reuse those addresses for
+disposable network test fixtures. The remaining four guest IPs are reserved
+in inventory but disabled until step 4.
+
 Internal DNS zone: `lan.buunk.org`, served by OPNsense (Unbound).
 
 ### Switch ports

@@ -1,5 +1,5 @@
 # Fully declarative guests; only explicit VM restarts pick up a changed runner.
-{ config, lib, pkgs, inventory, guestConfigurations, ... }:
+{ config, lib, inventory, guestConfigurations, ... }:
 let
   name = config.networking.hostName;
   host = inventory.hosts.${name};
@@ -9,6 +9,7 @@ let
   identities = map (vm: vm.id) all;
   k8sIPs = map (vm: vm.ip.k8s) all;
   storageIPs = map (vm: vm.ip.storage) all;
+  hostStorageIPs = map (h: h.ip.storage) (builtins.attrValues inventory.hosts);
   memory = lib.foldl' (sum: vm: sum + vm.memMB) 0 (builtins.attrValues enabled);
   tapNetworks = lib.concatMap (vm:
     let net = netFor vm;
@@ -29,8 +30,12 @@ in
         && lib.length (lib.unique identities) == lib.length all;
       message = "VM ids must be unique integers in 1..255 (MAC/TAP identity)"; }
     { assertion = lib.length (lib.unique k8sIPs) == lib.length all
-        && lib.length (lib.unique storageIPs) == lib.length all;
-      message = "VM IP addresses must be unique on each network"; }
+        && lib.length (lib.unique (storageIPs ++ hostStorageIPs))
+          == lib.length all + lib.length hostStorageIPs
+        && lib.all (vm: lib.hasPrefix "10.10.40." vm.ip.k8s
+          && lib.hasPrefix "10.10.30." vm.ip.storage
+          && vm.ip.k8s != inventory.vlans.k8s.gateway) all;
+      message = "VM IPs must be unique, use VLAN 40/30 and not collide with host storage or the gateway"; }
     { assertion = lib.all (vm: lib.elem vm.role [ "server" "agent" ]
         && vm.memMB > 0 && vm.vcpu > 0 && vm.diskGB > 0) all;
       message = "VM roles/resources must be valid and positive"; }
