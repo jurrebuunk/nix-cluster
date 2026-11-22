@@ -34,7 +34,9 @@ export JUMP=root@<opnsense-wan-ip>
 
 ## B. Router and switch (Claude, network plan N1–N4)
 
-**Status: done 2026-11-21**, except the SMART long tests: the hypervisors were still offline, so run them first thing in part C.
+**Status: done 2026-11-21.** N5/N6 completed 2026-11-22. Extended HDD tests
+were started after each node's migration reboot and are still pending; do not
+reboot the hosts again until those tests finish.
 
 1. N1: OPNsense base (DNS, NTP, hostname, backup).
 2. N2: VLAN interfaces 20/40/100, DHCP on 10 and 100.
@@ -42,8 +44,8 @@ export JUMP=root@<opnsense-wan-ip>
    now so the hosts keep their temporary leases.
 4. N4: firewall rules; the temporary WAN rules stay.
 
-Meanwhile, start the long SMART tests (each takes a few hours; Ceph waits for
-them):
+After each node's last planned migration reboot, start the long SMART test
+(each takes a few hours; Ceph waits for it). A host reboot may abort a test:
 
 ```sh
 for ip in <hv01-lease> <hv02-lease> <hv03-lease>; do
@@ -53,7 +55,12 @@ done
 
 ## C. Move the hypervisors (network plan N5, one host at a time)
 
-**Status: next.** Connect and boot the hosts on switch ports 5/7/9 (untagged VLAN 10).
+**Status: done 2026-11-22.** hv01/hv02/hv03 are on ports 5/7/9, respectively,
+now native VLAN 20 and tagged VLANs 30/40. Host keys, root/EFI UUIDs and HDD
+serials matched inventory. New key-based SSH, storage connectivity, clock sync,
+internet and service health passed after each reboot; all rollback markers
+were removed and timers disarmed. The procedure below is for future recovery
+or a fresh bootstrap, not something to repeat on the live static hosts.
 
 Deploying also renames the host (`pveN` → `hgd1-hvNN`) and installs the Ceph
 module, which stays idle until part E.
@@ -109,12 +116,21 @@ ssh -J "$JUMP" jurre@10.10.20.11 'ping -c2 10.10.30.12; ping -c2 10.10.30.13'
 
 ## D. Verify the network (network plan N6)
 
-**Status: partial.** Router/switch checks and reboots passed; host-side checks follow part C.
+**Status: done 2026-11-22.** 83/83 probes passed from disposable clients on
+MGMT/INFRA/K8S/USERS, including actual host SSH isolation and ingress address
+boundaries. OPNsense and Aruba were rebooted; all nodes and Sunshine returned,
+and running/startup switch configurations match. Storage reaches all three
+nodes at L2 but has no router interface/route. Spare ports 16/18 were restored
+to disabled VLAN 999 and test namespaces removed.
 
 Inter-VLAN policy, internet from the hosts (`nix build` from the cache), and
 one reboot of OPNsense and the switch.
 
 ## E. Ceph (PLAN step 2)
+
+**Status: pending disk qualification.** Services/configuration are deployed
+but remain gated off without keyrings. No Ceph cluster, pools or buckets have
+been initialized. See [CEPH.md](CEPH.md) for disk cautions and S3 access.
 
 Check the SMART results first; any reallocated or pending sectors, or a failed
 long test, means that disk does not go into Ceph:
@@ -136,7 +152,7 @@ scripts/ceph-bootstrap.sh           # all phases (asks you to type "wipe" before
 | --- | --- |
 | `mon` | Mon and admin keyrings and a monmap with all three mons (storage IPs) on `hgd1-hv01`, copied to the others; `ceph-mon-hgd1-hvNN` on every host; waits for quorum; removes the bootstrap material. `/etc/ceph/ceph.client.admin.keyring` stays on every host. |
 | `mgr` | `mgr.hgd1-hvNN` on every host (one active, two standby). |
-| `osd` | Shows each HDD and its SMART health, asks for `wipe`, zaps it and creates a BlueStore OSD on LVM (`osd.0–2`), activated without tmpfs so it survives reboots. |
+| `osd` | Checks disk serial, mounted/root devices, blank media, current SMART health and a successful extended test within 24 power-on hours; refuses unsafe/incomplete qualification. Then asks for `wipe` and creates BlueStore OSDs on LVM (`osd.0–2`), activated without tmpfs. |
 | `pools` | Pool `k8s` (RBD, for k3s later) and the mgr `prometheus` module (port 9283). |
 | `rgw` | S3 gateway `client.rgw.hgd1-hvNN` on every host, port 7480; it creates its own pools. |
 
@@ -165,6 +181,9 @@ ssh -J "$JUMP" jurre@10.10.20.11 'sudo ceph osd unset noout'
 ```
 
 ## F. Remote access and closing bootstrap WAN management (network plan N7)
+
+**Deferred by request.** `remoteAccess.tunnelId` remains null; do not remove
+bootstrap WAN management while working on Ceph or the VM platform.
 
 Follow [network/REMOTE-ACCESS.md](network/REMOTE-ACCESS.md): Zero Trust
 organisation and tunnel (you, in the dashboard and `cloudflared tunnel login`),

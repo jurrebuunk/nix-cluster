@@ -12,6 +12,7 @@ I manage everything from this repo on my laptop and deploy over SSH.
   remote access
 - [DEVELOPMENT.md](DEVELOPMENT.md): how I edit, validate, deploy, verify and
   roll back
+- [CEPH.md](CEPH.md): disk qualification, S3 endpoints and bucket access
 - [network/](network/): the site network design, bootstrap and remote access
 
 ## Layout
@@ -29,7 +30,7 @@ I manage everything from this repo on my laptop and deploy over SSH.
 | `scripts/ceph-bootstrap.sh` | One-time Ceph bootstrap |
 
 SSH is key-only, root login is disabled and `jurre` has passwordless sudo.
-Once the rollout is done, the nodes live at infra `10.10.20.11–13` and storage
+The nodes now live at infra `10.10.20.11–13` and storage
 `10.10.30.11–13` ([network/PLAN.md](network/PLAN.md)), so
 `ssh jurre@10.10.20.11` gets me onto `hgd1-hv01`.
 
@@ -46,11 +47,11 @@ Status as of 2026-11-22. Network steps `N*` are in
 | N3 | Aruba `hgd1-sw01` at `10.10.10.2`, VLANs, port roles, key-based SSH | **Done** 2026-11-21 |
 | N4 | Firewall policy between VLANs (temporary WAN management rules still on) | **Done** 2026-11-21 |
 | – | `hgd1-gpu1` on INFRA `10.10.20.50`, gaming VM on USERS `10.10.100.50`, Sunshine reachable from the home network | **Done** 2026-11-21 |
-| N5 / 1 | Move `hgd1-hv01..03` to their static VLAN 20/30/40 addresses | **Next**: configured in Nix, nodes not connected yet (switch ports 5/7/9) |
-| N6 | Verify the network | **Partial**: router, switch and VLAN tests pass; host checks follow N5 |
-| N7 | Cloudflare Zero Trust remote access, close bootstrap WAN management | Planned |
-| 2 | Ceph on the nodes (mon/mgr/osd/rgw) | Configured, not deployed; SMART long tests first |
-| 3 | VM platform (microvm.nix) | Planned |
+| N5 / 1 | Move `hgd1-hv01..03` to their static VLAN 20/30/40 addresses | **Done** 2026-11-22; ports 5/7/9 native 20, tagged 30/40; each host rebooted and verified |
+| N6 | Verify the network | **Done** 2026-11-22; 83/83 probes, router/switch reboots, saved VLANs, node isolation and unrouted storage verified |
+| N7 | Cloudflare Zero Trust remote access, close bootstrap WAN management | **Deferred by request**; temporary management rules remain |
+| 2 | Ceph on the nodes (mon/mgr/osd/rgw) | Configuration deployed, services gated off; extended SMART tests pending, no disks initialized |
+| 3 | VM platform (microvm.nix) | In progress; NVMe-backed test VM, independent of Ceph qualification |
 | 4 | k3s nodes (3 servers, 2 agents) | Planned |
 | 5 | Operations docs | Planned |
 | 6 | Platform add-ons on k3s (workloads repo) | Planned |
@@ -76,9 +77,12 @@ swap. The HDDs are wiped and reserved for Ceph. Each node has one NIC,
 | `hgd1-hv02` | pve1 | `fc:3f:db:0a:b1:c3` | Samsung `MZ9LQ256HBJQ` (replacement) | HGST `JR1000D30JXXWF` |
 | `hgd1-hv03` | pve2 | `fc:3f:db:0a:c1:42` | SK hynix `HFM256GD3GX013N` (60% endurance used) | HGST `JR1000D30JXYRF` |
 
-The HDD in `hgd1-hv03` has a historical bad-block count of 1, so it gets an
-extended SMART test before it goes into Ceph. Serials and disk ids are in
-`inventory.nix`.
+HDD qualification is pending: `hgd1-hv01` has historical unrecoverable-read
+errors (ATA log counter saturated at 65535), and `hgd1-hv03` reports a historical
+`Runtime_Bad_Block` count of 1. All three currently have zero reallocated,
+pending and offline-uncorrectable sectors; that alone is not proof of healthy
+media. Extended tests must pass before Ceph initialization. See [CEPH.md](CEPH.md).
+Serials and disk ids are in `inventory.nix`.
 
 When adopting this config on a fresh install, keep its `system.stateVersion`
 and working bootloader settings, and don't import the installer's generated
@@ -86,15 +90,20 @@ and working bootloader settings, and don't import the installer's generated
 
 ## Finding the nodes
 
-Until N5 the nodes get temporary `10.10.10.100–199` leases from OPNsense. I
-find them by MAC under Services → DHCPv4 → Leases, or with:
+The live hosts are `hgd1-hv01.lan.buunk.org` (`10.10.20.11`),
+`hgd1-hv02.lan.buunk.org` (`10.10.20.12`), and
+`hgd1-hv03.lan.buunk.org` (`10.10.20.13`). From home Wi-Fi before N7:
 
 ```sh
-ssh root@192.168.2.12 'arp -an -i igb0'
+ssh -J root@192.168.2.12 jurre@10.10.20.11
 ```
+
+Only a bootstrap/recovery generation uses DHCP on MGMT VLAN 10. Match its MAC
+against `inventory.nix`; don't assume the old lease still belongs to that node.
 
 They also announce `hgd1-hv0N.local` over mDNS, which only resolves from a
 client on the same LAN.
 
-`/etc/nixos` on each node is just the installation snapshot. All changes go
-through this repo and [DEVELOPMENT.md](DEVELOPMENT.md).
+Remote deployment does not create or synchronize `/etc/nixos` (it was absent
+on these installations). All changes go through this repo and
+[DEVELOPMENT.md](DEVELOPMENT.md).

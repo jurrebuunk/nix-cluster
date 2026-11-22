@@ -105,8 +105,9 @@ S3, or nowhere.
 
 ## Step 0: Site network (OPNsense + Aruba)
 
-**Repo:** `nix-hgd1-cluster` (`network/`) · **Status:** N0–N4 done 2026-11-21,
-N6 partly verified, N5 and N7 wait for the hosts to come online; see
+**Repo:** `nix-hgd1-cluster` (`network/`) · **Status:** N0–N6 done; N5/N6
+completed 2026-11-22 (83/83 probes and device reboot tests). N7 is deferred by
+request and is not a prerequisite for Ceph or the VM platform; see
 [network/PLAN.md](network/PLAN.md) and the roadmap in [README.md](README.md)
 
 OPNsense router and Aruba switch with VLANs: 10 mgmt, 20 infra (hypervisors),
@@ -116,13 +117,14 @@ OPNsense router and Aruba switch with VLANs: 10 mgmt, 20 infra (hypervisors),
 Step 1 (host networking) is deployed as part of network plan N5; step 2
 (Ceph) follows once N5–N6 are done.
 
-**Done when:** network plan N0–N7 are done.
+**Current scope complete:** N0–N6 are done. N7 remains a separately scheduled
+remote-access/hardening phase.
 
 ## Step 1: Host networking
 
 **Repo:** `nix-hgd1-cluster` (`inventory.nix`, `modules/network.nix`) · **Status:**
-configured for the VLAN design, not yet deployed; deployed during network plan
-N5, see [ROLLOUT.md](ROLLOUT.md)
+**deployed and verified 2026-11-22** during network plan N5; all three rebooted
+with static INFRA/storage addresses. See [ROLLOUT.md](ROLLOUT.md).
 
 - One NIC per host: untagged VLAN 20 for the host (`10.10.20.11–13`, gateway and
   DNS on OPNsense), `enp2s0.30` → bridge `br-stor` with the Ceph address
@@ -138,10 +140,11 @@ a reboot and reach each other on `10.10.30.0/24`.
 
 ## Step 2: Ceph on the hosts
 
-**Repo:** `nix-hgd1-cluster` (`modules/ceph.nix`, `scripts/ceph-bootstrap.sh`) · **Status:** configured on the storage VLAN, not yet deployed; see [ROLLOUT.md](ROLLOUT.md)
+**Repo:** `nix-hgd1-cluster` (`modules/ceph.nix`, `scripts/ceph-bootstrap.sh`) · **Status:** configuration deployed, services gated off; waiting for extended SMART tests. No OSDs initialized. See [CEPH.md](CEPH.md) and [ROLLOUT.md](ROLLOUT.md).
 
-- Run an extended SMART self-test on all HDDs first (`hgd1-hv03`'s HDD has a
-  historical bad-block count of 1).
+- Complete the extended SMART tests on all HDDs first. hv01 has historical
+  unrecoverable-read errors; hv03 has a historical `Runtime_Bad_Block` count
+  of 1. Current zero pending/reallocated counts are not sufficient qualification.
 - Enable `services.ceph` on all hosts: mon + mgr on each, one OSD per HDD.
   Bootstrap (fsid, mon keyring, OSD creation with `ceph-volume`) is a one-time
   manual step; document the commands.
@@ -155,7 +158,7 @@ RBD image and S3 bucket work.
 
 ## Step 3: VM platform (microvm.nix)
 
-**Repo:** `nix-hgd1-cluster` (`inventory.nix`, `modules/hypervisor.nix`, `modules/vm-guest.nix`)
+**Repo:** `nix-hgd1-cluster` (`inventory.nix`, `modules/hypervisor.nix`, `modules/vm-guest.nix`) · **Status:** implementation in progress, independently of pending HDD qualification. This step proves one empty VM; installing k3s remains step 4.
 
 - Add microvm.nix as a flake input.
 - Add a `vms` section to `inventory.nix`: one entry per VM with `host`, `vcpu`,

@@ -73,7 +73,7 @@ Internal DNS zone: `lan.buunk.org`, served by OPNsense (Unbound).
 | Port role | Switch ports | Untagged | Tagged |
 | --- | --- | --- | --- |
 | Router trunk (PCIe port 1 / igb0) | 14 | 10 | 20, 40, 100 |
-| Cluster hypervisors | 5, 7, 9 | 20 after N5; **10 during bootstrap** | 30, 40 |
+| Cluster hypervisors (live) | 5, 7, 9 | 20; **10 only for bootstrap/recovery** | 30, 40 |
 | hgd1-gpu1 host + gaming VM | 19 | 20 | 100 |
 | Wired users / setup | 2, 4, 48 | 100 | – |
 | Management recovery | 1 | 10 | – |
@@ -184,7 +184,11 @@ management access from the laptop still works.
 
 ## N5: Move the hypervisors (with nix-hgd1-cluster)
 
-**Status: next.** Hosts are offline; ports 5/7/9 wait untagged on VLAN 10 for their bootstrap leases. The GPU server `hgd1-gpu1` (repo `nix-hgd1-gpu1`, not part of this flake) was already moved to `10.10.20.50` on 2026-11-21.
+**Status: done 2026-11-22.** hv01/hv02/hv03 were identified by NIC MAC and SSH
+host key on ports 5/7/9, migrated and rebooted one at a time, and verified at
+`10.10.20.11–13` with storage `10.10.30.11–13`. Ports now use native 20 and tagged
+30/40. Timed rollback guards were disarmed only after successful checks. The
+separate GPU server `hgd1-gpu1` remains at `10.10.20.50`.
 
 - NixOS side is configured (`inventory.nix`, `modules/network.nix`): host on
   untagged VLAN 20 (`10.10.20.1x`, gateway `.1`, DNS/NTP OPNsense),
@@ -202,7 +206,12 @@ OPNsense and ping each other on `10.10.30.0/24`.
 
 ## N6: Verify
 
-**Status: partial.** With temporary test clients on the spare links: 64/64 checks passed (DHCP, DNS, NTP, NAT, inter-VLAN blocking, k8s LB range, storage VLAN isolation), and both OPNsense and the switch came back cleanly after a reboot. Host internet / `nix build` checks follow N5.
+**Status: done 2026-11-22.** 83/83 probes passed: DHCP/options, DNS, NTP, NAT,
+inter-VLAN policy, ingress/LB boundaries, actual host SSH isolation, and storage
+L2 connectivity to all nodes without any router storage interface/route. Host
+builds/internet, preferred gateway time and service health passed. Both OPNsense
+and Aruba were rebooted; saved port roles, node connectivity and Sunshine
+survived. Fixtures were removed and spare ports 16/18 disabled/native 999 again.
 
 - Inter-VLAN policy tests from each VLAN.
 - Host internet access (`nix build` pulling from cache.nixos.org).
@@ -210,7 +219,8 @@ OPNsense and ping each other on `10.10.30.0/24`.
 
 ## N7: Remote access (Cloudflare) and close bootstrap WAN management
 
-**Status: planned**, after N5.
+**Status: deferred by request.** Ceph and VM platform work may proceed without
+N7. Keep the temporary WAN management rules until replacement access is tested.
 
 Goal: reach the whole internal network from anywhere (school, …) as if on the
 LAN, independent of k3s. Nothing inside the network depends on it.
@@ -243,7 +253,8 @@ OPNsense web UI and an internal name in `lan.buunk.org` work through WARP
 with one hypervisor powered off; the WAN side has no bootstrap management
 access, while home Moonlight streaming through 192.168.2.12 still works.
 
-After N7, continue with cluster [PLAN.md](../PLAN.md) step 2 (Ceph).
+Cluster [PLAN.md](../PLAN.md) steps 2 (Ceph) and 3 (VM platform) may proceed
+now; neither depends on N7. Ceph initialization still requires qualified disks.
 
 ---
 

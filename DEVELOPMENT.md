@@ -147,13 +147,16 @@ updated: it controls compatibility defaults, not the installed release.
 
 ## Repo versus files on the servers
 
-`/etc/nixos` on each node is its installation-time snapshot. Remote deployment
-activates a system built from the laptop repo; it does **not** synchronize that
-directory or require the node to pull Git. Do not routinely rebuild from those
-snapshots after adopting the laptop deployment workflow: they may be stale.
+Remote deployment activates a system built from the laptop repo; it does
+**not** create or synchronize `/etc/nixos` or require a node to pull Git.
+That directory was absent on the current installations. If a snapshot exists
+on a future installation, do not rebuild from it after adopting this workflow:
+it may be stale.
 Avoid permanent manual edits on the servers; express them here instead.
 
-Before adding Ceph or other cluster services, establish stable addresses
-(e.g. DHCP reservations), finish disk testing, and plan backups. The HDDs are
-currently blank and no Ceph services are configured. Add sops-nix or agenix
-when secrets are needed rather than putting plaintext secrets in Git or Nix.
+N5/N6 established and reboot-tested static addresses; 83/83 network checks
+passed. Ceph configuration is deployed but services remain gated off until
+bootstrap, and the HDDs are still blank pending extended SMART qualification.
+See [CEPH.md](CEPH.md) for current disk cautions. Never reboot a host while its
+qualification test is running. Use agenix for deployed secrets; runtime admin
+keyrings and plaintext backups do not belong in Git or the Nix store.
