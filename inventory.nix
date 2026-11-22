@@ -95,9 +95,9 @@
   };
 
   # Cloudflare Tunnel for remote admin access (modules/remote-access.nix).
-  # Set tunnelId after creating the tunnel; null keeps the module off.
+  # Tunnel hgd1-admin; null keeps the module off.
   remoteAccess = {
-    tunnelId = null;
+    tunnelId = "2dc8c4e1-ce31-4429-a07a-6b9759648ae1";
     routes = [ "10.10.0.0/16" ];
   };
 

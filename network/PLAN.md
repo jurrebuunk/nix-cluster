@@ -224,8 +224,10 @@ survived. Fixtures were removed and spare ports 16/18 disabled/native 999 again.
 
 ## N7: Remote access (Cloudflare) and close bootstrap WAN management
 
-**Status: deferred by request.** Ceph and VM platform work may proceed without
-N7. Keep the temporary WAN management rules until replacement access is tested.
+**Status: in progress (2026-11-23).** Zero Trust settings, tunnel `hgd1-admin`
+(`2dc8c4e1-ce31-4429-a07a-6b9759648ae1`), route, agenix secret and OPNsense rule
+are done; deploying to hv01–03 and the outside test are next. Ceph and VM
+platform work may proceed without N7. Keep the temporary WAN management rules until replacement access is tested.
 
 Goal: reach the whole internal network from anywhere (school, …) as if on the
 LAN, independent of k3s. Nothing inside the network depends on it.

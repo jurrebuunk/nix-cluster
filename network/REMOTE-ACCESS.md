@@ -12,11 +12,11 @@ network plan N4–N6, with the hosts on `10.10.20.11–13`.
 
 ## 1. Zero Trust organisation (dashboard, once)
 
-- [ ] Cloudflare dashboard → Zero Trust: create the organisation (team name)
+- [x] Cloudflare dashboard → Zero Trust: create the organisation (team name)
       on the **Free** plan. Cloudflare may ask for a payment method even on
       Free.
-- [ ] Settings → Authentication: keep **One-time PIN** (or add GitHub/Google).
-- [ ] Settings → WARP Client → Device enrollment permissions: a rule that only
+- [x] Settings → Authentication: keep **One-time PIN** (or add GitHub/Google).
+- [x] Settings → WARP Client → Device enrollment permissions: a rule that only
       allows **your email address**.
 
 ## 2. Tunnel (laptop, in this repo)
@@ -30,8 +30,8 @@ cloudflared tunnel route ip add 10.10.0.0/16 hgd1-admin
 
 `create` writes the credentials to `~/.cloudflared/<UUID>.json`.
 
-- [ ] Put the UUID in `inventory.nix`: `remoteAccess.tunnelId = "<UUID>";`
-- [ ] Encrypt the credentials for the laptop and all three hosts:
+- [x] Put the UUID in `inventory.nix`: `remoteAccess.tunnelId = "<UUID>";`
+- [x] Encrypt the credentials for the laptop and all three hosts:
       ```sh
       cd secrets
       EDITOR="cp $HOME/.cloudflared/<UUID>.json" agenix -e cloudflared-tunnel.age
@@ -49,7 +49,7 @@ cloudflared tunnel route ip add 10.10.0.0/16 hgd1-admin
 
 ## 3. WARP client settings (dashboard)
 
-- [ ] Settings → WARP Client → Device settings → Default profile → **Split
+- [x] Settings → WARP Client → Device settings → Default profile → **Split
       Tunnels** (Exclude mode): replace the entry `10.0.0.0/8` by these
       ranges, which are all of `10.0.0.0/8` except `10.10.0.0/16`:
       ```
@@ -64,20 +64,23 @@ cloudflared tunnel route ip add 10.10.0.0/16 hgd1-admin
       ```
       (Removing `10.0.0.0/8` entirely would also send other `10.x` networks,
       e.g. at school, into the tunnel.)
-- [ ] Same profile → **Local Domain Fallback**: add `lan.buunk.org` with
+- [x] Same profile → **Local Domain Fallback**: add `lan.buunk.org` with
       DNS server `10.10.20.1` (OPNsense).
-- [ ] Gateway → Firewall policies → Network: allow destination
+- [x] Settings → Network → **Proxy**: TCP and UDP on (needed for WARP traffic
+      to private networks).
+- [x] Gateway → Firewall policies → Network: allow destination
       `10.10.0.0/16` for your email; block `10.10.0.0/16` for everyone else.
 
 ## 4. OPNsense
 
-- [ ] Firewall → Rules → INFRA: allow source `10.10.20.11–13` to MGMT, K8S and
-      USERS (everything internal except storage, which is not routed).
+- [x] Firewall → Rules → INFRA: allow source `10.10.20.11–13` to MGMT, K8S and
+      USERS (everything internal except storage, which is not routed). Done as aliases
+      `HGD1_TUNNEL_HOSTS` → `HGD1_TUNNEL_DESTS`, above the INFRA deny rule.
 - [ ] Once remote access works: remove **only bootstrap management** WAN rules
       (router 22/443 from `192.168.2.0/24`, SSH to `10.10.0.0/16`). Preserve the
       permanent Sunshine DNAT/registered pass rules from the whole home subnet
       to `10.10.100.50` (TCP 47984/47989/48010; UDP 47998–48000/48002/48010).
-- [ ] Leave WAN **"Block private networks" off**: this WAN is the private home
+- [x] Leave WAN **"Block private networks" off**: this WAN is the private home
       network, and the blanket block would break Moonlight clients. Default-deny
       plus the explicit streaming exceptions remain the inbound policy.
 

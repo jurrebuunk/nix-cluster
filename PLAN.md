@@ -106,8 +106,8 @@ S3, or nowhere.
 ## Step 0: Site network (OPNsense + Aruba)
 
 **Repo:** `nix-hgd1-cluster` (`network/`) · **Status:** N0–N6 done; N5/N6
-completed 2026-11-22 (83/83 probes and device reboot tests). N7 is deferred by
-request and is not a prerequisite for Ceph or the VM platform; see
+completed 2026-11-22 (83/83 probes and device reboot tests). N7 is in progress
+(Cloudflare side done 2026-11-23, deploy pending) and is not a prerequisite for Ceph or the VM platform; see
 [network/PLAN.md](network/PLAN.md) and the roadmap in [README.md](README.md)
 
 OPNsense router and Aruba switch with VLANs: 10 mgmt, 20 infra (hypervisors),
@@ -117,8 +117,8 @@ OPNsense router and Aruba switch with VLANs: 10 mgmt, 20 infra (hypervisors),
 Step 1 (host networking) is deployed as part of network plan N5; step 2
 (Ceph) follows once N5–N6 are done.
 
-**Current scope complete:** N0–N6 are done. N7 remains a separately scheduled
-remote-access/hardening phase.
+**Current scope complete:** N0–N6 are done. N7 (remote access/hardening) is
+in progress: deploy `cloudflared` to hv01–03, test, then close bootstrap WAN management.
 
 ## Step 1: Host networking
 
