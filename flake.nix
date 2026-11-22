@@ -3,33 +3,45 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
+    microvm = {
+      url = "github:microvm-nix/microvm.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     agenix = {
       url = "github:ryantm/agenix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = { nixpkgs, agenix, ... }:
+  outputs = { nixpkgs, agenix, microvm, ... }:
     let
       system = "x86_64-linux";
       inventory = import ./inventory.nix;
       pkgs = nixpkgs.legacyPackages.${system};
-    in
-    {
-      nixosConfigurations = builtins.mapAttrs (host: _:
+      guestConfigurations = builtins.mapAttrs (vmName: vm:
         nixpkgs.lib.nixosSystem {
           inherit system;
-          specialArgs = { inherit inventory; };
+          specialArgs = { inherit inventory vmName vm; };
+          modules = [ microvm.nixosModules.microvm ./modules/vm-guest.nix ];
+        }) inventory.vms;
+    in
+    {
+      nixosConfigurations = (builtins.mapAttrs (host: _:
+        nixpkgs.lib.nixosSystem {
+          inherit system;
+          specialArgs = { inherit inventory guestConfigurations; };
           modules = [
             agenix.nixosModules.default
+            microvm.nixosModules.host
             ./hosts/common.nix
             ./modules/network.nix
+            ./modules/hypervisor.nix
             ./modules/rollout-safety.nix
             ./modules/ceph.nix
             ./modules/remote-access.nix
             (./hosts + "/${host}")
           ];
-        }) inventory.hosts;
+        }) inventory.hosts) // guestConfigurations;
 
       devShells.${system}.default = pkgs.mkShell {
         packages = [

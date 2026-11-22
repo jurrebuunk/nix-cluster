@@ -38,7 +38,8 @@
 
   services.openssh = {
     enable = true;
-    openFirewall = true;
+    # Management NIC only; guest-facing/storage bridges are not SSH entrypoints.
+    openFirewall = false;
     settings = {
       PasswordAuthentication = false;
       KbdInteractiveAuthentication = false;

@@ -15,6 +15,7 @@ in
   networking.domain = inventory.site.domain;
   networking.search = [ inventory.site.domain ];
   networking.nameservers = inventory.dns;
+  networking.firewall.interfaces.${nic}.allowedTCPPorts = [ 22 ];
 
   # Peers resolve each other without depending on OPNsense DNS.
   networking.hosts = lib.mapAttrs' (

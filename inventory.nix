@@ -34,6 +34,7 @@
       ip = { infra = "10.10.20.11"; storage = "10.10.30.11"; };
       interface = "enp2s0";
       mac = "fc:3f:db:10:c6:c9";
+      kvmAvailable = true;
       hostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOqb7IBsWiLLDnzULaYlSL+B/znTun+871vI8hyRMeRn";
       hdd = "/dev/disk/by-id/ata-HGST_HTS721010A9E630_JR1004BNK14S5M";
       osd = { id = "0"; uuid = "6dccaa87-db1f-4c5d-b0a3-ec7edfaa2c55"; };
@@ -42,6 +43,9 @@
       ip = { infra = "10.10.20.12"; storage = "10.10.30.12"; };
       interface = "enp2s0";
       mac = "fc:3f:db:0a:b1:c3";
+      # CPU supports VT-x, but firmware currently hides VMX and /dev/kvm.
+      # Enable virtualization in BIOS after the HDD test, then update this flag.
+      kvmAvailable = false;
       hostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOWM/JrVeGLdoY8URpx5bu4w03HjVZKtF2PX4zR+l3IW";
       hdd = "/dev/disk/by-id/ata-HGST_HTS721010A9E630_JR1000D30JXXWF";
       osd = { id = "1"; uuid = "bdb491cd-e5a9-42b7-8118-5abdb0cd0f33"; };
@@ -50,9 +54,41 @@
       ip = { infra = "10.10.20.13"; storage = "10.10.30.13"; };
       interface = "enp2s0";
       mac = "fc:3f:db:0a:c1:42";
+      kvmAvailable = true;
       hostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAUY77uRABdXlI6dWbgSKfmTyaVJ+F/lv/s4qOGoN3Cc";
       hdd = "/dev/disk/by-id/ata-HGST_HTS721010A9E630_JR1000D30JXYRF";
       osd = { id = "2"; uuid = "209dd80f-6c69-4cf4-bcf3-622337279486"; };
+    };
+  };
+
+  # VM resources live on host NVMe, not the reserved Ceph HDDs. Only m01 is
+  # enabled in step 3 to prove the platform; deploying k3s/all five is step 4.
+  # id determines stable, unique TAP names and MAC addresses (see vm-lib.nix).
+  vms = {
+    hgd1-k8m01 = {
+      host = "hgd1-hv01"; enabled = true; id = 11; role = "server";
+      vcpu = 2; memMB = 4096; diskGB = 60;
+      ip = { k8s = "10.10.40.11"; storage = "10.10.30.21"; };
+    };
+    hgd1-k8m02 = {
+      host = "hgd1-hv02"; enabled = false; id = 12; role = "server";
+      vcpu = 2; memMB = 4096; diskGB = 60;
+      ip = { k8s = "10.10.40.12"; storage = "10.10.30.22"; };
+    };
+    hgd1-k8m03 = {
+      host = "hgd1-hv03"; enabled = false; id = 13; role = "server";
+      vcpu = 2; memMB = 4096; diskGB = 60;
+      ip = { k8s = "10.10.40.13"; storage = "10.10.30.23"; };
+    };
+    hgd1-k8w01 = {
+      host = "hgd1-hv01"; enabled = false; id = 21; role = "agent";
+      vcpu = 4; memMB = 4096; diskGB = 60;
+      ip = { k8s = "10.10.40.21"; storage = "10.10.30.31"; };
+    };
+    hgd1-k8w02 = {
+      host = "hgd1-hv02"; enabled = false; id = 22; role = "agent";
+      vcpu = 4; memMB = 4096; diskGB = 60;
+      ip = { k8s = "10.10.40.22"; storage = "10.10.30.32"; };
     };
   };
 
