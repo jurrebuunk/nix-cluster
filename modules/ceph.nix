@@ -28,6 +28,8 @@ in
 
     # Pool/CRUSH defaults are read by the monitors, not just the OSDs.
     extraConfig = {
+      # Never select the floating S3 VIP as a daemon's advertised address.
+      "public addr" = host.ip.storage;
       "osd pool default size" = "3";
       "osd pool default min size" = "2";
       "osd crush chooseleaf type" = "1";

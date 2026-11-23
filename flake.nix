@@ -38,6 +38,7 @@
             ./modules/hypervisor.nix
             ./modules/rollout-safety.nix
             ./modules/ceph.nix
+            ./modules/s3-ha.nix
             ./modules/remote-access.nix
             (./hosts + "/${host}")
           ];

@@ -22,6 +22,15 @@
 
   ceph = {
     fsid = "fcc8817c-7074-4218-b9da-b940c2787c71";
+    s3 = {
+      enable = true;
+      hostname = "s3.lan.buunk.org";
+      virtualIP = "10.10.30.10";
+      virtualRouterId = 30;
+      acmeEmail = "jurrebuunk@outlook.com";
+      # Validate DNS-01 against staging before the production rollout.
+      acmeServer = "https://acme-staging-v02.api.letsencrypt.org/directory";
+    };
   };
 
   # `ip.infra`: host management (untagged on the switch port).

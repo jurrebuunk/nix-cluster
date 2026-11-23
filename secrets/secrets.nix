@@ -6,4 +6,5 @@ let
 in
 {
   "cloudflared-tunnel.age".publicKeys = all;
+  "s3-acme-cloudflare.age".publicKeys = all;
 }
