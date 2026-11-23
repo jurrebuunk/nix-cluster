@@ -70,8 +70,8 @@
     };
   };
 
-  # VM resources live on host NVMe, not the reserved Ceph HDDs. Only m01 is
-  # enabled in step 3 to prove the platform; deploying k3s/all five is step 4.
+  # VM resources live on host NVMe, not the reserved Ceph HDDs. k8m02 waits
+  # for VT-x on hv02 (hosts.hgd1-hv02.kvmAvailable).
   # id determines stable, unique TAP names and MAC addresses (see lib/vm-network.nix).
   vms = {
     hgd1-k8m01 = {
@@ -87,18 +87,18 @@
       ip = { k8s = "10.10.40.12"; storage = "10.10.30.22"; };
     };
     hgd1-k8m03 = {
-      host = "hgd1-hv03"; enabled = false; id = 13; role = "server";
+      host = "hgd1-hv03"; enabled = true; id = 13; role = "server";
       vcpu = 2; memMB = 4096; diskGB = 60;
       ip = { k8s = "10.10.40.13"; storage = "10.10.30.23"; };
     };
     hgd1-k8w01 = {
-      host = "hgd1-hv01"; enabled = false; id = 21; role = "agent";
+      host = "hgd1-hv01"; enabled = true; id = 21; role = "agent";
       vcpu = 4; memMB = 4096; diskGB = 60;
       ip = { k8s = "10.10.40.21"; storage = "10.10.30.31"; };
     };
     # On hv03, not hv02: hv02 then only runs a server and the hosts stay balanced.
     hgd1-k8w02 = {
-      host = "hgd1-hv03"; enabled = false; id = 22; role = "agent";
+      host = "hgd1-hv03"; enabled = true; id = 22; role = "agent";
       vcpu = 4; memMB = 4096; diskGB = 60;
       ip = { k8s = "10.10.40.22"; storage = "10.10.30.32"; };
     };
