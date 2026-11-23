@@ -2,7 +2,7 @@
 
 NixOS configuration for my homelab at site `hgd1`: three small x86_64 nodes
 (`hgd1-hv01`, `hgd1-hv02`, `hgd1-hv03`) running Ceph on their HDDs, with a
-microVM platform ready for a future k3s cluster. The site network (OPNsense router and Aruba
+a k3s cluster on microVMs. The site network (OPNsense router and Aruba
 switch) is configured, verified and documented here too.
 
 I manage everything from this repo on my laptop and deploy over SSH.
@@ -10,10 +10,11 @@ I manage everything from this repo on my laptop and deploy over SSH.
 ## Current state — 2026-11-23
 
 **Done:** network rollout N0–N7, Ceph (step 2), S3 HA/TLS (step 2.1),
-and the step-3 VM platform.
+the step-3 VM platform, and k3s on 4 of 5 VMs (step 4).
 All three hosts are on their static INFRA/storage addresses. The network passed 83/83 checks
-and router/switch reboot tests. One base VM, `hgd1-k8m01`, is live; its data
-and SSH identity survived VM restarts, and a host deploy did not restart it.
+and router/switch reboot tests. **k3s:** API at `https://k8s.lan.buunk.org:6443`
+(VIP `10.10.40.10`), nodes k8m01, k8m03, k8w01 and k8w02 Ready with zone labels;
+see [K3S.md](K3S.md).
 
 Ceph is **HEALTH_OK**: three monitors in quorum, three HDD OSDs up/in, and
 three S3 gateways serving one shared object store. All pools use three replicas
@@ -30,9 +31,9 @@ reboot recovery passed. No public exposure or k3s dependency. See
 
 **Still pending:**
 
-- **hv02 virtualization:** enable VT-x in BIOS, verify KVM, then enable guests
-  there. Its HDD test has passed; use the Ceph one-host maintenance procedure.
-- **k3s (step 4):** not installed. The other four VM definitions remain disabled.
+- **hv02 virtualization:** enable VT-x in BIOS, verify KVM, then enable
+  `hgd1-k8m02`. Until then etcd has 2 members and no fault tolerance. Steps in
+  [K3S.md](K3S.md#finish-after-hv02-vt-x).
 
 Deployment, VM and storage runbooks are linked below. Ceph uses only the
 reserved HDDs; host/VM disks remain on NVMe. This Ceph rollout did not change
@@ -93,7 +94,7 @@ Status as of 2026-11-23. Network steps `N*` are in
 | 2 | Ceph on the nodes (mon/mgr/osd/rgw) | **Done** 2026-11-23; HEALTH_OK, 3 mons/OSDs/RGWs, replica 3/min_size 2, RBD/S3 and one-host-outage recovery verified |
 | 2.1 | S3 HA endpoint and trusted HTTPS | **Done** 2026-11-23; VIP failover, signed S3/multipart/presigned requests, upload retry and owner reboot verified |
 | 3 | VM platform (microvm.nix) | **Done** 2026-11-22; one empty VM live, SSH/storage/internet and restart persistence verified; host deploy does not restart guests |
-| 4 | k3s nodes (3 servers, 2 agents) | Planned |
+| 4 | k3s nodes (3 servers, 2 agents) | **Partial** 2026-11-23: 4/5 nodes Ready, kubeconfig, rolling restart and krbd verified; k8m02 waits for hv02 VT-x |
 | 5 | Operations docs | **Partial**: deployment, VM lifecycle and Ceph/S3 runbooks written; workload-aware procedures follow step 4 |
 | 6 | Platform add-ons on k3s (workloads repo) | Planned |
 | 7 | Monitoring and logs | Planned |
@@ -107,13 +108,12 @@ Still to do outside the repo:
 
 ## VM platform
 
-`hgd1-k8m01` is running on hv01 at `10.10.40.11` with storage `10.10.30.21`,
-2 vCPUs, 4 GiB RAM and a persistent 60 GiB sparse NVMe volume. It is a base
-NixOS VM, **not yet a k3s server**. The other four entries remain disabled until
-step 4. See [VMS.md](VMS.md) for lifecycle, SSH and update commands.
+Four k3s VMs run: `hgd1-k8m01` and `hgd1-k8w01` on hv01, `hgd1-k8m03` and
+`hgd1-k8w02` on hv03, each with a persistent sparse NVMe volume. See
+[VMS.md](VMS.md) for lifecycle and SSH, [K3S.md](K3S.md) for the cluster.
 
 hv02 currently exposes no VT-x/KVM: enable virtualization in its BIOS before
-enabling guests there. Its HDD test has passed; maintain Ceph one host at a
+enabling `hgd1-k8m02` there. Its HDD test has passed; maintain Ceph one host at a
 time. hv01/hv03 expose KVM.
 
 ## Nodes

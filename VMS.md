@@ -4,8 +4,8 @@
 
 Step 3 is implemented and deployed on all three hypervisors using microvm.nix,
 pinned in `flake.lock` and following the existing NixOS 26.05 package set.
-**Only one empty base VM is enabled:** `hgd1-k8m01` on `hgd1-hv01`.
-No k3s service/cluster has been installed; that is step 4.
+Four VMs run as k3s nodes (step 4, see [K3S.md](K3S.md)); `hgd1-k8m02` waits
+for VT-x on hv02. The checks below were done on `hgd1-k8m01` before k3s.
 
 Verified on the live VM:
 
@@ -46,16 +46,15 @@ passes `vm` and `vmName` through guest `specialArgs`; `lib/vm-network.nix` is a
 pure helper, not a NixOS module. Splitting files does not change runner restart
 behavior, disk paths, interface identities or firewall policy.
 
-All five future guests have flake outputs and inventory entries; four remain
-disabled until step 4:
+All five guests have flake outputs and inventory entries:
 
 | VM | Placement | Enabled | K8S IP | Storage IP | CPU / RAM / initial disk |
 | --- | --- | --- | --- | --- | --- |
 | hgd1-k8m01 | hv01 | yes | 10.10.40.11 | 10.10.30.21 | 2 / 4096 MiB / 60 GiB |
-| hgd1-k8m02 | hv02 | no | 10.10.40.12 | 10.10.30.22 | 2 / 4096 MiB / 60 GiB |
-| hgd1-k8m03 | hv03 | no | 10.10.40.13 | 10.10.30.23 | 2 / 4096 MiB / 60 GiB |
-| hgd1-k8w01 | hv01 | no | 10.10.40.21 | 10.10.30.31 | 4 / 4096 MiB / 60 GiB |
-| hgd1-k8w02 | hv02 | no | 10.10.40.22 | 10.10.30.32 | 4 / 4096 MiB / 60 GiB |
+| hgd1-k8m02 | hv02 | no (VT-x) | 10.10.40.12 | 10.10.30.22 | 2 / 4096 MiB / 60 GiB |
+| hgd1-k8m03 | hv03 | yes | 10.10.40.13 | 10.10.30.23 | 2 / 4096 MiB / 60 GiB |
+| hgd1-k8w01 | hv01 | yes | 10.10.40.21 | 10.10.30.31 | 4 / 4096 MiB / 60 GiB |
+| hgd1-k8w02 | hv03 | yes | 10.10.40.22 | 10.10.30.32 | 4 / 4096 MiB / 60 GiB |
 
 Static addresses are reserved by inventory, not DHCP leases: VLANs 30 and 40
 have no DHCP service. VM IDs must remain stable/unique because they determine
@@ -107,8 +106,8 @@ scripts/vm.sh hgd1-k8m01 restart
 `vm.sh` verifies the hypervisor's SSH host key against inventory. `start`,
 `stop`, and `restart` operate systemd; they never define/delete a disk. A
 stopped enabled guest autostarts after the next host reboot. These commands
-do **not** drain k3s or check etcd quorum: add those safeguards in step 4
-before treating them as safe workload maintenance.
+do **not** drain k3s or check etcd quorum: use `scripts/k3s-roll.sh` for
+workload-safe restarts (K3S.md).
 
 On the hypervisor, the underlying unit is `microvm@<name>.service`.
 
@@ -131,12 +130,12 @@ new runner until explicitly restarted.
 For a new guest, read the **public** `VM_HOST_KEY <name> ...` report from the
 trusted hypervisor journal, compare/pin that public key, then connect with
 strict SSH host-key checking. Never copy private host keys into inventory.
-The current test VM's public key is recorded in `inventory.nix`.
+All enabled VMs' public keys are recorded in `inventory.nix` (`hostKey`).
 
 Disabling/removing/moving a VM does not constitute a disk backup or safe live
 migration. Stop the old instance explicitly, verify it stopped, and protect its
 NVMe volume before changing placement. Never run two copies of a writable
-image. k3s member removal and workload migration are separate step-4 procedures.
+image. k3s member removal and workload migration: see K3S.md.
 
 ## Acceptance check
 

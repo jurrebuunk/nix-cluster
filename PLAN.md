@@ -183,7 +183,12 @@ and its `/var/lib` volume survives a restart.
 
 ## Step 4: k3s nodes
 
-**Repo:** `nix-hgd1-cluster` (`modules/k3s.nix`, ported from `k3s-infra`)
+**Repo:** `nix-hgd1-cluster` (`modules/microvm/guest/k3s/`) · **Status:**
+**partial 2026-11-23**: k8m01, k8m03, k8w01 and k8w02 Ready with zone labels
+behind the API VIP `10.10.40.10` (`k8s.lan.buunk.org`); kubeconfig, rolling
+restart and krbd verified. k8m02 waits for hv02 VT-x; then set
+`bootstrapServer = null` and test a server restart. See [K3S.md](K3S.md).
+k8w02 moved to hv03 so hv02 only runs a server.
 
 - 5 VMs: `hgd1-k8m01..03` (servers, one per host, embedded etcd, larger disk,
   e.g. `diskGB = 60` for local DB volumes) and agents `hgd1-k8w01..02`.
@@ -271,7 +276,6 @@ safely.
 
 ## Open decisions
 
-- Fixed k3s registration address: DNS round-robin or kube-vip VIP.
 - Workloads repo tooling: port the Helm/Terraform approach from `k3s-infra`, or
   move to Flux/Argo CD.
 - Fate of the Proxmox-based cluster (`k3s-infra`, `k3s-nixos-proxmox-prod`).

@@ -139,7 +139,7 @@ inventory entries. With WARP connected, run `scripts/vm.sh hgd1-k8m01 status`
 for the current test VM. Host deployments install updated runners but do not
 restart guests; apply those changes through a deliberate per-VM restart.
 Persistence/SSH identity and unchanged VM PID across host deployment were
-verified. k3s drain/quorum operations are not implemented by the lifecycle CLI.
+verified. `vm.sh` does not drain; use `scripts/k3s-roll.sh` (see [K3S.md](K3S.md)).
 
 ## Dependency updates
 

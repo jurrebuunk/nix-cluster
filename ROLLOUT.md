@@ -223,8 +223,8 @@ Sunshine forwards and leave the WAN private-network block off (see the network
 plan's gaming exception). From then on, no `JUMP` is needed: with WARP
 connected, `ssh jurre@10.10.20.11` works from anywhere.
 
-Next: PLAN step 4 (k3s), after enabling and verifying hv02's BIOS virtualization.
-Step 3 is already complete.
+Next: PLAN step 4 (k3s) is running on 4 of 5 VMs; k8m02 follows hv02's BIOS
+virtualization. See [K3S.md](K3S.md).
 
 ## Daily Ceph operations
 
@@ -251,7 +251,7 @@ sudo radosgw-admin user create --uid=cloudreve --display-name=Cloudreve
 - Kernel Ceph clients (krbd/CephFS used by ceph-csi in the k3s VMs later) may
   need Linux ≥ 7.0 for Ceph 20.2.4's `aes256k` auth cipher (the nixpkgs Ceph
   test pins `linuxPackages_latest` for this). Hosts run 6.18 but use no kernel
-  client. Check this in PLAN step 4.
+  client. Checked in PLAN step 4: krbd map and read/write from a Linux 7.3 VM work.
 - Backend RGW HTTP stays on the storage VLAN. Applications use the independent
   host-level HTTPS VIP from step 2.1, not a k3s-dependent ingress.
 - CephFS (MDS) is not configured yet; add it when an app needs it.

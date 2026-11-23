@@ -73,10 +73,10 @@
   # VM resources live on host NVMe, not the reserved Ceph HDDs. k8m02 waits
   # for VT-x on hv02 (hosts.hgd1-hv02.kvmAvailable).
   # id determines stable, unique TAP names and MAC addresses (see lib/vm-network.nix).
+  # hostKey: public SSH key from the hypervisor's VM_HOST_KEY journal line (VMS.md).
   vms = {
     hgd1-k8m01 = {
       host = "hgd1-hv01"; enabled = true; id = 11; role = "server";
-      # Verified from the trusted hypervisor console; private key is on var-lib.img.
       hostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIF0QRgl9LwkEUSkSxh/MY5wlrIqLS299vkPkc+YVzq1D";
       vcpu = 2; memMB = 4096; diskGB = 60;
       ip = { k8s = "10.10.40.11"; storage = "10.10.30.21"; };
@@ -88,17 +88,20 @@
     };
     hgd1-k8m03 = {
       host = "hgd1-hv03"; enabled = true; id = 13; role = "server";
+      hostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKvUJJZqA/WEnKZMImJiSH/7IJD/OeHyot+hS5CNaVrR";
       vcpu = 2; memMB = 4096; diskGB = 60;
       ip = { k8s = "10.10.40.13"; storage = "10.10.30.23"; };
     };
     hgd1-k8w01 = {
       host = "hgd1-hv01"; enabled = true; id = 21; role = "agent";
+      hostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOVlIWi18X6Z0w3EMzL4XRt+EMEwcQG9B6HcML6j6JSj";
       vcpu = 4; memMB = 4096; diskGB = 60;
       ip = { k8s = "10.10.40.21"; storage = "10.10.30.31"; };
     };
     # On hv03, not hv02: hv02 then only runs a server and the hosts stay balanced.
     hgd1-k8w02 = {
       host = "hgd1-hv03"; enabled = true; id = 22; role = "agent";
+      hostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAQC2pVvEOc0BrHgv2CmiBcOtggPwYn9kQQOsje0RYyB";
       vcpu = 4; memMB = 4096; diskGB = 60;
       ip = { k8s = "10.10.40.22"; storage = "10.10.30.32"; };
     };
