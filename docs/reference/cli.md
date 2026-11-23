@@ -23,6 +23,7 @@ How to set it up: [Use the CLI](../how-to/use-the-cli.md).
 | --- | --- |
 | This repo | `nix develop`, then `labctl` |
 | Anywhere with Nix | `nix run github:jurrebuunk/clusterd#labctl -- <command>` |
+| Without Nix | A `labctl` binary for Linux or macOS from [GitHub Releases](https://github.com/jurrebuunk/clusterd/releases); check it against `checksums.txt` |
 | A NixOS machine (my laptop) | Add `clusterd` as a flake input and `inputs.clusterd.packages.x86_64-linux.labctl` to `environment.systemPackages` |
 
 ## Global options
@@ -47,7 +48,7 @@ How to set it up: [Use the CLI](../how-to/use-the-cli.md).
 | `labctl metrics query <promql>` | read | Instant query |
 | `labctl metrics range <promql> --since 1h --step 1m` | read | Range query |
 | `labctl logs [--host H] [--unit U] [--since D] [--follow] [query]` | read | Search or follow logs (LogsQL) |
-| `labctl vm restart <vm>` | manage | Drain, restart, wait for Ready, uncordon; asks for confirmation |
+| `labctl vm restart <vm>` | operator | Drain, restart, wait for Ready, uncordon; asks for confirmation |
 
 New actions get a command here when the API gets the endpoint.
 

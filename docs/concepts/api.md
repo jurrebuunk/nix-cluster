@@ -113,7 +113,7 @@ repo as a flake input. This repo only configures them:
 
 | File | Owns |
 | --- | --- |
-| `flake.nix` → `inputs.clusterd` | The `clusterd` version in use (`nix flake update clusterd`) |
+| `flake.nix` → `inputs.clusterd` | The `clusterd` release in use, pinned to its tag (`github:jurrebuunk/clusterd/v1.0.0`) |
 | `inventory.nix` → `api` | Hostname, VIP, VRRP id |
 | `modules/clusterd/default.nix` | Enables `services.clusterd` with settings from the inventory |
 | `modules/clusterd/tls.nix` | ACME certificate through DNS-01 |
@@ -137,7 +137,9 @@ for h in 11 12 13; do ssh jurre@10.10.20.$h 'systemctl is-active clusterd'; done
 Code, tests, the API definition and releases of `clusterd` and the `labctl` CLI
 live in [`clusterd`](https://github.com/jurrebuunk/clusterd). Adding an
 endpoint or action happens there; this repo then picks up the new version with
-`nix flake update clusterd` and a normal deploy. Point the CLI at a single
+a new tag in `inputs.clusterd.url`, `nix flake update clusterd` and a normal
+deploy. The hosts always run a tagged release from
+[GitHub Releases](https://github.com/jurrebuunk/clusterd/releases), never `main`. Point the CLI at a single
 host while developing with `LABCTL_API`.
 
 ## Troubleshooting
