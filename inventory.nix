@@ -28,8 +28,8 @@
       virtualIP = "10.10.30.10";
       virtualRouterId = 30;
       acmeEmail = "jurrebuunk@outlook.com";
-      # Validate DNS-01 against staging before the production rollout.
-      acmeServer = "https://acme-staging-v02.api.letsencrypt.org/directory";
+      # DNS-01 validated against staging before enabling production certificates.
+      acmeServer = "https://acme-v02.api.letsencrypt.org/directory";
     };
   };
 
