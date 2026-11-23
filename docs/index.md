@@ -84,6 +84,7 @@ flowchart TB
   cluster --> ceph[(Ceph: RBD + S3)]
   cluster --> vms[microVMs<br/>k3s: 3 servers, 2 agents]
   vms --> ceph
+  cluster --> mon[Monitoring<br/>mon.lan.buunk.org]
   laptop[Laptop + WARP] -. Cloudflare tunnel .-> cluster
 ```
 
@@ -95,8 +96,9 @@ flowchart TB
 | Ceph with three replicas | <span class="status">Done</span> | [Ceph](concepts/ceph.md) |
 | S3 at `https://s3.lan.buunk.org` | <span class="status">Done</span> | [S3 endpoint](concepts/s3.md) |
 | microVMs | <span class="status">Done</span> | [VMs](concepts/vms.md) |
-| k3s cluster | <span class="status status--partial">4 of 5 nodes</span> | [k3s](concepts/k3s.md) |
-| Platform add-ons and apps | <span class="status status--planned">Planned</span> | [Roadmap](reference/roadmap.md) |
+| k3s cluster: 3 servers, 2 agents | <span class="status">Done</span> | [k3s](concepts/k3s.md) |
+| Monitoring and logs | <span class="status">Done</span> | [Monitoring](concepts/monitoring.md) |
+| Platform add-ons, Grafana, apps (workloads repo) | <span class="status status--planned">Planned</span> | [Roadmap](reference/roadmap.md) |
 
 ## I want to…
 
@@ -109,6 +111,8 @@ flowchart TB
 | reboot or service a host | [Host maintenance](operate/host-maintenance.md) |
 | fix something that's broken | [Troubleshooting](operate/troubleshooting.md) |
 | look up an IP address | [Addresses](reference/addresses.md) |
+| find metrics or logs | [Monitoring](concepts/monitoring.md#operating) |
+| find a credential | [Credentials](reference/credentials.md) |
 
 ## Conventions
 

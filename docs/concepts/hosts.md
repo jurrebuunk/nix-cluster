@@ -26,8 +26,7 @@ and Ceph nodes at once.
 - UEFI with systemd-boot (20 generations kept), a 1 GiB EFI partition and an
   ext4 root on the NVMe. No swap.
 - The whole HDD belongs to Ceph as an LVM/BlueStore OSD.
-- hv01 and hv03 expose VT-x. **hv02 doesn't yet** (BIOS setting), so it has
-  `kvmAvailable = false` and runs no VMs.
+- VT-x is enabled in the BIOS on all three (hv02 since 2026-11-23).
 
 ## How it works
 
@@ -47,6 +46,7 @@ configuration: everything comes from the repo.
 | S3 endpoint | HAProxy, Keepalived, ACME | `modules/s3-ha/` |
 | Remote access | `cloudflared` | `modules/remote-access.nix` |
 | VMs | microVM runners, TAPs, token sharing | `modules/microvm/host/` |
+| Monitoring | Exporters, vmagent, VictoriaMetrics, VictoriaLogs, Vector | `modules/monitoring/` |
 
 Each host's SSH host key is pinned in `inventory.nix`. Scripts refuse a host
 whose key doesn't match, and agenix encrypts secrets to these keys.
@@ -80,10 +80,11 @@ history still matters:
   saturated at 65535. The last logged error was at power-on hour 6858, long
   before the test (hour 14214).
 - **hv03 HDD:** reports `Runtime_Bad_Block = 1`.
-- **hv03 NVMe:** 60% of its rated endurance used.
+- **NVMe wear** (`smartctl_device_percentage_used`): hv01 47%, hv02 7%,
+  hv03 60%. hv01 and hv03 are the ones to replace first.
 
 I've accepted these used disks for a homelab. Ceph keeps three copies, but
-replication is not a backup. Watch SMART and replace failed media quickly.
+replication is not a backup. [Monitoring](monitoring.md) collects SMART for every disk; replace failed media quickly.
 
 ## Troubleshooting
 

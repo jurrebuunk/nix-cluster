@@ -12,8 +12,7 @@ A host runs a Ceph monitor and OSD, maybe the S3 VIP, a tunnel connector and
 up to two k3s VMs. Taking it down is safe only if the other two are healthy:
 
 - The [health check](index.md#health-check) passes.
-- All three k3s servers are members. While there are only two, taking down a
-  server's host stops the API ([Finish the cluster](../how-to/finish-k3s.md)).
+- All three k3s servers are Ready (`kubectl get nodes`).
 
 ## Steps
 

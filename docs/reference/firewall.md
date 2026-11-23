@@ -48,6 +48,12 @@ Source: the whole home network `192.168.2.0/24`, destination the WAN address
 | `br-stor` | TCP 9283 | Ceph manager metrics |
 | `br-stor` | TCP 443 | S3 endpoint (HAProxy) |
 | `br-stor` | VRRP | Only from the other two hosts, TTL 255 |
+| `br-stor` | TCP 9428 | VictoriaLogs ingest from the VMs |
+| `enp2s0` | TCP 8428 | VictoriaMetrics: queries, remote write from peers |
+| `enp2s0` | TCP 9428 | VictoriaLogs: queries, ingest from peers |
+| `enp2s0` | TCP/UDP 514 | Syslog from router and switch |
+| `enp2s0` | VRRP | Monitoring VIP, only from the other two hosts, TTL 255 |
+| `127.0.0.1` | 8405, 8429, 9100, 9115, 9116, 9598, 9633, 20241 | Exporters and agents, local only |
 | `br-k8s` | – | All input dropped; no routing between bridges and host |
 
 ## k3s VMs
@@ -61,7 +67,7 @@ Source: the whole home network `192.168.2.0/24`, destination the WAN address
 | `k8s` | TCP 2379–2380 | etcd | servers |
 | `k8s` | VRRP | Only from the other servers, TTL 255 | servers |
 | `cni0`, `flannel.1` | all | Pod traffic (trusted) | all |
-| `storage` | – | Nothing open | all |
+| `storage` | TCP 9100 | node_exporter, scraped by the owning host | all |
 
 ## Cloudflare Gateway
 
@@ -72,3 +78,13 @@ Source: the whole home network `192.168.2.0/24`, destination the WAN address
 | 2000 | Block `10.10.0.0/16` for everyone else |
 
 ICMP is proxied but can't be filtered by Gateway.
+
+## Devices
+
+| Device | Open for monitoring |
+| --- | --- |
+| OPNsense | `10.10.10.1:9100` node_exporter (reached by the hosts through the remote-access rule) |
+| Aruba | SNMP v2c read-only (`operator restricted`), community in `secrets/snmp-community.age` |
+
+Grafana on k3s will later need one OPNsense rule: K8S → `10.10.20.10` on TCP
+8428 and 9428.

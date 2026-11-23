@@ -27,6 +27,9 @@ kubectl get pods -A | grep -v -E 'Running|Completed'
 
 # Remote access: three tunnel connectors
 for h in 11 12 13; do ssh jurre@10.10.20.$h 'systemctl is-active "cloudflared-tunnel-*"'; done
+
+# Monitoring: failing probes and down scrape targets (both should print nothing)
+curl -s http://mon.lan.buunk.org:8428/api/v1/query --data-urlencode 'query=probe_success == 0 or up == 0' | jq -r '.data.result[].metric | "\(.job) \(.instance)"'
 ```
 
 **Healthy means:**
@@ -35,7 +38,8 @@ for h in 11 12 13; do ssh jurre@10.10.20.$h 'systemctl is-active "cloudflared-tu
 - [x] Ceph is `HEALTH_OK`, 3 monitors in quorum, `3 osds: 3 up, 3 in`;
 - [x] exactly one host owns the S3 VIP;
 - [x] all nodes `Ready`, no stuck pods;
-- [x] all tunnel services `active`.
+- [x] all tunnel services `active`;
+- [x] no failing probes or down targets in [monitoring](../concepts/monitoring.md).
 
 Anything else: [Troubleshooting](troubleshooting.md).
 

@@ -4,10 +4,11 @@ icon: lucide/circle-plus
 
 # Finish the cluster
 
-<span class="status status--planned">To do</span>
+<span class="status">Done 2026-11-23</span>
 
-The last part of step 4: enable VT-x on hv02, add the third server
-`hgd1-k8m02`, and prove a server can restart without losing the API.
+How the third server `hgd1-k8m02` was added after enabling VT-x on hv02, and
+how the failover was proven. Kept as a record and as the pattern for adding
+a server to a host that couldn't run VMs before.
 
 ## Before you start
 
@@ -70,5 +71,5 @@ The last part of step 4: enable VT-x on hv02, add the third server
 - Five Ready nodes with zone labels, three of them `control-plane,etcd`.
 - The API stayed reachable during step 5.
 
-Then update the status on [k3s](../concepts/k3s.md) and the
-[roadmap](../reference/roadmap.md).
+Result on 2026-11-23: five Ready nodes, three etcd members, and 41 of 41 API
+checks succeeded while `hgd1-k8m01` restarted; the VIP moved to `hgd1-k8m02`.

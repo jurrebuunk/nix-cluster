@@ -78,9 +78,21 @@ ssh jurre@<vm-ip> 'sudo journalctl -u k3s -b --no-pager | tail -50'
 ## API unreachable
 
 1. Which server has the VIP? `ssh jurre@10.10.40.11 'ip -br addr show k8s'`
-   (and `.13`). It shows `10.10.40.10/32` on the owner.
-2. No owner: no server's API answers. Check `k3s` on the servers.
-3. With only two servers, both must run; one down means no etcd quorum.
+   (and `.12`, `.13`). It shows `10.10.40.10/32` on the owner.
+2. No owner: no server's API answers. Check `k3s` on the servers
+   (`ssh jurre@10.10.40.12` too).
+3. etcd needs two of the three servers; with two down, the API stops.
+
+## Monitoring
+
+| You see | Likely cause and fix |
+| --- | --- |
+| `mon.lan.buunk.org` doesn't answer | No host passes the VIP check. On each host: `systemctl status victoriametrics victorialogs keepalived` |
+| A target is `down` | On a host: `curl -s 127.0.0.1:8429/api/v1/targets`; the `lastError` says why. Router: is `os-node_exporter` running? VMs: was the VM restarted after the monitoring deploy? |
+| One copy has fewer series | vmagent is still catching up from its disk buffer; give it a few minutes |
+| No logs from a VM | `ssh jurre@<vm> systemctl status vector`; it ships over the storage VLAN |
+| Router or switch logs missing | Check the syslog destination on OPNsense and `show logging` on the switch; both send to `10.10.20.10:514` |
+| A disk is missing from SMART | The NVMe ACL is set by udev at boot. Without a reboot: `sudo udevadm trigger --subsystem-match=nvme --action=add`, then restart `prometheus-smartctl-exporter` |
 
 ## Disk failed
 

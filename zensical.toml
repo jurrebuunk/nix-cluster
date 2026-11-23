@@ -27,6 +27,7 @@ nav = [
     "concepts/s3.md",
     "concepts/vms.md",
     "concepts/k3s.md",
+    "concepts/monitoring.md",
   ] },
   { "How-to" = [
     "how-to/index.md",
@@ -61,6 +62,7 @@ nav = [
     "reference/firewall.md",
     "reference/inventory.md",
     "reference/files.md",
+    "reference/credentials.md",
     "reference/scripts.md",
     "reference/glossary.md",
     "reference/roadmap.md",

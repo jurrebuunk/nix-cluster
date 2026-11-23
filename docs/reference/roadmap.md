@@ -23,17 +23,15 @@ was only marked done after that check passed on the live system.
 | 2 | Ceph on the hosts | <span class="status">Done</span> Done 2026-11-23 |
 | 2.1 | Highly available S3 endpoint with trusted HTTPS | <span class="status">Done</span> Done 2026-11-23 |
 | 3 | VM platform (microvm.nix) | <span class="status">Done</span> Done 2026-11-22 |
-| 4 | k3s nodes: 3 servers, 2 agents | <span class="status status--partial">Partial</span> 4 of 5 nodes; `hgd1-k8m02` waits for VT-x on hv02 |
+| 4 | k3s nodes: 3 servers, 2 agents | <span class="status">Done</span> 2026-11-23 |
 | 5 | Operations docs, each procedure run once | <span class="status status--partial">Partial</span> these docs |
-| 6 | Platform add-ons on k3s (workloads repo) | <span class="status status--planned">Planned</span> |
-| 7 | Monitoring and logs | <span class="status status--planned">Planned</span> |
-| 8 | Apps, Cloudreve first | <span class="status status--planned">Planned</span> |
+| 6 | Platform add-ons on k3s | Workloads repo: <span class="status status--planned">Planned</span> |
+| 7 | Monitoring and logs for the infrastructure | <span class="status">Done</span> 2026-11-23; k3s monitoring and Grafana follow in the workloads repo |
+| 8 | Apps, Cloudreve first | Workloads repo: <span class="status status--planned">Planned</span> |
 | 9 | My own backend for monitoring and small actions | <span class="status status--planned">Later</span> |
 
 Outside the repo, still to do:
 
-- [ ] Enable VT-x in hv02's BIOS, then finish step 4
-      ([how](../how-to/finish-k3s.md)).
 - [ ] Reserve WAN address `192.168.2.12` on the home router for OPNsense's
       onboard MAC `90:1b:0e:fa:70:dd`.
 - [ ] Update the Aruba firmware (still `YA.16.02.0012`).
@@ -65,11 +63,16 @@ seconds, and an interrupted 12 MiB upload completed after a retry. See
 and a host deploy did not restart it. A VM could not reach host management
 through either guest bridge.
 
-**k3s (4, so far).** Pods on all four nodes reach each other, cluster DNS, the
-internet, the Ceph monitors and the S3 endpoint. `kubectl` works from the
-laptop over WARP. A rolling restart of an agent worked, and a VM mapped and
-wrote a real Ceph RBD image with the kernel client. See
-[k3s](../concepts/k3s.md).
+**k3s (4).** Five Ready nodes with zone labels and three etcd members. Pods on
+every node reach each other, cluster DNS, the internet, the Ceph monitors and
+the S3 endpoint. `kubectl` works over WARP. Restarting the server that held
+the API VIP kept the API up (41 of 41 checks), and a VM mapped and wrote a real
+Ceph RBD image. See [k3s](../concepts/k3s.md).
+
+**Monitoring (7).** All 77 scrape targets up across three hosts, identical
+copies on every host (also after a store was down), logs from all hosts, VMs,
+router and switch, and the query VIP moved when its store stopped. See
+[Monitoring](../concepts/monitoring.md).
 
 ## Planned
 
@@ -77,29 +80,23 @@ wrote a real Ceph RBD image with the kernel client. See
 gets run once by following the docs: add a VM, move a VM, roll out VMs, and
 host maintenance.
 
-**Step 6: platform add-ons** (workloads repo).
-
-- ceph-csi RBD with a `ceph-bulk` StorageClass; CephFS only when needed.
-- `local-path` only for databases that replicate themselves.
-- Ingress and cert-manager, with load balancer IPs on VLAN 40 `.200–.249`.
-- CloudNativePG plus one reusable Postgres template: three instances, spread
-  over zones, backups to Ceph S3.
-- Done when a test PVC binds on `ceph-bulk` and a test Postgres cluster
-  fails over when a server VM stops.
-
-**Step 7: monitoring and logs.** VictoriaMetrics and VictoriaLogs (ported from
-my old `k3s-infra` repo), stored on Ceph, scraping host `node_exporter` and the
-Ceph manager's Prometheus endpoint. Done when host, Ceph, VM and pod health
-are visible in one place.
-
-**Step 8: apps.** Cloudreve first: stateless deployment, Postgres from the
-template, files in its own S3 bucket, Redis as a cache. Done when uploads land
-in Ceph and the database survives a server VM restart.
+**Steps 6 and 8** (platform add-ons, Grafana, k3s monitoring and apps) live
+in the separate workloads repo and its own docs. This platform gives them a
+kubeconfig, the [S3 endpoint](../concepts/s3.md), Ceph and the
+[monitoring](../concepts/monitoring.md) data sources.
 
 **Step 9: my own backend.** A small service on the hosts (`services.clusterd`)
 that reads the VM list from the inventory and combines systemd, Kubernetes and
 Ceph status. It can restart a VM, drain and uncordon nodes and put a host in
 maintenance, from a web UI or a laptop CLI. It never defines VMs; Nix does.
+
+## Future
+
+- **Alerting:** vmalert and a clustered Alertmanager with rules for hosts,
+  Ceph and SMART.
+- **Heartbeat:** an always-firing alert to an external service, so silent
+  monitoring gets noticed.
+- **Secrets manager (KMS)** for workloads; see [Credentials](credentials.md#future-a-kms).
 
 ## Open decisions
 

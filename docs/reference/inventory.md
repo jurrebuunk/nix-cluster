@@ -19,6 +19,7 @@ secret. Modules and scripts read it; `nix flake check` validates it.
 | `hosts` | One entry per hypervisor (below) |
 | `vms` | One entry per VM (below) |
 | `k3s` | Cluster settings (below) |
+| `monitoring` | Monitoring settings (below) |
 | `remoteAccess` | `tunnelId` (null turns the module off) and `routes` |
 | `adminKeys` | SSH public keys for login and agenix (my laptop) |
 
@@ -66,6 +67,16 @@ secret. Modules and scripts read it; `nix flake check` validates it.
 | `virtualRouterId` | VRRP ID (40) |
 | `bootstrapServer` | The server that runs `--cluster-init`; `null` once all servers joined |
 
+## monitoring
+
+| Field | Meaning |
+| --- | --- |
+| `hostname`, `virtualIP` | `mon.lan.buunk.org`, `10.10.20.10` |
+| `virtualRouterId` | VRRP ID (20) |
+| `retention.metrics`, `retention.logs` | `1y`, `90d` |
+| `router`, `switch` | `name` and `ip`; scraped by every host, mapped to names in logs |
+| `pingTargets` | Extra machines to ping, e.g. `hgd1-gpu1` |
+
 ## Checks
 
 `modules/microvm/host/validation.nix` and `modules/s3-ha/default.nix` refuse,
@@ -76,4 +87,5 @@ among other things:
 - more than 11 GiB of VM memory on one host;
 - a k3s VIP that's in use or outside VLAN 40;
 - a `bootstrapServer` that isn't a server VM;
-- an S3 VIP that collides with a host or VM storage address.
+- an S3 VIP that collides with a host or VM storage address;
+- a monitoring VIP that's in use or outside the infra VLAN.

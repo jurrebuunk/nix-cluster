@@ -24,6 +24,7 @@ Every file in the repo and what it configures. Links open the file on GitHub.
 | [`modules/ceph.nix`](https://github.com/jurrebuunk/nix-hgd1-cluster/blob/main/modules/ceph.nix) | Ceph daemons and firewall |
 | [`modules/s3-ha/`](https://github.com/jurrebuunk/nix-hgd1-cluster/tree/main/modules/s3-ha) | S3 endpoint: `tls.nix`, `proxy.nix`, `failover.nix`, `firewall.nix` |
 | [`modules/remote-access.nix`](https://github.com/jurrebuunk/nix-hgd1-cluster/blob/main/modules/remote-access.nix) | `cloudflared` tunnel |
+| [`modules/monitoring/`](https://github.com/jurrebuunk/nix-hgd1-cluster/tree/main/modules/monitoring) | Monitoring: `storage.nix`, `collection.nix`, `logs.nix`, `vip.nix`, `firewall.nix` |
 | [`modules/rollout-safety.nix`](https://github.com/jurrebuunk/nix-hgd1-cluster/blob/main/modules/rollout-safety.nix) | Opt-in self-reverting guard for risky network changes |
 
 ## VMs
@@ -31,10 +32,11 @@ Every file in the repo and what it configures. Links open the file on GitHub.
 | File | Configures |
 | --- | --- |
 | [`modules/microvm/host/`](https://github.com/jurrebuunk/nix-hgd1-cluster/tree/main/modules/microvm/host) | Runners (`default.nix`), checks (`validation.nix`), TAPs and isolation (`networking.nix`), tokens (`k3s-secrets.nix`) |
-| [`modules/microvm/guest/`](https://github.com/jurrebuunk/nix-hgd1-cluster/tree/main/modules/microvm/guest) | Resources and disks (`default.nix`), NICs (`networking.nix`), SSH (`access.nix`) |
+| [`modules/microvm/guest/`](https://github.com/jurrebuunk/nix-hgd1-cluster/tree/main/modules/microvm/guest) | Resources and disks (`default.nix`), NICs (`networking.nix`), SSH (`access.nix`), monitoring (`monitoring.nix`) |
 | [`modules/microvm/guest/k3s/`](https://github.com/jurrebuunk/nix-hgd1-cluster/tree/main/modules/microvm/guest/k3s) | k3s (`default.nix`), API VIP (`api-vip.nix`), ports (`firewall.nix`), Ceph facts (`ceph.nix`) |
 | [`lib/vm-network.nix`](https://github.com/jurrebuunk/nix-hgd1-cluster/blob/main/lib/vm-network.nix) | MACs and TAP names from a VM id |
 | [`lib/k3s.nix`](https://github.com/jurrebuunk/nix-hgd1-cluster/blob/main/lib/k3s.nix) | Join URL and token paths |
+| [`lib/logs.nix`](https://github.com/jurrebuunk/nix-hgd1-cluster/blob/main/lib/logs.nix) | Vector field cleanup and buffered sinks |
 
 ## Secrets
 
@@ -45,6 +47,9 @@ Every file in the repo and what it configures. Links open the file on GitHub.
 | `secrets/s3-acme-cloudflare.age` | Cloudflare DNS token | `/run/agenix/s3-acme-cloudflare` |
 | `secrets/k3s-server-token.age` | k3s server token | `/run/k3s-secrets/server/server-token` |
 | `secrets/k3s-agent-token.age` | k3s agent token | `/run/k3s-secrets/{server,agent}/agent-token` |
+| `secrets/snmp-community.age` | snmp_exporter auth file | `/run/agenix/snmp-community` |
+
+Where everything else lives: [Credentials](credentials.md).
 
 ## Scripts and docs
 

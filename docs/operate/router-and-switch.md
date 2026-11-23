@@ -58,10 +58,21 @@ Ceph to report slow or blocked requests until it's back.
 
 Firmware is still `YA.16.02.0012`; an update is on the to-do list.
 
+## Monitoring
+
+Both devices are part of [monitoring](../concepts/monitoring.md):
+
+- **OPNsense:** plugin `os-node_exporter`, listening on `10.10.10.1:9100`
+  (Services → Node Exporter), and a remote syslog destination to
+  `10.10.20.10:514` UDP (System → Settings → Logging → Remote).
+- **Aruba:** `snmp-server community "<community>" operator restricted` (read-only;
+  the value is in `secrets/snmp-community.age`) and `logging 10.10.20.10` with
+  `logging severity info`.
+
 ## Change DNS
 
 Host overrides live in Services → Unbound DNS → Overrides. Keep them in line
-with `inventory.nix`. TTL 60 for floating addresses (`s3`, `k8s`).
+with `inventory.nix`. TTL 60 for floating addresses (`s3`, `k8s`, `mon`).
 
 ## Related
 

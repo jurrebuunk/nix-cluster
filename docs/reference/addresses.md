@@ -45,10 +45,12 @@ Kept free: `10.42.0.0/16` (k3s pods) and `10.43.0.0/16` (k3s services).
 | --- | --- | --- |
 | `s3.lan.buunk.org` | `10.10.30.10:443` | Keepalived on the hosts (VRRP id 30) |
 | `k8s.lan.buunk.org` | `10.10.40.10:6443` | Keepalived on the k3s servers (VRRP id 40) |
+| `mon.lan.buunk.org` | `10.10.20.10`: metrics `:8428`, logs `:9428`, syslog `:514` | Keepalived on the hosts (VRRP id 20) |
 | Kubernetes load balancers | `10.10.40.200–249` | Reserved for step 6 |
 | Ceph monitors | `10.10.30.11–13`, ports 3300 (v2) and 6789 (v1) | Ceph |
 | RGW (direct, diagnostics) | `10.10.30.11–13:7480` | Ceph |
 | Ceph manager metrics | `<storage-ip>:9283` | Active manager |
+| Router metrics | `10.10.10.1:9100` | OPNsense `os-node_exporter` |
 
 ## MAC addresses
 

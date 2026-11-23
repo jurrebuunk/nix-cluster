@@ -11,8 +11,6 @@ after a deploy (deploys never restart VMs) and for any planned VM restart.
 
 - A [kubeconfig](../get-started/access.md#get-a-kubeconfig).
 - Every enabled VM is a Ready node: `kubectl get nodes`.
-- While the cluster has only two servers, **don't restart a server**; see
-  [Finish the cluster](finish-k3s.md).
 
 ## Steps
 

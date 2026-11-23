@@ -57,6 +57,8 @@ flowchart TB
     s3[HAProxy + Keepalived<br/>S3 VIP 10.10.30.10]
     vm1[microVM: k3s server]
     vm2[microVM: k3s agent]
+    mon[Monitoring<br/>VictoriaMetrics + VictoriaLogs]
+    os --- mon
     os --- ceph
     os --- s3
     os --- vm1
@@ -81,7 +83,9 @@ flowchart TB
    the hosts. Their disks live on the host NVMe. See [VMs](vms.md).
 6. **k3s.** Three servers (one per host, embedded etcd) and two agents. See
    [k3s](k3s.md).
-7. **Workloads.** Everything that runs on Kubernetes lives in a separate
+7. **Monitoring.** Metrics and logs for everything above, stored on every
+   host and queried through `mon.lan.buunk.org`. See [Monitoring](monitoring.md).
+8. **Workloads.** Everything that runs on Kubernetes lives in a separate
    repo that only needs a kubeconfig. See [Build on top](../how-to/build-an-app.md).
 
 ## Decisions
@@ -167,5 +171,6 @@ Possible later roles: `st` (storage), `db`, `lb` and `bk` (backup).
 - :lucide-archive: [**S3 endpoint**](s3.md): one HTTPS address for object storage
 - :lucide-box: [**VMs**](vms.md): microVMs defined in Nix
 - :lucide-ship-wheel: [**k3s**](k3s.md): the Kubernetes cluster
+- :lucide-activity: [**Monitoring**](monitoring.md): metrics and logs for everything above
 
 </div>

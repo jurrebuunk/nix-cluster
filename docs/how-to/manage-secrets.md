@@ -7,7 +7,7 @@ icon: lucide/key-round
 Secrets are [agenix](https://github.com/ryantm/agenix) files in `secrets/`,
 encrypted to my laptop's SSH key and the three hosts' SSH host keys. Hosts
 decrypt them at activation, readable by root only unless a module says
-otherwise. The list of secrets is in [Files](../reference/files.md#secrets).
+otherwise. Where every credential lives: [Credentials](../reference/credentials.md).
 
 ## Before you start
 

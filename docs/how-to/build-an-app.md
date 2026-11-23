@@ -146,6 +146,19 @@ app).
 - [ ] Tested: stop one VM with `scripts/k3s-roll.sh <vm>` and check the app
       keeps working.
 
+## Monitoring
+
+Grafana and k3s monitoring live in the workloads repo. Point Grafana at the
+infrastructure data:
+
+| Data source | URL |
+| --- | --- |
+| Prometheus (VictoriaMetrics) | `http://mon.lan.buunk.org:8428` |
+| VictoriaLogs (plugin) | `http://mon.lan.buunk.org:9428` |
+
+From k3s that needs one OPNsense rule: K8S → `10.10.20.10` on TCP 8428 and
+9428. See [Monitoring](../concepts/monitoring.md).
+
 ## Platform changes
 
 If your project needs something from the platform (another VM, more memory,

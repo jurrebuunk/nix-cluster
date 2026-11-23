@@ -20,3 +20,5 @@
 *[NAT]: Network address translation
 *[LACP]: Link Aggregation Control Protocol: bundles several cables into one link
 *[SNI]: Server Name Indication: the hostname a TLS client asks for
+*[SNMP]: Simple Network Management Protocol: reads metrics from network devices
+*[vmagent]: Scrapes exporters and writes metrics to all three VictoriaMetrics

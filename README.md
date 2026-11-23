@@ -16,7 +16,8 @@ to build on top of the platform and how to maintain it. The source is in
 | --- | --- |
 | Hosts | `hgd1-hv01..03` at `10.10.20.11–13`, NixOS 26.05 |
 | Storage | Ceph 20, three replicas; S3 at `https://s3.lan.buunk.org` |
-| Kubernetes | k3s, API `https://k8s.lan.buunk.org:6443` |
+| Kubernetes | k3s, 3 servers + 2 agents, API `https://k8s.lan.buunk.org:6443` |
+| Monitoring | VictoriaMetrics + VictoriaLogs at `mon.lan.buunk.org` (`:8428`, `:9428`) |
 | Source of truth | [`inventory.nix`](inventory.nix) |
 | Deploy | `scripts/deploy.sh <host> switch`, one host at a time |
 | Access | Cloudflare WARP, then `ssh jurre@10.10.20.11` |

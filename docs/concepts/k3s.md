@@ -10,23 +10,17 @@ builds the cluster; what runs on it lives in a separate workloads repo.
 
 !!! info "At a glance"
 
-    **Status** <span class="status status--partial">4 of 5 nodes</span> ·
+    **Status** <span class="status">Done</span> ·
     **API** `https://k8s.lan.buunk.org:6443` (VIP `10.10.40.10`) ·
     **Configured in** `modules/microvm/guest/k3s/`, `inventory.nix` → `k3s`
     · **Access** `scripts/kubeconfig.sh`
-
-!!! warning "Two etcd members until hv02 has VT-x"
-
-    `hgd1-k8m02` can't run yet. Until it joins, stopping either server stops
-    the API. Don't restart `hgd1-k8m01` or `hgd1-k8m03`; see
-    [Finish the cluster](../how-to/finish-k3s.md).
 
 ## Overview
 
 | Node | Zone (host) | Role |
 | --- | --- | --- |
 | `hgd1-k8m01` | hgd1-hv01 | server; created the cluster |
-| `hgd1-k8m02` | hgd1-hv02 | server (pending) |
+| `hgd1-k8m02` | hgd1-hv02 | server |
 | `hgd1-k8m03` | hgd1-hv03 | server |
 | `hgd1-k8w01` | hgd1-hv01 | agent |
 | `hgd1-k8w02` | hgd1-hv03 | agent |
@@ -56,8 +50,9 @@ sequenceDiagram
 ```
 
 `inventory.k3s.bootstrapServer` gets `--cluster-init`; every other node joins
-`https://10.10.40.10:6443`. Once all three servers are members it's set to
-`null`, so a rebuilt `k8m01` rejoins instead of starting an empty cluster.
+`https://10.10.40.10:6443`. With all three servers in, it is `null`, so every
+server (also a rebuilt `k8m01`) joins through the VIP instead of starting an
+empty cluster. Set it back to one server only to create a brand new cluster.
 
 ### API VIP
 
@@ -115,7 +110,15 @@ scripts/k3s-roll.sh                 # restart VMs one at a time, safely
 
 - [Restart k3s nodes](../how-to/restart-k3s-nodes.md)
 - [Manage VMs](../how-to/manage-vms.md): adding or moving nodes
-- [Finish the cluster](../how-to/finish-k3s.md)
+- [Finish the cluster](../how-to/finish-k3s.md): how the third server was added
+
+## Tested
+
+- Five Ready nodes with zone labels; three etcd members.
+- Restarting `hgd1-k8m01` while it held the API VIP: 41 of 41 API checks
+  succeeded and the VIP moved to `hgd1-k8m02`.
+- Pods on every node reach each other, cluster DNS, the internet, the Ceph
+  monitors and the S3 endpoint; a VM mapped a Ceph RBD image.
 
 ## Troubleshooting
 

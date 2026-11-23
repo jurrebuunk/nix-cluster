@@ -20,7 +20,7 @@ only because the inventory says so.
 | VM | Host | Role | k8s IP | Storage IP | vCPU / RAM / disk |
 | --- | --- | --- | --- | --- | --- |
 | `hgd1-k8m01` | hv01 | server | `10.10.40.11` | `10.10.30.21` | 2 / 4 GiB / 60 GiB |
-| `hgd1-k8m02` | hv02 | server | `10.10.40.12` | `10.10.30.22` | 2 / 4 GiB / 60 GiB, disabled until VT-x |
+| `hgd1-k8m02` | hv02 | server | `10.10.40.12` | `10.10.30.22` | 2 / 4 GiB / 60 GiB |
 | `hgd1-k8m03` | hv03 | server | `10.10.40.13` | `10.10.30.23` | 2 / 4 GiB / 60 GiB |
 | `hgd1-k8w01` | hv01 | agent | `10.10.40.21` | `10.10.30.31` | 4 / 4 GiB / 60 GiB |
 | `hgd1-k8w02` | hv03 | agent | `10.10.40.22` | `10.10.30.32` | 4 / 4 GiB / 60 GiB |
@@ -63,7 +63,8 @@ flowchart LR
 
 - `k8s` NIC on `br-k8s`: default route, DNS and NTP through `10.10.40.1`,
   SSH allowed here only.
-- `storage` NIC on `br-stor`: no gateway, used for Ceph and S3.
+- `storage` NIC on `br-stor`: no gateway, used for Ceph, S3 and monitoring
+  (node_exporter on 9100 for the host, logs to every host's VictoriaLogs).
 - NIC names are matched by MAC. MACs and TAP names derive from the VM's `id`
   (`id = 11` → `tap11-k8s`, `02:00:00:40:00:0b`). Never change an id.
 
@@ -103,6 +104,7 @@ in the inventory, instead of trusting whatever answers on the network.
 | `modules/microvm/guest/default.nix` | QEMU resources, shares, the `/var/lib` volume |
 | `modules/microvm/guest/networking.nix` | NIC names, addresses, routes, DNS |
 | `modules/microvm/guest/access.nix` | Users, SSH, host key report |
+| `modules/microvm/guest/monitoring.nix` | node_exporter and Vector |
 
 The inventory checks refuse more than 11 GiB of VM memory per host and
 guests on a host without KVM.
