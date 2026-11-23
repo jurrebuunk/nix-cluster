@@ -122,9 +122,16 @@ the caller gives no `limit`. The caller's token is never passed on.
 
 ### Actions
 
-Actions are added one by one as they're needed; each wraps an existing, safe
-procedure. The first is the **VM restart**: the same sequence as
-`scripts/k3s-roll.sh`.
+Actions are added one by one as they're needed; each wraps a safe
+procedure that used to be a script or SSH session:
+
+| Action | Scope | Replaces |
+| --- | --- | --- |
+| VM restart, stop, start (`labctl vm …`, `vm roll`) | operator | `scripts/vm.sh`, `scripts/k3s-roll.sh` |
+| Node cordon, uncordon | operator | `kubectl cordon/uncordon` |
+| Host maintenance and resume | manage | drains, `ceph osd set noout`, reboot and uncordon by hand |
+
+The VM restart shows how they work:
 
 ```mermaid
 sequenceDiagram
@@ -171,9 +178,10 @@ sequenceDiagram
 | --- | --- |
 | Run as | System user `clusterd`; only `CAP_NET_BIND_SERVICE`, read-only file system, no new privileges |
 | VM state | `systemctl list-units`, read-only and unprivileged |
-| Restart VMs | A polkit rule (from `services.clusterd.manageUnitPrefixes`) lets the `clusterd` user `restart`, `start` and `stop` only `microvm@*.service`; nothing else |
+| Restart, stop, start VMs | A polkit rule (from `services.clusterd.manageUnitPrefixes`) lets the `clusterd` user `restart`, `start` and `stop` only `microvm@*.service`; nothing else |
+| Reboot its own host | Only for host maintenance with `--reboot` (scope `manage`): a polkit rule (`services.clusterd.allowReboot`) allows the `clusterd` user logind's reboot actions, not power-off |
 | Kubernetes | ServiceAccount `clusterd/clusterd`: read nodes and pods, patch nodes (cordon), create evictions, and manage Leases in its own namespace only. Declared in `modules/microvm/guest/k3s/clusterd.nix`; kubeconfig in `secrets/clusterd-kubeconfig.age` |
-| Ceph status and OSD usage | Client key `client.clusterd` with `mon 'allow r'` and `mgr 'allow r'` (for `osd df`), in `secrets/clusterd-ceph-keyring.age` |
+| Ceph status, OSD usage, maintenance flag | Client key `client.clusterd`: `mon 'allow r'` plus only the commands `osd set-group` and `osd unset-group` (per-host `noout`), and `mgr 'allow r'` (for `osd df`); in `secrets/clusterd-ceph-keyring.age` |
 | S3 buckets and users | RGW user `clusterd`: caps `buckets`, `users`, `usage`, `metadata` all `read`, no buckets of its own; keys in `secrets/clusterd-s3-admin.age`. It talks to each host's RGW on the storage VLAN (`:7480`) |
 | Metrics and logs | Plain HTTP to the local stores on `127.0.0.1`, peers on the infra VLAN |
 

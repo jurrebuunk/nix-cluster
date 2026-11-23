@@ -28,7 +28,7 @@ walks through it in the order you will need it.
 | `modules/microvm/host/` | Running VMs on a host: lifecycle, inventory checks, TAP networking, k3s token sharing |
 | `modules/microvm/guest/` | Inside a VM: resources, disks, networking, SSH, and `k3s/` |
 | `lib/` | Pure helpers shared by host and guest modules (`vm-network.nix`, `k3s.nix`) |
-| `scripts/` | `deploy.sh`, `vm.sh`, `k3s-roll.sh`, `kubeconfig.sh`, `ceph-bootstrap.sh` |
+| `scripts/` | `deploy.sh`, `kubeconfig.sh`, `ceph-bootstrap.sh` |
 | `secrets/` | agenix recipients (`secrets.nix`) and encrypted `*.age` files |
 | `docs/`, `zensical.toml`, `includes/` | This documentation site |
 

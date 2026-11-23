@@ -43,7 +43,7 @@ labctl logs --since 1h 'unit:"ceph-mon"*'   # what the monitors said
 
 | Message | Meaning and fix |
 | --- | --- |
-| `noout flag(s) set` | Maintenance flag left on: `ssh jurre@10.10.20.11 'sudo ceph osd unset noout'` |
+| `noout flag(s) set` | A host is still in maintenance (`labctl status host` shows `Maintenance`): `labctl host resume <host>`. A global flag set by hand: `ssh jurre@10.10.20.11 'sudo ceph osd unset noout'` |
 | `osds down`, `Degraded data redundancy` | A host or disk is out; data is on two copies until it returns |
 | `mon … down, quorum …` | One monitor is gone; fine while two are in quorum |
 | `clock skew detected` | `labctl metrics query 'node_timex_offset_seconds'` shows the offset per host and VM; then `chronyc sources` on that host |
@@ -83,7 +83,7 @@ labctl vm restart <vm>                            # often the fix; safe and refu
 | `Node password rejected` | `/etc/rancher/node` must link to `/var/lib/rancher/node`. If the node was really rebuilt, `kubectl delete node <node>` and let it register again |
 | Token or auth errors | The host must have the tokens: `ssh jurre@<host> 'sudo ls -l /run/k3s-secrets/*'` (secrets need a shell) |
 | VM not running, host has no `/dev/kvm` | VT-x is off in the BIOS |
-| Left `SchedulingDisabled` by a restart | It didn't come back in time and was left cordoned on purpose. Fix the cause, then `kubectl uncordon <node>` |
+| Left `SchedulingDisabled` by a restart | It didn't come back in time and was left cordoned on purpose. Fix the cause, then `labctl node uncordon <node>` |
 
 ## API unreachable
 
@@ -114,10 +114,10 @@ labctl vm restart <vm>                            # often the fix; safe and refu
 | `labctl` exits with code 3 | API unreachable: check WARP, then `curl -s https://api.lan.buunk.org/v1/health` |
 | `/v1/health` fails | No host passes the VIP check: `systemctl status clusterd keepalived` on each host (this one needs SSH: the API is what's broken) |
 | 401 / exit code 4 | Token unknown or revoked; `labctl whoami`, or create a new one ([Tokens](../how-to/use-the-cli.md#tokens)) |
-| 403 on an action | The token has scope `read`; actions need at least `operator` |
+| 403 on an action | The token's scope is too low: VM and node actions need `operator`, host maintenance `manage` |
 | 409 on an action | Another action runs (the message names it). Wait, or if its clusterd crashed, the lock frees itself within two minutes |
 | 412 on a VM restart | It would be unsafe now; the message says why (a node not Ready, etcd quorum, a pod without a controller). Fix that first |
-| A restart ended with the node `SchedulingDisabled` | The VM didn't come back Ready in 10 minutes; it was left cordoned on purpose. Check `labctl logs --unit microvm@<vm> --since 30m`, then `kubectl uncordon` |
+| A restart ended with the node `SchedulingDisabled` | The VM didn't come back Ready in 10 minutes; it was left cordoned on purpose. Check `labctl logs --unit microvm@<vm> --since 30m`, then `labctl node uncordon <node>`; then `kubectl uncordon` |
 | `warning: disks: ceph osds: … EACCES` | The Ceph key lacks `mgr 'allow r'`: `ceph auth caps client.clusterd mon 'allow r' mgr 'allow r'` (it prints the key: send the output to `/dev/null`) |
 | `warning: s3: buckets: … 403` | The RGW user `clusterd` is missing its caps, or `secrets/clusterd-s3-admin.age` doesn't match it: `radosgw-admin user info --uid=clusterd` |
 | VM restart fails with `Interactive authentication required` | The polkit rule is missing: is `services.clusterd.manageUnitPrefixes` set, and `/etc/polkit-1/rules.d/10-nixos.rules` present? |

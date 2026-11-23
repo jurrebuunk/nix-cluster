@@ -45,6 +45,8 @@ in
     ceph.keyringFile = config.age.secrets.clusterd-ceph-keyring.path;
     # VM restarts: polkit lets the clusterd user restart/start/stop only these.
     manageUnitPrefixes = [ "microvm@" ];
+    # Host maintenance with --reboot (scope manage): polkit lets clusterd reboot.
+    allowReboot = true;
     # Bucket usage through the RGW admin API (read-only user `clusterd`).
     s3.credentialsFile = config.age.secrets.clusterd-s3-admin.path;
     settings = {

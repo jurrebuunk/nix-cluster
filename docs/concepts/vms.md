@@ -117,15 +117,15 @@ labctl status disk                                # their /var/lib filesystems, 
 labctl logs --unit microvm@hgd1-k8m01 --since 1h  # the VM's console, from its host
 labctl logs --host hgd1-k8m01 --since 1h          # inside the VM
 labctl vm restart hgd1-k8m01                      # drain, restart, Ready, uncordon
+labctl vm stop hgd1-k8m01                         # drain, stop; the node stays cordoned
+labctl vm start hgd1-k8m01                        # start, Ready, uncordon
+labctl vm roll                                    # restart all, agents first
 ```
 
-`scripts/vm.sh <vm> start|stop` and `ssh jurre@10.10.40.11` remain for what
-the API doesn't do: stopping a VM for good, and a shell inside it.
-
-!!! warning "vm.sh doesn't know about Kubernetes"
-
-    It restarts without draining or checking quorum. For k3s nodes use
-    [Restart k3s nodes](../how-to/restart-k3s-nodes.md).
+Every one of these drains first and refuses when it would cost etcd quorum. A
+stopped VM starts again when its host boots: to keep it off for good, set
+`enabled = false` in the inventory. A shell inside a VM is still
+`ssh jurre@10.10.40.11`.
 
 ## Troubleshooting
 

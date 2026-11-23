@@ -10,32 +10,27 @@ after a deploy (deploys never restart VMs) and for any planned VM restart.
 ## Before you start
 
 - Every enabled VM is a Ready node: `labctl status node`.
-- For `scripts/k3s-roll.sh`: a [kubeconfig](../get-started/access.md#get-a-kubeconfig).
-  `labctl` needs only an `operator` token.
+- An API token with at least `operator` scope; no kubeconfig needed.
 
 ## Steps
 
 ```sh
-scripts/k3s-roll.sh                 # every enabled VM, agents first
-scripts/k3s-roll.sh hgd1-k8w01      # or just one
+labctl vm roll                      # every enabled VM, agents first, one at a time
+labctl vm restart hgd1-k8w01        # or just one
 ```
 
-For each VM the script:
+For each VM, clusterd on the VM's host:
 
-1. Refuses to continue unless every enabled VM is a Ready node.
-2. Drains it (`--ignore-daemonsets --delete-emptydir-data`, 5 minutes).
-3. Restarts the VM through `vm.sh`.
-4. Waits up to 10 minutes for a **new boot** of that node to be Ready.
-5. Uncordons it and checks the API.
+1. Refuses unless every *other* node is Ready, etcd keeps quorum and no pod
+   without a controller would be lost (`412`, nothing changed).
+2. Takes the cluster-wide lock, so nothing else restarts at the same time.
+3. Cordons and drains it (respecting disruption budgets, 5 minutes).
+4. Restarts `microvm@<vm>`.
+5. Waits up to 10 minutes for a **new boot** of that node to be Ready.
+6. Uncordons it and checks the Kubernetes API.
 
-The CLI runs the same sequence through the [Platform API](../concepts/api.md),
-without a kubeconfig, and refuses while another restart runs:
-
-```sh
-labctl vm restart hgd1-k8w01
-# or all of them, agents first:
-for vm in hgd1-k8w01 hgd1-k8w02 hgd1-k8m01 hgd1-k8m02 hgd1-k8m03; do labctl vm restart $vm --yes || break; done
-```
+`vm roll` asks once, then restarts the VMs in turn and stops at the first
+failure. It refuses when it can't see which nodes are servers.
 
 ## Check it worked
 
@@ -51,4 +46,4 @@ All nodes are `Ready` and none shows `SchedulingDisabled`.
   purpose. Delete or fix them, then run it again.
 - **Node didn't come back:** it stays cordoned. Look at
   [Troubleshooting → k3s node](../operate/troubleshooting.md#k3s-node-not-ready),
-  fix it, then `kubectl uncordon <node>`.
+  fix it, then `labctl node uncordon <node>`.

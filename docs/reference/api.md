@@ -44,6 +44,7 @@ Endpoints of the [Platform API](../concepts/api.md) at
 | GET | `/v1/status/ceph` | read | Health, checks, OSDs up/in, PGs, raw capacity; at most ~10 s old (`as_of`) |
 | GET | `/v1/status/vips` | read | `{"vips": […]}`: which host holds each floating address |
 | GET | `/v1/status/disks` | read | `disks` (size, used, role, wear, temperature, SMART), `filesystems` (hosts and VMs), `osds` |
+| GET | `/v1/checks` | read | `{"status", "checks": [{"name", "status", "message"}]}`: `ok`, `warn` or `fail` per area; `status` is the worst |
 | GET | `/v1/status/s3` | read | Endpoint, gateways, users, `buckets` (objects, size, quota), totals, data `pool` room, `cert_expires` |
 
 A part that can't be read is reported inside the answer (`error` or
@@ -96,6 +97,16 @@ Each action wraps an existing safe procedure. Other paths under
 | Method | Path | Scope | Does |
 | --- | --- | --- | --- |
 | POST | `/v1/actions/vms/{name}/restart` | operator | Cordon, drain, restart `microvm@{name}`, wait for a new boot to be Ready, uncordon, check the k3s API |
+| POST | `/v1/actions/vms/{name}/stop` | operator | Cordon, drain, stop `microvm@{name}`; the node stays cordoned |
+| POST | `/v1/actions/vms/{name}/start` | operator | Start it (`412` when it runs), wait Ready, uncordon |
+| POST | `/v1/actions/nodes/{name}/cordon` | operator | Mark the node unschedulable; answers one `{"status":"done"}` object |
+| POST | `/v1/actions/nodes/{name}/uncordon` | operator | Mark it schedulable again |
+| POST | `/v1/actions/hosts/{name}/maintenance` | manage | Checks (no other host in maintenance, nodes elsewhere Ready, etcd quorum, `ceph osd ok-to-stop`), drain and stop its VMs, per-host `noout`. `reboot=1` reboots it after the last line |
+| POST | `/v1/actions/hosts/{name}/resume` | manage | Start its VMs, wait Ready, uncordon, unset `noout`, wait for clean PGs |
+
+VM actions run on the VM's host, host actions on that host; another
+instance forwards the request with your token. Host plans list `vms` (in the
+order they're handled) and `osds` instead of `evict`.
 
 | Query | Effect |
 | --- | --- |

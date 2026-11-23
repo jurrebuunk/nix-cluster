@@ -50,8 +50,7 @@ verify, next host. Deploys are manual and deliberately one host at a time.
 5. **Verify** with a **new** SSH connection:
 
     ```sh
-    labctl status                                                        # no warnings
-    labctl metrics query 'node_systemd_unit_state{state="failed"} == 1'  # (no data)
+    labctl health        # all ok (exit code 0)
     ```
 
     Also test the service you changed and read its logs.

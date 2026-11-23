@@ -86,7 +86,7 @@ then read the
 | [`hosts/`](hosts/) | Shared host settings and per-host hardware |
 | [`modules/`](modules/) | Network, Ceph, S3 endpoint, remote access, microVMs, k3s, monitoring, Platform API |
 | [`lib/`](lib/) | Small pure helpers shared by modules |
-| [`scripts/`](scripts/) | `deploy.sh`, `vm.sh`, `k3s-roll.sh`, `kubeconfig.sh`, `ceph-bootstrap.sh` |
+| [`scripts/`](scripts/) | `deploy.sh`, `kubeconfig.sh`, `ceph-bootstrap.sh` |
 | [`secrets/`](secrets/) | agenix-encrypted secrets (no plaintext ever) |
 | [`docs/`](docs/) | The documentation site (Zensical) |
 

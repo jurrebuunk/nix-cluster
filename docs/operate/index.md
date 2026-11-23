@@ -13,16 +13,14 @@ yet, and for when the API itself is down.
 ## Health check
 
 ```sh
-labctl status                                                        # hosts, VMs, nodes, Ceph, VIPs, disks, S3
-labctl metrics query 'node_systemd_unit_state{state="failed"} == 1'  # failed units on the hosts
-labctl metrics query 'probe_success == 0 or up == 0'                 # failing probes, down scrape targets
-labctl metrics query 'cloudflared_tunnel_ha_connections'             # remote access, per host
-kubectl get pods -A | grep -v -E 'Running|Completed'                 # workloads (from hgd1-k8s)
+labctl health                                          # one line per area: ok, warn or fail
+labctl status                                          # the details behind it
+kubectl get pods -A | grep -v -E 'Running|Completed'   # workloads (from hgd1-k8s)
 ```
 
-The two queries that look for problems print `(no data)` when there are none.
-`labctl status` prints problems as `warning:` lines on stderr, so a quiet
-run is a good sign.
+`labctl health` checks hosts, failed units, VMs, nodes, Ceph, VIPs, disks,
+S3, the tunnel, failing probes, down targets and clock offset, and exits with
+code 5 unless everything is `ok`, so a script or timer can use it too.
 
 **Healthy means:**
 
@@ -78,7 +76,7 @@ Anything else: [Troubleshooting](troubleshooting.md).
 
 | How often | What |
 | --- | --- |
-| Weekly | The health check above |
+| Weekly | The health check above (`labctl health`) |
 | Monthly | `labctl status disk` (fullness, wear, SMART) and `labctl status s3` (buckets, room); `smartctl -a` on a drive that warns; [update dependencies](../how-to/update-dependencies.md) |
 | Every few months | Decrypt the latest backups as a restore test; check remote access with one host stopped |
 | Yearly | Rotate Cloudflare and S3 credentials; review the Gateway rules |

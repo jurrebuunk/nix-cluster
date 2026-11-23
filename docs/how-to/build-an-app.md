@@ -147,8 +147,8 @@ app).
 - [ ] Postgres from the template if it needs a database.
 - [ ] Secrets through sops (`hgd1-k8s`) or your app repo's secret handling, never plain text.
 - [ ] Requests and limits set: a node has 4 GiB of RAM in total.
-- [ ] Tested: stop one VM with `scripts/k3s-roll.sh <vm>` and check the app
-      keeps working.
+- [ ] Tested: `labctl vm stop <vm>` on the VM it runs on, check the app keeps
+      working, then `labctl vm start <vm>`.
 
 ## Monitoring
 

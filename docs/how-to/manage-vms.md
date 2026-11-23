@@ -45,14 +45,15 @@ Keep an odd number of k3s servers.
 
 ## Move a VM
 
-1. For a k3s node, drain it and delete the node object:
+1. Drain and stop it, then delete its node object:
 
     ```sh
-    kubectl drain hgd1-k8w02 --ignore-daemonsets --delete-emptydir-data
+    labctl vm stop hgd1-k8w02          # cordon, drain, stop; labctl status vm shows Stopped
     kubectl delete node hgd1-k8w02
     ```
 
-2. Stop it and confirm it's stopped: `scripts/vm.sh hgd1-k8w02 stop`.
+2. Make sure it stays stopped while you move it: it would start again if its
+   old host rebooted, so don't reboot that host in between.
 3. Change `host` in the inventory. Commit. Deploy the **old** host first, then
    the new one.
 4. The disk image doesn't move. Either copy
@@ -65,7 +66,7 @@ has to be deleted.
 
 ## Remove a VM
 
-1. For a k3s node: drain and delete it as above.
+1. Drain, stop and delete it as above (`labctl vm stop`, `kubectl delete node`).
 2. Set `enabled = false` (or delete the entry), commit, deploy the host.
 3. The disk image stays in `/var/lib/microvms/<name>/` until you delete it.
 

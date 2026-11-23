@@ -35,7 +35,8 @@ first time you do it.
     sudo ceph osd purge <id> --yes-i-really-mean-it
     ```
 
-3. **Swap the disk** (host maintenance: drain its VMs, power off).
+3. **Swap the disk:** `labctl host maintenance <host>`, power off, swap,
+   power on, and `labctl host resume <host>` after the next steps.
 4. **Qualify the new disk:**
 
     ```sh

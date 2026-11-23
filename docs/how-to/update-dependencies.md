@@ -26,7 +26,7 @@ Run the [health check](../operate/index.md); don't update a degraded cluster.
 5. **Boot the VMs** on the new packages:
 
     ```sh
-    scripts/k3s-roll.sh
+    labctl vm roll
     ```
 
 ## Check it worked
