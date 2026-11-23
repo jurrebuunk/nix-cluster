@@ -42,7 +42,6 @@ nav = [
     { "VMs and k3s" = [
       "how-to/manage-vms.md",
       "how-to/restart-k3s-nodes.md",
-      "how-to/finish-k3s.md",
     ] },
     { "Building on top" = [
       "how-to/use-the-cli.md",

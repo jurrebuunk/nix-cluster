@@ -25,7 +25,6 @@ pages.
 
 - :lucide-box: [**Manage VMs**](manage-vms.md): add, move or remove a VM
 - :lucide-refresh-cw: [**Restart k3s nodes**](restart-k3s-nodes.md): one at a time, without downtime
-- :lucide-circle-plus: [**Finish the cluster**](finish-k3s.md): how the third server was added (done)
 
 </div>
 

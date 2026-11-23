@@ -48,8 +48,8 @@ Each step depends on the one before:
    identity from the keyring backups if the HDDs survived.
 4. **Remote access** works as soon as one host has the tunnel secret.
 5. **k3s:** the VMs come up with the hosts. Set `k3s.bootstrapServer` back to
-   `hgd1-k8m01` so it creates a new cluster, then set it to `null` again
-   ([Finish the cluster](../how-to/finish-k3s.md)).
+   `hgd1-k8m01` so it creates a new cluster, then set it to `null` again once
+   all three servers have joined ([k3s → Joining](../concepts/k3s.md#joining)).
 6. **Cluster components and apps** come back through Flux from `hgd1-k8s`, then **data** from backups.
 
 !!! danger "Replication is not a backup"

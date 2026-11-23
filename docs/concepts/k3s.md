@@ -111,7 +111,6 @@ labctl vm restart hgd1-k8w01          # one node, through the Platform API
 
 - [Restart k3s nodes](../how-to/restart-k3s-nodes.md)
 - [Manage VMs](../how-to/manage-vms.md): adding or moving nodes
-- [Finish the cluster](../how-to/finish-k3s.md): how the third server was added
 
 ## Tested
 
