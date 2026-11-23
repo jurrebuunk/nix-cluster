@@ -1,1 +1,33 @@
+# Nix build outputs
+result
+result-*
+
+# Local dev environment and editors
+.direnv/
+.envrc.local
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+
+# Documentation build (zensical build / serve)
 site/
+.cache/
+
+# Secrets: only encrypted .age files and the recipient list belong here.
+secrets/*
+!secrets/*.age
+!secrets/secrets.nix
+
+# Credentials and exports that must stay on the laptop (docs/reference/credentials.md)
+*.kubeconfig
+kubeconfig
+kubeconfig.y*ml
+hgd1.yaml
+*-credentials.json
+.cloudflared/
+*.pem
+*.key
+opnsense-*.xml
+aruba-*.txt
