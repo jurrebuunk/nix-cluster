@@ -16,7 +16,7 @@ Endpoints of the [Platform API](../concepts/api.md) at
 `https://api.lan.buunk.org`. All responses are JSON. Every endpoint except
 `/v1/health` needs `Authorization: Bearer <token>`.
 
-<span class="status status--partial">v0.1.0, read-only</span> · Spec: [`api/openapi.yaml`](https://github.com/jurrebuunk/clusterd/blob/main/api/openapi.yaml)
+<span class="status status--partial">v1.0.0-rc.1</span> · Spec: [`api/openapi.yaml`](https://github.com/jurrebuunk/clusterd/blob/main/api/openapi.yaml)
 
 ## Conventions
 
@@ -27,7 +27,8 @@ Endpoints of the [Platform API](../concepts/api.md) at
 | Errors | HTTP status plus `{"error": "<message>"}` |
 | Browsers | Never call the API directly; the [web UI](../concepts/web-ui.md) proxies with its own token |
 | Request IDs | Every response has `X-Request-Id`; the same ID is in the access log |
-| Audit | Every request is in the journal of `clusterd.service` (path, token name, status); actions get a full audit record in `v1.0` |
+| Audit | Every request is in the journal of `clusterd.service` (path, token name, status); actions also get `msg=audit` start and end records |
+| Stability | `/v1` only changes in backward-compatible ways from `1.0.0` on |
 
 ## System
 
@@ -36,7 +37,7 @@ Endpoints of the [Platform API](../concepts/api.md) at
 | GET | `/v1/health` | none | `{"status":"ok"}` while this instance serves (Keepalived's check; doesn't depend on the stores) |
 | GET | `/v1/whoami` | read | Token name and scope, the answering host and its version |
 | GET | `/v1/node` | read | The answering host only: uptime, load, memory, VMs, VIPs held, local stores |
-| GET | `/v1/status` | read | Hosts, VMs, k3s nodes, Ceph health, VIP owners. Built from every host's `/v1/node`, asked with your token |
+| GET | `/v1/status` | read | Hosts, VMs, k3s nodes, Ceph health, VIP owners. Built from every host's `/v1/node`, asked with your token. Ceph is at most ~10 s old (`ceph.as_of`) |
 
 ## Metrics
 
@@ -78,13 +79,25 @@ ends after one hour.
 
 ## Actions
 
-Actions arrive with `v1.0`, one at a time; each wraps an existing safe
-procedure. Until then `/v1/actions/…` answers 403 to `read` tokens and 404 to
-the rest. The scope column says who may call it.
+Each action wraps an existing safe procedure. Other paths under
+`/v1/actions/` answer 403 to `read` tokens and 404 to the rest.
 
 | Method | Path | Scope | Does |
 | --- | --- | --- | --- |
-| POST | `/v1/actions/vms/{name}/restart` | operator | `v1.0`: drain, restart `microvm@{name}`, wait for a new boot to be Ready, uncordon |
+| POST | `/v1/actions/vms/{name}/restart` | operator | Cordon, drain, restart `microvm@{name}`, wait for a new boot to be Ready, uncordon, check the k3s API |
+
+| Query | Effect |
+| --- | --- |
+| `dry_run=1` | Nothing changes; returns the plan: `host`, `roles`, `evict` (pods), `skipped`, `steps`, and `lock_holder` when busy |
+| (none) | Runs it; `200` with `application/x-ndjson`: one `{"time","status","message"}` per line, `status` is `progress` until a final `done` or `error` |
+
+| Status | Means | Changed anything? |
+| --- | --- | --- |
+| 404 | No such VM in the inventory | No |
+| 409 | Another action holds the lock (the message names it) | No |
+| 412 | Not safe now: another node not Ready, etcd quorum, a pod without a controller, VM disabled | No |
+| 502 | The VM's host didn't answer | No |
+| 200, last line `error` | Failed during the run; a failed drain uncordons again, a VM that didn't come back stays cordoned | Yes |
 
 ## Example
 

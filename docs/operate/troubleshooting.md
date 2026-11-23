@@ -102,6 +102,10 @@ ssh jurre@<vm-ip> 'sudo journalctl -u k3s -b --no-pager | tail -50'
 | `/v1/health` fails | No host passes the VIP check: `systemctl status clusterd keepalived` on each host |
 | 401 / exit code 4 | Token unknown or revoked; `labctl whoami`, or create a new one ([Tokens](../how-to/use-the-cli.md#tokens)) |
 | 403 on an action | The token has scope `read`; actions need at least `operator` |
+| 409 on an action | Another action runs (the message names it). Wait, or if its clusterd crashed, the lock frees itself within two minutes |
+| 412 on a VM restart | It would be unsafe now; the message says why (a node not Ready, etcd quorum, a pod without a controller). Fix that first |
+| A restart ended with the node `SchedulingDisabled` | The VM didn't come back Ready in 10 minutes; it was left cordoned on purpose. Check `journalctl -u microvm@<vm>` on its host, then `kubectl uncordon` |
+| VM restart fails with `Interactive authentication required` | The polkit rule is missing: is `services.clusterd.manageUnitPrefixes` set, and `/etc/polkit-1/rules.d/10-nixos.rules` present? |
 | A host shows `unreachable` in `labctl status` | `clusterd` is down there or port 443 is blocked: `systemctl status clusterd` on that host, then `journalctl -u clusterd` |
 | `k3s: unreachable` in the status | The ServiceAccount token or CA no longer matches (a rebuilt cluster): recreate `secrets/clusterd-kubeconfig.age` from the `clusterd-token` Secret in namespace `clusterd` |
 | Ceph shows `unknown` with an error | `client.clusterd` is missing or `secrets/clusterd-ceph-keyring.age` doesn't match it: `ceph auth get client.clusterd` |

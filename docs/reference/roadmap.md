@@ -26,7 +26,7 @@ was only marked done after that check passed on the live system.
 | 4 | k3s nodes: 3 servers, 2 agents | <span class="status">Done</span> 2026-11-23 |
 | 5 | Operations docs, each procedure run once | <span class="status status--partial">Partial</span> these docs |
 | 7 | Monitoring and logs for the infrastructure | <span class="status">Done</span> 2026-11-23 |
-| 9 | Platform API, CLI and web UI | <span class="status status--partial">API v0.1.0 live</span> |
+| 9 | Platform API, CLI and web UI | <span class="status status--partial">API v1.0.0-rc.1 live</span> |
 
 Outside the repo, still to do:
 
@@ -84,9 +84,9 @@ proxy for metrics and logs, and the `labctl` CLI (both in the
 [`clusterd`](https://github.com/jurrebuunk/clusterd) repo); and
 [`lab-console`](https://github.com/jurrebuunk/lab-console), the web UI at
 `lab.buunk.org` on k3s. What the API can do grows one action at a
-time; it never defines VMs, Nix does. **Done:** `clusterd` `v0.1.0` (status,
-metrics, logs; read-only) runs on all hosts and `labctl` uses it. **Next:**
-`v1.0` with the first action, then the web UI. See [Platform API](../concepts/api.md),
+time; it never defines VMs, Nix does. **Done:** `clusterd` `v1.0.0-rc.1` runs on all hosts: status, metrics,
+logs and safe VM restarts through `labctl`. **Next:** `v1.0.0` after a week of
+use, then the web UI. See [Platform API](../concepts/api.md),
 [Use the CLI](../how-to/use-the-cli.md) and [Web UI](../concepts/web-ui.md).
 
 ## Future

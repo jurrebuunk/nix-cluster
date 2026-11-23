@@ -99,7 +99,7 @@ flowchart TB
 | microVMs | <span class="status">Done</span> | [VMs](concepts/vms.md) |
 | k3s cluster: 3 servers, 2 agents | <span class="status">Done</span> | [k3s](concepts/k3s.md) |
 | Monitoring and logs | <span class="status">Done</span> | [Monitoring](concepts/monitoring.md) |
-| Platform API, CLI and web UI | <span class="status status--partial">API v0.1.0 live</span> | [Platform API](concepts/api.md) |
+| Platform API, CLI and web UI | <span class="status status--partial">API v1.0.0-rc.1 live</span> | [Platform API](concepts/api.md) |
 
 ## I want to…
 

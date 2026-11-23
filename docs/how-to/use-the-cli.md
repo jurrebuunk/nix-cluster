@@ -20,7 +20,7 @@ platform status, metrics, logs and actions from your terminal, for daily
 management and while developing. Every command is in the
 [CLI reference](../reference/cli.md).
 
-<span class="status status--partial">v0.1.0, read-only</span>
+<span class="status status--partial">v1.0.0-rc.1</span>
 
 ## Before you start
 
@@ -76,11 +76,29 @@ labctl logs --host hgd1-hv01 --unit ceph-osd-0.service --since 1h
 labctl logs --follow --host hgd1-fw01           # live router log
 ```
 
-Actions arrive with `clusterd` `v1.0`. They need at least an `operator` token
-and ask for confirmation:
+Actions need at least an `operator` token and ask for confirmation:
 
 ```sh
-labctl vm restart hgd1-k8w01                    # drain → restart → Ready → uncordon
+labctl vm restart hgd1-k8w01 --dry-run          # what would happen
+labctl vm restart hgd1-k8w01                    # cordon → drain → restart → Ready → uncordon
+```
+
+Output is compact, like `kubectl`:
+
+```text
+$ labctl status nodes
+NODE        STATUS  ROLES               VERSION       ZONE
+hgd1-k8m01  Ready   control-plane,etcd  v1.35.8+k3s1  hgd1-hv01
+…
+$ labctl vm restart hgd1-k8w02 --yes
+node/hgd1-k8w02 cordoned
+evicting pod kube-system/coredns-c5fdd76cf-5r4jq
+node/hgd1-k8w02 drained
+microvm@hgd1-k8w02 restarted on hgd1-hv03
+node/hgd1-k8w02 Ready (new boot)
+node/hgd1-k8w02 uncordoned
+Kubernetes API ready
+vm restart hgd1-k8w02 done
 ```
 
 ## Check it worked

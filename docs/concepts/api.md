@@ -20,7 +20,7 @@ to the hosts, Ceph or the monitoring stores directly.
 
 !!! info "At a glance"
 
-    **Status** <span class="status status--partial">v0.1.0, read-only</span> ·
+    **Status** <span class="status status--partial">v1.0.0-rc.1</span> ·
     **Endpoint** `https://api.lan.buunk.org` (VIP `10.10.20.20`, infra VLAN) ·
     **Configured in** `modules/clusterd/`, `inventory.nix` → `api` ·
     **Reference** [API reference](../reference/api.md)
@@ -51,8 +51,10 @@ flowchart LR
   performs actions on what's there (restart, drain, maintenance). It never
   creates or deletes VMs.
 
-`v0.1.0` is the read-only half: status, metrics and logs. Actions arrive with
-`v1.0` (see the [clusterd plan](https://github.com/jurrebuunk/clusterd/blob/main/PLAN.md)).
+`v1.0.0-rc.1` runs now: status, metrics, logs and the first action, a safe
+VM restart. `/v1` is stable from here on: only backward-compatible changes;
+anything breaking would go to `/v2`. The final `v1.0.0` follows after a week
+of use (see the [clusterd plan](https://github.com/jurrebuunk/clusterd/blob/main/PLAN.md)).
 
 ## How it works
 
@@ -82,7 +84,10 @@ Two layers, both required:
   deliberately ignores the monitoring stores: the proxy falls back to peers,
   so a broken local store must not pull the API down with it. Keepalived
   calls it every two seconds with full certificate validation.
-- **`/v1/status`** is put together by the instance that answers. It reads k3s
+- **`/v1/status`** is put together by the instance that answers. Ceph health
+  comes from a copy refreshed every 10 seconds (the `ceph` CLI takes half a
+  second; asking it per request made `status` slow); `as_of` and the AGE
+  column say how old it is. It reads k3s
   and Ceph itself and asks every peer's `/v1/node` (that host's uptime, load,
   memory, VMs and VIPs) **with the caller's own token**. The instances share
   no credential of their own, and a peer only tells a caller what it would
@@ -102,11 +107,48 @@ the caller gives no `limit`. The caller's token is never passed on.
 
 ### Actions
 
-Actions arrive with `v1.0` and are added one by one as they're needed. Each one wraps an existing,
-safe procedure: for example a VM restart runs the same drain → restart →
-Ready → uncordon sequence as `scripts/k3s-roll.sh`. Every `manage` request is
-written to the journal of `clusterd.service`, so it ends up in VictoriaLogs as
-an audit trail.
+Actions are added one by one as they're needed; each wraps an existing, safe
+procedure. The first is the **VM restart**: the same sequence as
+`scripts/k3s-roll.sh`.
+
+```mermaid
+sequenceDiagram
+  participant cli as labctl
+  participant a as clusterd (VIP owner)
+  participant h as clusterd on the VM's host
+  participant k as k3s API
+  cli->>a: POST …/vms/hgd1-k8w02/restart?dry_run=1
+  a->>h: same request, same token
+  h-->>cli: plan (pods to evict, steps)
+  cli->>a: POST …/vms/hgd1-k8w02/restart
+  a->>h: forwarded
+  h->>k: take the lock (Lease), check nodes and etcd quorum
+  h->>k: cordon, evict pods
+  h->>h: systemctl restart microvm@hgd1-k8w02
+  h->>k: wait for a new boot ID and Ready, uncordon, /readyz
+  h-->>cli: progress, line by line
+```
+
+- **Runs where the VM lives.** Only that host can restart its VM, so the
+  instance that receives the request passes it on with the caller's token.
+- **Checks first.** The VM must be enabled in the inventory; every *other*
+  node must be Ready (the target itself may be broken, that's often why you
+  restart it); etcd must keep quorum; and no pod without a controller may be
+  on the node, because it would be lost. A failed check is a `412` with the
+  reason; nothing has changed then.
+- **One at a time.** A Kubernetes Lease (`clusterd/clusterd-disruption`)
+  makes every disruptive action exclusive across the cluster. A second request
+  gets `409` with who holds it. The lease is renewed while the action runs and
+  expires two minutes after a crash.
+- **Safe when it fails.** A failed drain uncordons the node again; a VM that
+  doesn't come back stays cordoned, so nothing gets scheduled on it.
+- **Finishes on its own.** Progress streams back as JSON lines, but the action
+  doesn't depend on the client: if WARP drops, it completes and the journal
+  has the result.
+- **Audit.** Start and end of every action are `msg=audit` lines in the
+  journal of `clusterd.service` (action, target, token, scope, request ID,
+  result, duration), and so in VictoriaLogs:
+  `labctl logs --unit clusterd audit`.
 
 ### Privileges
 
@@ -114,8 +156,8 @@ an audit trail.
 | --- | --- |
 | Run as | System user `clusterd`; only `CAP_NET_BIND_SERVICE`, read-only file system, no new privileges |
 | VM state | `systemctl list-units`, read-only and unprivileged |
-| Restart VMs (`v1.0`) | A polkit rule lets the `clusterd` user manage only `microvm@*.service` |
-| Kubernetes | ServiceAccount `clusterd/clusterd`: `get`/`list` on nodes and pods only, declared in `modules/microvm/guest/k3s/clusterd.nix`; drain and uncordon rights come with `v1.0`. Kubeconfig in `secrets/clusterd-kubeconfig.age` |
+| Restart VMs | A polkit rule (from `services.clusterd.manageUnitPrefixes`) lets the `clusterd` user `restart`, `start` and `stop` only `microvm@*.service`; nothing else |
+| Kubernetes | ServiceAccount `clusterd/clusterd`: read nodes and pods, patch nodes (cordon), create evictions, and manage Leases in its own namespace only. Declared in `modules/microvm/guest/k3s/clusterd.nix`; kubeconfig in `secrets/clusterd-kubeconfig.age` |
 | Ceph status | Read-only client key `client.clusterd` (`mon 'allow r'`) in `secrets/clusterd-ceph-keyring.age` |
 | Metrics and logs | Plain HTTP to the local stores on `127.0.0.1`, peers on the infra VLAN |
 
@@ -138,7 +180,7 @@ repo as a flake input. This repo only configures them:
 
 | File | Owns |
 | --- | --- |
-| `flake.nix` → `inputs.clusterd` | The `clusterd` release in use, pinned to its tag (now `github:jurrebuunk/clusterd/v0.1.0`) |
+| `flake.nix` → `inputs.clusterd` | The `clusterd` release in use, pinned to its tag (now `github:jurrebuunk/clusterd/v1.0.0-rc.1`) |
 | `inventory.nix` → `api` | Hostname, VIP, VRRP id |
 | `modules/clusterd/default.nix` | Enables `services.clusterd` with settings from the inventory |
 | `modules/clusterd/tls.nix` | ACME certificate through DNS-01 |
@@ -156,9 +198,10 @@ for h in 11 12 13; do ssh jurre@10.10.20.$h 'systemctl is-active clusterd'; done
 ```
 
 - New token: see [Use the CLI → Tokens](../how-to/use-the-cli.md#tokens).
-- Access log: `labctl logs --unit clusterd.service --since 1d` (every request
+- Access log: `labctl logs --unit clusterd --since 1d` (every request
   except successful health checks, with token name and request ID; never
-  query strings).
+  query strings). Only the audit records: `labctl logs --unit clusterd --since 1w audit`.
+- Who holds the action lock: `kubectl -n clusterd get lease clusterd-disruption -o yaml`.
 - Its own metrics: `labctl metrics query 'sum by (route, code) (rate(clusterd_requests_total[5m]))'`.
 - Changed secrets restart `clusterd` on the next deploy (systemd credentials
   are copied in at start); a renewed certificate only needs a reload.
@@ -179,8 +222,20 @@ See [Troubleshooting → API](../operate/troubleshooting.md#api).
 
 ## Tested
 
-- `v0.1.0` from GitHub Releases on all three hosts; the release's checksum
-  and build provenance verify.
+`v1.0.0-rc.1`, from GitHub Releases on all three hosts:
+
+- A rolling restart of all five VMs with `labctl vm restart` (agents, then
+  the three servers), 29–44 s each. The API answered all 161 status requests
+  during it; the Kubernetes API probes never failed.
+- The first restart came in through hv02 and ran on hv03 (forwarded), with
+  an `operator` token. A `read` token gets 403, an unknown VM 404.
+- While one restart ran, a second one of the same VM and one of another VM
+  both got 409 naming the holder.
+- `labctl status` dropped from about 0.7 s to under 0.2 s with the Ceph cache.
+
+`v0.1.0`:
+
+- The release's checksum and build provenance verify.
 - No token and an unknown token give 401; a `read` token on `/v1/actions/…`
   gives 403. Write and admin paths of both stores give 404, also with `..`
   in the path.

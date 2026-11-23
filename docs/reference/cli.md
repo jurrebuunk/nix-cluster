@@ -15,7 +15,7 @@ icon: lucide/square-terminal
 Commands of `labctl`, the client for the [Platform API](../concepts/api.md).
 How to set it up: [Use the CLI](../how-to/use-the-cli.md).
 
-<span class="status status--partial">v0.1.0, read-only</span>
+<span class="status status--partial">v1.0.0-rc.1</span>
 
 ## Install
 
@@ -42,14 +42,15 @@ How to set it up: [Use the CLI](../how-to/use-the-cli.md).
 | --- | --- | --- |
 | `labctl login [--api URL] [--token-file F]` | – | Ask for a token (or read it from `F`), check it, store it in `~/.config/labctl/tokens/<site>`. `--api` adds a new site |
 | `labctl use [site]` | – | Switch the current context, or list them |
-| `labctl whoami` | read | Show the site, token name and scope |
+| `labctl whoami` | read | Token name, scope, site and the answering host |
 | `labctl token new --name N --scope read\|operator\|manage [--out F]` | – | Generate a token and the hash line for `secrets/api-tokens.age` (runs locally). With `--out` the token goes to `F` (mode 600) and is never printed |
-| `labctl status` | read | Hosts, VMs, k3s nodes, Ceph and VIP owners |
+| `labctl status [hosts\|vms\|nodes\|ceph\|vips]` | read | Hosts, VMs, k3s nodes, Ceph and VIP owners as tables, or one of them. Problems go to stderr as `warning:` lines |
 | `labctl metrics query <promql> [--time T]` | read | Instant query |
 | `labctl metrics range <promql> [--since 1h] [--step S]` | read | Range query; the step defaults to `since/60`, at least 15 s |
-| `labctl logs [--host H] [--unit U] [--since 1h] [--limit 100] [-f\|--follow] [query]` | read | Search (newest lines, printed oldest first) or follow logs. `query` is LogsQL; with a `\|` pipe it is sent as is |
-| `labctl version` | read | Versions of `labctl` and of the `clusterd` that answers |
-| `labctl vm restart <vm>` | operator | `v1.0`: drain, restart, wait for Ready, uncordon; asks for confirmation |
+| `labctl logs [--host H] [--unit U] [--since 1h] [--limit 100] [-f\|--follow] [query]` | read | Search (newest lines, printed oldest first) or follow logs. `--unit clusterd` also matches `clusterd.service`. `query` is LogsQL; with a `\|` pipe it is sent as is |
+| `labctl version` | read | `Client Version` and `Server Version` |
+| `labctl completion bash\|zsh\|fish` | – | Completion script (the Nix package installs them) |
+| `labctl vm restart <vm> [-y\|--yes] [--dry-run]` | operator | Cordon, drain, restart, wait for a new boot to be Ready, uncordon. Asks first (needs `--yes` without a terminal); `--dry-run` only prints the steps; Ctrl-C stops following, not the restart |
 
 New actions get a command here when the API gets the endpoint.
 

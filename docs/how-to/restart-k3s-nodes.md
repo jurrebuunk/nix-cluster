@@ -27,11 +27,13 @@ For each VM the script:
 4. Waits up to 10 minutes for a **new boot** of that node to be Ready.
 5. Uncordons it and checks the API.
 
-From `clusterd` `v1.0`, a single node can also be restarted with the CLI,
-which runs the same sequence through the [Platform API](../concepts/api.md):
+The CLI runs the same sequence through the [Platform API](../concepts/api.md),
+without a kubeconfig, and refuses while another restart runs:
 
 ```sh
 labctl vm restart hgd1-k8w01
+# or all of them, agents first:
+for vm in hgd1-k8w01 hgd1-k8w02 hgd1-k8m01 hgd1-k8m02 hgd1-k8m03; do labctl vm restart $vm --yes || break; done
 ```
 
 ## Check it worked

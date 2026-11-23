@@ -1,6 +1,7 @@
-# clusterd's identity in Kubernetes: a ServiceAccount that may only read nodes
-# and pods, and a long-lived token for it. The token and CA go into
-# secrets/clusterd-kubeconfig.age (docs/concepts/api.md#privileges).
+# clusterd's identity in Kubernetes: a ServiceAccount that may read nodes and
+# pods, cordon and evict (a VM restart's drain), and hold its lock Lease in its
+# own namespace. The token and CA go into secrets/clusterd-kubeconfig.age
+# (docs/concepts/api.md#privileges).
 { lib, vm, ... }:
 let
   namespace = "clusterd";
@@ -38,8 +39,53 @@ in
         rules = [
           {
             apiGroups = [ "" ];
-            resources = [ "nodes" "pods" ];
+            resources = [ "nodes" ];
+            verbs = [ "get" "list" "patch" ];
+          }
+          {
+            apiGroups = [ "" ];
+            resources = [ "pods" ];
             verbs = [ "get" "list" ];
+          }
+          {
+            apiGroups = [ "" ];
+            resources = [ "pods/eviction" ];
+            verbs = [ "create" ];
+          }
+        ];
+      }
+      {
+        apiVersion = "rbac.authorization.k8s.io/v1";
+        kind = "Role";
+        metadata = {
+          name = "clusterd-lock";
+          inherit namespace;
+        };
+        rules = [
+          {
+            apiGroups = [ "coordination.k8s.io" ];
+            resources = [ "leases" ];
+            verbs = [ "get" "create" "update" "delete" ];
+          }
+        ];
+      }
+      {
+        apiVersion = "rbac.authorization.k8s.io/v1";
+        kind = "RoleBinding";
+        metadata = {
+          name = "clusterd-lock";
+          inherit namespace;
+        };
+        roleRef = {
+          apiGroup = "rbac.authorization.k8s.io";
+          kind = "Role";
+          name = "clusterd-lock";
+        };
+        subjects = [
+          {
+            kind = "ServiceAccount";
+            name = "clusterd";
+            inherit namespace;
           }
         ];
       }

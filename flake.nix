@@ -13,7 +13,7 @@
     };
     # Platform API and CLI; always a release tag (docs/concepts/api.md).
     clusterd = {
-      url = "github:jurrebuunk/clusterd/v0.1.0";
+      url = "github:jurrebuunk/clusterd/v1.0.0-rc.1";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };

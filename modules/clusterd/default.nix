@@ -42,6 +42,8 @@ in
     tokensFile = config.age.secrets.api-tokens.path;
     kubeconfigFile = config.age.secrets.clusterd-kubeconfig.path;
     ceph.keyringFile = config.age.secrets.clusterd-ceph-keyring.path;
+    # VM restarts: polkit lets the clusterd user restart/start/stop only these.
+    manageUnitPrefixes = [ "microvm@" ];
     settings = {
       site = inventory.site.name;
       host = hostName;
