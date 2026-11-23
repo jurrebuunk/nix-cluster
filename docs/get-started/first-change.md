@@ -80,5 +80,3 @@ see [Roll back](../how-to/roll-back.md).
 - [x] Changes go through the repo, never by hand on a host.
 - [x] `nix flake check` catches mistakes before anything is deployed.
 - [x] One host at a time, checked before the next.
-
-Next: [Tour of the repo :octicons-arrow-right-24:](repository.md)

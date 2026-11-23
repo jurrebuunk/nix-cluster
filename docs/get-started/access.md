@@ -69,7 +69,3 @@ as `KUBECONFIG`. It points at `https://k8s.lan.buunk.org:6443`.
 At the site, plug into **switch port 1** (management VLAN, DHCP). From there
 everything internal is reachable, including the router at
 `ssh root@10.10.10.1`. The OPNsense console also always works.
-
-## Next
-
-[Make your first change :octicons-arrow-right-24:](first-change.md){ .md-button .md-button--primary }
