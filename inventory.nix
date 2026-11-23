@@ -130,6 +130,14 @@
     pingTargets = { hgd1-gpu1 = "10.10.20.50"; };
   };
 
+  # Platform API (clusterd, from github:jurrebuunk/clusterd; modules/clusterd/,
+  # docs/concepts/api.md). Every host runs it; the VIP follows a healthy one.
+  api = {
+    hostname = "api.lan.buunk.org";
+    virtualIP = "10.10.20.20";
+    virtualRouterId = 21;
+  };
+
   # Cloudflare Tunnel for remote admin access (modules/remote-access.nix).
   # Tunnel hgd1-admin; null keeps the module off.
   remoteAccess = {

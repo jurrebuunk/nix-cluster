@@ -12,6 +12,7 @@ in
     ./api-vip.nix
     ./firewall.nix
     ./ceph.nix
+    ./clusterd.nix
   ];
 
   boot.kernelModules = [

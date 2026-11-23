@@ -20,7 +20,7 @@ to the hosts, Ceph or the monitoring stores directly.
 
 !!! info "At a glance"
 
-    **Status** <span class="status status--partial">In development</span> ·
+    **Status** <span class="status status--partial">v0.1.0, read-only</span> ·
     **Endpoint** `https://api.lan.buunk.org` (VIP `10.10.20.20`, infra VLAN) ·
     **Configured in** `modules/clusterd/`, `inventory.nix` → `api` ·
     **Reference** [API reference](../reference/api.md)
@@ -51,6 +51,9 @@ flowchart LR
   performs actions on what's there (restart, drain, maintenance). It never
   creates or deletes VMs.
 
+`v0.1.0` is the read-only half: status, metrics and logs. Actions arrive with
+`v1.0` (see the [clusterd plan](https://github.com/jurrebuunk/clusterd/blob/main/PLAN.md)).
+
 ## How it works
 
 ### Access and auth
@@ -73,6 +76,19 @@ Two layers, both required:
     token only ever exists on the client. Later, Keycloak (OIDC) replaces
     hand-made tokens.
 
+### Health and status
+
+- **`/v1/health`** answers as long as the instance serves requests. It
+  deliberately ignores the monitoring stores: the proxy falls back to peers,
+  so a broken local store must not pull the API down with it. Keepalived
+  calls it every two seconds with full certificate validation.
+- **`/v1/status`** is put together by the instance that answers. It reads k3s
+  and Ceph itself and asks every peer's `/v1/node` (that host's uptime, load,
+  memory, VMs and VIPs) **with the caller's own token**. The instances share
+  no credential of their own, and a peer only tells a caller what it would
+  tell them directly. An unreachable peer shows up as `unreachable`; its VMs
+  and any VIP it may hold as `unknown`.
+
 ### Metrics and logs proxy
 
 The web UI and the CLI need metrics and logs, but the monitoring stores have no
@@ -80,11 +96,13 @@ auth and must stay read-only. `clusterd` exposes only the **query** endpoints
 of VictoriaMetrics and VictoriaLogs under `/v1/metrics/` and `/v1/logs/`,
 behind the token check. Write, delete and admin endpoints are never proxied.
 Each instance queries its local store first (every host holds a full copy) and
-falls back to a peer.
+falls back to a peer on connection errors and 5xx answers. Limits: 30 s per
+query, 64 MiB per answer, at most 1 h of `--follow`, and 1000 log lines when
+the caller gives no `limit`. The caller's token is never passed on.
 
 ### Actions
 
-Actions are added one by one as they're needed. Each one wraps an existing,
+Actions arrive with `v1.0` and are added one by one as they're needed. Each one wraps an existing,
 safe procedure: for example a VM restart runs the same drain → restart →
 Ready → uncordon sequence as `scripts/k3s-roll.sh`. Every `manage` request is
 written to the journal of `clusterd.service`, so it ends up in VictoriaLogs as
@@ -94,16 +112,23 @@ an audit trail.
 
 | Needs | How it's limited |
 | --- | --- |
-| Restart VMs | A polkit rule lets the `clusterd` user manage only `microvm@*.service` |
-| Kubernetes (drain, uncordon, node status) | Its own ServiceAccount with a narrow role; kubeconfig in `secrets/clusterd-kubeconfig.age` |
-| Ceph status | A read-only client key (`client.clusterd`, `mon 'allow r'`), host-only |
-| Metrics and logs | Plain HTTP to the local stores on `127.0.0.1` |
+| Run as | System user `clusterd`; only `CAP_NET_BIND_SERVICE`, read-only file system, no new privileges |
+| VM state | `systemctl list-units`, read-only and unprivileged |
+| Restart VMs (`v1.0`) | A polkit rule lets the `clusterd` user manage only `microvm@*.service` |
+| Kubernetes | ServiceAccount `clusterd/clusterd`: `get`/`list` on nodes and pods only, declared in `modules/microvm/guest/k3s/clusterd.nix`; drain and uncordon rights come with `v1.0`. Kubeconfig in `secrets/clusterd-kubeconfig.age` |
+| Ceph status | Read-only client key `client.clusterd` (`mon 'allow r'`) in `secrets/clusterd-ceph-keyring.age` |
+| Metrics and logs | Plain HTTP to the local stores on `127.0.0.1`, peers on the infra VLAN |
+
+Secrets reach the service as systemd credentials (`/run/credentials/clusterd.service/`),
+never through the Nix store or the environment.
 
 ### TLS
 
 Like the S3 endpoint, every host gets a Let's Encrypt certificate for
 `api.lan.buunk.org` through DNS-01, so clients verify a real certificate with
-no exceptions.
+no exceptions. Peers check each other against the same name. After a renewal,
+ACME runs `systemctl reload clusterd`, which swaps the certificate without
+dropping connections.
 
 ## Configuration
 
@@ -113,13 +138,14 @@ repo as a flake input. This repo only configures them:
 
 | File | Owns |
 | --- | --- |
-| `flake.nix` → `inputs.clusterd` | The `clusterd` release in use, pinned to its tag (`github:jurrebuunk/clusterd/v1.0.0`) |
+| `flake.nix` → `inputs.clusterd` | The `clusterd` release in use, pinned to its tag (now `github:jurrebuunk/clusterd/v0.1.0`) |
 | `inventory.nix` → `api` | Hostname, VIP, VRRP id |
 | `modules/clusterd/default.nix` | Enables `services.clusterd` with settings from the inventory |
 | `modules/clusterd/tls.nix` | ACME certificate through DNS-01 |
 | `modules/clusterd/vip.nix` | Keepalived and the health check |
-| `modules/clusterd/firewall.nix` | HTTPS on the management NIC, VRRP from peers |
-| `secrets/api-tokens.age`, `secrets/clusterd-kubeconfig.age` | Token hashes, Kubernetes access |
+| `modules/clusterd/firewall.nix` | HTTPS on the management NIC (VRRP from the peers is already open) |
+| `modules/microvm/guest/k3s/clusterd.nix` | The ServiceAccount and its role, as a k3s manifest |
+| `secrets/api-tokens.age`, `secrets/clusterd-kubeconfig.age`, `secrets/clusterd-ceph-keyring.age` | Token hashes, Kubernetes access, Ceph access |
 
 ## Operating
 
@@ -130,7 +156,12 @@ for h in 11 12 13; do ssh jurre@10.10.20.$h 'systemctl is-active clusterd'; done
 ```
 
 - New token: see [Use the CLI → Tokens](../how-to/use-the-cli.md#tokens).
-- Audit trail: `labctl logs --unit clusterd.service --since 1d`.
+- Access log: `labctl logs --unit clusterd.service --since 1d` (every request
+  except successful health checks, with token name and request ID; never
+  query strings).
+- Its own metrics: `labctl metrics query 'sum by (route, code) (rate(clusterd_requests_total[5m]))'`.
+- Changed secrets restart `clusterd` on the next deploy (systemd credentials
+  are copied in at start); a renewed certificate only needs a reload.
 
 ## Develop
 
@@ -145,6 +176,21 @@ host while developing with `LABCTL_API`.
 ## Troubleshooting
 
 See [Troubleshooting → API](../operate/troubleshooting.md#api).
+
+## Tested
+
+- `v0.1.0` from GitHub Releases on all three hosts; the release's checksum
+  and build provenance verify.
+- No token and an unknown token give 401; a `read` token on `/v1/actions/…`
+  gives 403. Write and admin paths of both stores give 404, also with `..`
+  in the path.
+- `labctl status` over WARP: three hosts, five VMs, five Ready nodes, Ceph,
+  VIP owners. Metrics, log search, LogsQL pipes and `logs --follow` work.
+- Stopping `clusterd` on the VIP owner moved the VIP to the next host. A
+  client asking five times per second saw 8 of 116 requests fail (about two
+  seconds); `labctl status` kept working and showed the stopped host as
+  unreachable.
+- The renewed certificate was picked up by a reload, with no restart.
 
 ## Related
 

@@ -20,7 +20,7 @@ platform status, metrics, logs and actions from your terminal, for daily
 management and while developing. Every command is in the
 [CLI reference](../reference/cli.md).
 
-<span class="status status--partial">In development</span>
+<span class="status status--partial">v0.1.0, read-only</span>
 
 ## Before you start
 
@@ -36,26 +36,31 @@ management and while developing. Every command is in the
 Tokens are created by someone who can deploy the hosts, because their hashes
 live in an agenix secret.
 
-1. Create the token and its hash:
+1. Create the token straight into its file, so it never shows on screen;
+   the command prints only the hash line:
 
     ```sh
-    labctl token new --name laptop-jurre --scope manage
-    # prints the token once, and a hash line for the secret
+    labctl token new --name laptop-jurre --scope manage --out ~/.config/labctl/tokens/hgd1
+    # laptop-jurre manage sha256:…
     ```
 
-2. Add the hash line to the secret and deploy the hosts:
+    For a token that goes elsewhere (the web UI's Secret), use `--out` with a
+    temporary file and delete it once it's stored.
+
+2. Add the hash line to the secret and deploy the hosts. The deploy restarts
+   `clusterd`, which loads the new list:
 
     ```sh
-    cd secrets && agenix -e api-tokens.age && cd ..
+    cd secrets && agenix -e api-tokens.age && cd ..   # paste the line
     git commit -am "API: token for laptop-jurre"
     scripts/deploy.sh hgd1-hv01 switch    # then hv02, hv03
     ```
 
-3. Log in on the client; the token is stored in `~/.config/labctl/token`
-   (mode 600):
+3. Log in on the client. This checks the token and stores it in
+   `~/.config/labctl/tokens/hgd1` (mode 600):
 
     ```sh
-    labctl login
+    labctl login --token-file ~/.config/labctl/tokens/hgd1   # or: labctl login, and paste it
     ```
 
 Use `--scope read` for tokens that only look (dashboards, scripts) and
@@ -71,7 +76,8 @@ labctl logs --host hgd1-hv01 --unit ceph-osd-0.service --since 1h
 labctl logs --follow --host hgd1-fw01           # live router log
 ```
 
-Actions need a `manage` token and ask for confirmation:
+Actions arrive with `clusterd` `v1.0`. They need at least an `operator` token
+and ask for confirmation:
 
 ```sh
 labctl vm restart hgd1-k8w01                    # drain → restart → Ready → uncordon
@@ -86,7 +92,10 @@ labctl status        # everything green
 
 ## Good to know
 
-- Output is a table by default; add `--json` for scripts.
+- Output is a table by default; add `--json` for scripts
+  (`labctl --json status | jq .ceph`).
+- Another site: `labctl login --site <name> --api https://…`, then
+  `labctl use <name>` or `--site <name>`.
 - `LABCTL_API` overrides the endpoint (default `https://api.lan.buunk.org`),
   handy when developing `clusterd` against a single host.
 - If a command fails with a connection error, check WARP first.

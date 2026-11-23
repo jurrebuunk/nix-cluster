@@ -29,7 +29,8 @@ agenix files, encrypted to my laptop key and the three host keys
 | `k3s-agent-token.age` | k3s agent join token | `/run/k3s-secrets/{server,agent}/agent-token` |
 | `snmp-community.age` | snmp_exporter auth file with the switch's read-only community | `/run/agenix/snmp-community` |
 | `api-tokens.age` | Hashes of the Platform API tokens (never the tokens) | `/run/agenix/api-tokens` |
-| `clusterd-kubeconfig.age` | The API's Kubernetes ServiceAccount | `/run/agenix/clusterd-kubeconfig` |
+| `clusterd-kubeconfig.age` | The API's Kubernetes ServiceAccount (read-only) | `/run/agenix/clusterd-kubeconfig` |
+| `clusterd-ceph-keyring.age` | The API's Ceph key `client.clusterd` (`mon 'allow r'`) | `/run/agenix/clusterd-ceph-keyring` |
 
 ## On the hosts only
 
@@ -37,7 +38,6 @@ agenix files, encrypted to my laptop key and the three host keys
 | --- | --- | --- |
 | Ceph admin keyring | `/etc/ceph/ceph.client.admin.keyring` on every host | Encrypted, `~/.local/state/nix-hgd1-cluster/ceph-bootstrap/` |
 | Ceph daemon keyrings | `/var/lib/ceph/` on every host | Same archive |
-| Ceph key for the API (`client.clusterd`, read-only) | `/etc/ceph/ceph.client.clusterd.keyring` on every host | Same archive |
 | S3 user `jurre` | `/root/jurre-s3-credentials.json` on hv01 | – |
 | S3 users for apps | `/root/<app>-s3-credentials.json` on the host that created them | – |
 | Let's Encrypt account and certificates | `/var/lib/acme/` on every host | Encrypted, `~/.local/state/nix-hgd1-cluster/s3-ha/` |
@@ -52,7 +52,7 @@ agenix files, encrypted to my laptop key and the three host keys
 | Admin SSH key | `~/.ssh/id_ed25519` | Logins on hosts, VMs and the router; decrypting every agenix secret |
 | Switch SSH key | `~/.ssh/id_rsa_hgd1_network` | `manager` on `hgd1-sw01` |
 | Kubeconfig | `~/.kube/hgd1.yaml` (mode 600) | Cluster admin; recreate with `scripts/kubeconfig.sh` |
-| API token | `~/.config/labctl/token` (mode 600) | The `labctl` CLI |
+| API token | `~/.config/labctl/tokens/hgd1` (mode 600) | The `labctl` CLI (`laptop-jurre`, scope `manage`) |
 | Router and switch exports | `~/.local/state/nix-cluster/network-rollout/` (mode 600) | Backups taken by `hgd1-network`; contain password hashes and keys |
 | WARP enrolment | The WARP client | Device registration in team `buunk` |
 

@@ -51,6 +51,7 @@ Every file in the repo and what it configures. Links open the file on GitHub.
 | `secrets/snmp-community.age` | snmp_exporter auth file | `/run/agenix/snmp-community` |
 | `secrets/api-tokens.age` | Hashes of the API tokens | `/run/agenix/api-tokens` |
 | `secrets/clusterd-kubeconfig.age` | Kubeconfig of the API's ServiceAccount | `/run/agenix/clusterd-kubeconfig` |
+| `secrets/clusterd-ceph-keyring.age` | The API's read-only Ceph key | `/run/agenix/clusterd-ceph-keyring` |
 
 Where everything else lives: [Credentials](credentials.md). Code in other repos: [Repositories](repositories.md).
 

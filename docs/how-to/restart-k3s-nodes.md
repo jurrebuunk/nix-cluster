@@ -27,8 +27,8 @@ For each VM the script:
 4. Waits up to 10 minutes for a **new boot** of that node to be Ready.
 5. Uncordons it and checks the API.
 
-For a single node you can also use the CLI, which runs the same sequence
-through the [Platform API](../concepts/api.md):
+From `clusterd` `v1.0`, a single node can also be restarted with the CLI,
+which runs the same sequence through the [Platform API](../concepts/api.md):
 
 ```sh
 labctl vm restart hgd1-k8w01

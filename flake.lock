@@ -20,6 +20,27 @@
         "type": "github"
       }
     },
+    "clusterd": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1795446602,
+        "narHash": "sha256-v8Nff3cqM66gxeJk+XRZRA65J8E46L8a1yw6qXAh9wQ=",
+        "owner": "jurrebuunk",
+        "repo": "clusterd",
+        "rev": "b88a6730ec0f44e962868106a879a12123e806e0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "jurrebuunk",
+        "ref": "v0.1.0",
+        "repo": "clusterd",
+        "type": "github"
+      }
+    },
     "microvm": {
       "inputs": {
         "nixpkgs": [
@@ -60,6 +81,7 @@
     "root": {
       "inputs": {
         "agenix": "agenix",
+        "clusterd": "clusterd",
         "microvm": "microvm",
         "nixpkgs": "nixpkgs"
       }

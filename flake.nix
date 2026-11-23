@@ -11,9 +11,14 @@
       url = "github:ryantm/agenix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # Platform API and CLI; always a release tag (docs/concepts/api.md).
+    clusterd = {
+      url = "github:jurrebuunk/clusterd/v0.1.0";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { nixpkgs, agenix, microvm, ... }:
+  outputs = { nixpkgs, agenix, microvm, clusterd, ... }:
     let
       system = "x86_64-linux";
       inventory = import ./inventory.nix;
@@ -41,6 +46,8 @@
             ./modules/s3-ha
             ./modules/remote-access.nix
             ./modules/monitoring
+            clusterd.nixosModules.clusterd
+            ./modules/clusterd
             (./hosts + "/${host}")
           ];
         }) inventory.hosts) // guestConfigurations;
@@ -51,6 +58,7 @@
           pkgs.cloudflared
           pkgs.jq
           pkgs.kubectl
+          clusterd.packages.${system}.labctl
           pkgs.nmap
           pkgs.nixos-rebuild-ng
           pkgs.shellcheck

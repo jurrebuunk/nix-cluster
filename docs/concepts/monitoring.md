@@ -56,11 +56,12 @@ Each host's vmagent scrapes every 30 seconds:
 | `smartctl` | smartctl_exporter | SMART health and wear of the HDD and NVMe |
 | `ceph` | Ceph manager (`:9283`) | Health, OSDs, PGs, pools, capacity |
 | `haproxy` | HAProxy (`127.0.0.1:8405`) | S3 frontend and backend state |
+| `clusterd` | Platform API (`127.0.0.1:9180`) | Requests, latency, auth failures, store fallbacks |
 | `cloudflared` | Tunnel connector (`127.0.0.1:20241`) | Tunnel connections |
 | `vm-node` | node_exporter in this host's VMs, over the storage VLAN | VM resources and units |
 | `router-node` | OPNsense `os-node_exporter` (`10.10.10.1:9100`) | Router CPU, memory, interfaces |
 | `switch-snmp` | snmp_exporter → Aruba (`if_mib`, `system`) | Port traffic, errors, uptime |
-| `probe-*` | blackbox_exporter | Ping, DNS, S3 TLS, k3s API TLS, internet |
+| `probe-*` | blackbox_exporter | Ping (including the VIPs), DNS, S3 TLS, `api.lan.buunk.org/v1/health`, k3s API TLS, internet |
 | self | VictoriaMetrics, VictoriaLogs, vmagent, Vector | The monitoring itself |
 
 Shared targets (router, switch, Ceph) are scraped by every host;

@@ -152,7 +152,7 @@ one server and one agent with it.
 
 ## Naming
 
-Names follow `<site>-<role><nn>`: site `labctl` (Hengelo Gld, site 1), a role
+Names follow `<site>-<role><nn>`: site `hgd1` (Hengelo Gld, site 1), a role
 code and a two-digit number starting at 01.
 
 | Role | Meaning | Examples |

@@ -12,4 +12,10 @@ in
   "k3s-agent-token.age".publicKeys = all;
   # snmp_exporter auth file (auths.hgd1.community: the switch's read-only community).
   "snmp-community.age".publicKeys = all;
+  # clusterd (modules/clusterd/): token hashes ("<name> <scope> sha256:<hex>"
+  # lines from `labctl token new`), its ServiceAccount kubeconfig and its
+  # read-only Ceph keyring (client.clusterd, mon 'allow r').
+  "api-tokens.age".publicKeys = all;
+  "clusterd-kubeconfig.age".publicKeys = all;
+  "clusterd-ceph-keyring.age".publicKeys = all;
 }

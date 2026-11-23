@@ -93,7 +93,7 @@ Anything else: [Troubleshooting](troubleshooting.md).
 | Encrypted Ceph keyring backups | `~/.local/state/nix-hgd1-cluster/ceph-bootstrap/` |
 | Encrypted ACME/TLS backups | `~/.local/state/nix-hgd1-cluster/s3-ha/` |
 | Kubeconfig | `~/.kube/hgd1.yaml` |
-| API token | `~/.config/labctl/token` |
+| API token | `~/.config/labctl/tokens/hgd1` |
 | My S3 keys | `/root/jurre-s3-credentials.json` on hv01 |
 | Tunnel credentials | Password manager, plus `secrets/cloudflared-tunnel.age` |
 

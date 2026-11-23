@@ -104,6 +104,7 @@ let
   );
 
   scrapeConfigs = lib.optional inventory.ceph.s3.enable (local "haproxy" 8405) ++ [
+    (local "clusterd" 9180)
     (local "node" 9100)
     (local "smartctl" 9633)
     (local "cloudflared" 20241)
@@ -175,6 +176,7 @@ let
         ${cfg.switch.name} = cfg.switch.ip;
         s3-vip = inventory.ceph.s3.virtualIP;
         k8s-vip = inventory.k3s.apiVIP;
+        api-vip = inventory.api.virtualIP;
         internet = "1.1.1.1";
       }
       // cfg.pingTargets
@@ -183,6 +185,7 @@ let
     (probe "probe-dns" "dns_internal" { internal = inventory.vlans.infra.gateway; })
     (probe "probe-dns-external" "dns_external" { external = inventory.vlans.infra.gateway; })
     (probe "probe-s3" "https_s3" { s3 = "https://${inventory.ceph.s3.hostname}/"; })
+    (probe "probe-api" "https_2xx" { api = "https://${inventory.api.hostname}/v1/health"; })
     (probe "probe-k8s-api" "tls_k3s" { k8s-api = "${inventory.k3s.apiVIP}:6443"; })
     (probe "probe-internet" "https_2xx" { nix-cache = "https://cache.nixos.org/nix-cache-info"; })
   ];
