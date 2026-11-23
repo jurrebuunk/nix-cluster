@@ -67,7 +67,7 @@ stay blocked.
 | `cloudflared` service | `modules/remote-access.nix` |
 | Tunnel credentials | `secrets/cloudflared-tunnel.age`, plus a copy in my password manager |
 | Enrolment, device profile, Gateway rules | Zero Trust dashboard |
-| OPNsense rule | Aliases `HGD1_TUNNEL_HOSTS` → `HGD1_TUNNEL_DESTS` on INFRA |
+| OPNsense rule | Aliases `HGD1_TUNNEL_HOSTS` → `HGD1_TUNNEL_DESTS` on INFRA, in [`hgd1-network`](https://github.com/jurrebuunk/hgd1-network) |
 | Laptop | My NixOS config: `services.cloudflare-warp.enable = true` |
 
 ## Operating
@@ -104,7 +104,7 @@ Only after the hosts are on their static addresses:
 5. **Device profile:** Include mode with `10.10.0.0/16` and the team domain;
    Local Domain Fallback for `lan.buunk.org` to `10.10.20.1`.
 6. **Gateway:** proxy TCP, UDP and ICMP on; add the three network rules.
-7. **OPNsense:** the two aliases and the INFRA rule above the INFRA deny.
+7. **OPNsense:** the two aliases and the INFRA rule above the INFRA deny, through [`hgd1-network`](https://github.com/jurrebuunk/hgd1-network).
 8. **Laptop:** `warp-cli registration new buunk`, `warp-cli connect`.
 
 Verify from outside (a phone hotspot): `ssh jurre@10.10.20.11 hostname`,

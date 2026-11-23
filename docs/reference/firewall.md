@@ -4,8 +4,9 @@ icon: lucide/shield
 
 # Firewall
 
-What may talk to what. OPNsense enforces the VLAN policy; NixOS firewalls on
-the hosts and VMs open only the ports below, each on one interface.
+What may talk to what. OPNsense enforces the VLAN policy (its rules are code in
+[`hgd1-network`](https://github.com/jurrebuunk/hgd1-network)); NixOS firewalls on the hosts and VMs open only the ports below, each
+on one interface (this repo).
 
 ## VLAN policy
 
@@ -88,5 +89,5 @@ ICMP is proxied but can't be filtered by Gateway.
 | OPNsense | `10.10.10.1:9100` node_exporter (reached by the hosts through the remote-access rule) |
 | Aruba | SNMP v2c read-only (`operator restricted`), community in `secrets/snmp-community.age` |
 
-Grafana on k3s will later need one OPNsense rule: K8S → `10.10.20.10` on TCP
-8428 and 9428.
+Rules for k3s workloads (for example K8S → `10.10.20.20:443` for the web UI)
+are added in `hgd1-network` too.

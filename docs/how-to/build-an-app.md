@@ -21,7 +21,7 @@ contract between this repo and your project is a **Kubernetes API**, the
 | Egress | Internet from pods (image registries, APIs) |
 | Internal DNS | `*.lan.buunk.org` names resolve inside pods |
 
-**Not part of this repo** (they come from the workloads repo): ingress, load balancers,
+**Not part of this repo** (they come from `hgd1-k8s`): ingress, load balancers,
 cert-manager, ceph-csi (so no `ceph-bulk` StorageClass yet) and the Postgres
 operator. Until then, services only work inside the cluster.
 
@@ -36,7 +36,7 @@ export KUBECONFIG=~/.kube/hgd1.yaml
 kubectl get nodes -L topology.kubernetes.io/zone
 ```
 
-The workloads repo itself needs nothing from this flake, only that file.
+`hgd1-k8s` and app repos need nothing from this flake, only that file.
 Tools like Helm, Terraform, Flux or Argo CD can all use it.
 
 ## Where state goes
@@ -95,7 +95,7 @@ Every node has a NIC on the storage VLAN, so pods reach
 `https://s3.lan.buunk.org` directly with a valid certificate.
 
 1. Create a user for your app ([Create an S3 user](create-s3-user.md)).
-2. Put its keys in a Kubernetes Secret through your workloads repo's secret
+2. Put its keys in a Kubernetes Secret through sops in `hgd1-k8s` or your app repo's secret
    handling. Never put them in plain text in Git.
 3. Configure the client: endpoint `https://s3.lan.buunk.org`, region
    `us-east-1`, path-style addressing.
@@ -137,24 +137,24 @@ app).
       with a zone spread constraint.
 - [ ] Its own S3 user and bucket if it stores files.
 - [ ] Postgres from the template if it needs a database.
-- [ ] Secrets through the workloads repo's secret handling, never plain text.
+- [ ] Secrets through sops (`hgd1-k8s`) or your app repo's secret handling, never plain text.
 - [ ] Requests and limits set: a node has 4 GiB of RAM in total.
 - [ ] Tested: stop one VM with `scripts/k3s-roll.sh <vm>` and check the app
       keeps working.
 
 ## Monitoring
 
-Your app's own metrics and logs belong to the workloads repo. For the
+Your app's own metrics and logs are collected by `hgd1-k8s` (vmagent and Vector). For the
 platform's data, use the [CLI](use-the-cli.md), the [web UI](../concepts/web-ui.md)
 or the [API](../reference/api.md) (`/v1/metrics`, `/v1/logs`, token auth). A
-Grafana in the workloads repo can also read the stores directly:
+Grafana in `hgd1-k8s` can also read the stores directly:
 
 | Data source | URL |
 | --- | --- |
 | Prometheus (VictoriaMetrics) | `http://mon.lan.buunk.org:8428` |
 | VictoriaLogs (plugin) | `http://mon.lan.buunk.org:9428` |
 
-From k3s that needs one OPNsense rule: K8S → `10.10.20.10` on TCP 8428 and
+From k3s that needs one OPNsense rule in [`hgd1-network`](https://github.com/jurrebuunk/hgd1-network): K8S → `10.10.20.10` on TCP 8428 and
 9428. See [Monitoring](../concepts/monitoring.md).
 
 ## Platform changes

@@ -15,8 +15,8 @@ Find the symptom, follow the steps. For a broken deploy, see
    healthy connectors means all three hosts are down or offline.
 3. **At the site without WARP:** switch port 1 (mgmt, DHCP). Everything
    internal is reachable from there, including `ssh root@10.10.10.1`.
-4. **Router dead:** the OPNsense console. Restore the latest `config.xml`
-   from `~/.local/state/nix-cluster/network-rollout/` if needed.
+4. **Router dead:** the OPNsense console. Restore the latest backup (see
+   [`hgd1-network`](https://github.com/jurrebuunk/hgd1-network)) or re-apply its playbooks.
 
 ## Host down
 
@@ -91,7 +91,7 @@ ssh jurre@<vm-ip> 'sudo journalctl -u k3s -b --no-pager | tail -50'
 | A target is `down` | On a host: `curl -s 127.0.0.1:8429/api/v1/targets`; the `lastError` says why. Router: is `os-node_exporter` running? VMs: was the VM restarted after the monitoring deploy? |
 | One copy has fewer series | vmagent is still catching up from its disk buffer; give it a few minutes |
 | No logs from a VM | `ssh jurre@<vm> systemctl status vector`; it ships over the storage VLAN |
-| Router or switch logs missing | Check the syslog destination on OPNsense and `show logging` on the switch; both send to `10.10.20.10:514` |
+| Router or switch logs missing | Both send to `10.10.20.10:514`; check the syslog settings in [`hgd1-network`](https://github.com/jurrebuunk/hgd1-network) and `show logging` on the switch |
 | A disk is missing from SMART | The NVMe ACL is set by udev at boot. Without a reboot: `sudo udevadm trigger --subsystem-match=nvme --action=add`, then restart `prometheus-smartctl-exporter` |
 
 ## API
@@ -102,7 +102,7 @@ ssh jurre@<vm-ip> 'sudo journalctl -u k3s -b --no-pager | tail -50'
 | `/v1/health` fails | No host passes the VIP check: `systemctl status clusterd keepalived` on each host |
 | 401 / exit code 4 | Token unknown or revoked; `hgd1 whoami`, or create a new one ([Tokens](../how-to/use-the-cli.md#tokens)) |
 | 403 on an action | The token has scope `read`; actions need `manage` |
-| Web UI loads but shows no data | WARP is off, or the browser origin isn't `api.webOrigin` |
+| Web UI loads but shows no data | The pod can't reach `10.10.20.20:443` (OPNsense rule in [`hgd1-network`](https://github.com/jurrebuunk/hgd1-network)), or its `operator` token is revoked |
 | Metrics or logs empty through the API | Check the stores themselves: [Monitoring](#monitoring) |
 
 ## Disk failed

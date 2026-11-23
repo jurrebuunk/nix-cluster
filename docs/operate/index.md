@@ -60,7 +60,7 @@ Anything else: [Troubleshooting](troubleshooting.md).
    on the next deploy.
 3. **Look before you delete or overwrite.** Disk images and Ceph data can't
    be restored from Git.
-4. **Back up the router before changing it.**
+4. **Router and switch only through [`hgd1-network`](https://github.com/jurrebuunk/hgd1-network)**, which backs them up first.
 5. **Secrets never in Git, chat or logs.**
 
 ## Runbooks
@@ -68,7 +68,7 @@ Anything else: [Troubleshooting](troubleshooting.md).
 <div class="grid cards" markdown>
 
 - :lucide-power: [**Host maintenance**](host-maintenance.md): reboot or service a host safely
-- :lucide-router: [**Router and switch**](router-and-switch.md): backups, updates, reboots
+- :lucide-router: [**Router and switch**](router-and-switch.md): what's configured, access, reboot impact
 - :lucide-hard-drive: [**Disk replacement**](disk-replacement.md): swap a failed HDD
 - :lucide-life-buoy: [**Troubleshooting**](troubleshooting.md): find the fix by symptom
 - :lucide-siren: [**Disaster recovery**](disaster-recovery.md): reinstall a host, rebuild the site
@@ -89,7 +89,7 @@ Anything else: [Troubleshooting](troubleshooting.md).
 
 | What | Where |
 | --- | --- |
-| Router and switch backups, switch SSH config | `~/.local/state/nix-cluster/network-rollout/` (mode 0600) |
+| Router and switch backups (taken by `hgd1-network`), switch SSH config | `~/.local/state/nix-cluster/network-rollout/` (mode 0600) |
 | Encrypted Ceph keyring backups | `~/.local/state/nix-hgd1-cluster/ceph-bootstrap/` |
 | Encrypted ACME/TLS backups | `~/.local/state/nix-hgd1-cluster/s3-ha/` |
 | Kubeconfig | `~/.kube/hgd1.yaml` |

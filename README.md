@@ -55,7 +55,7 @@ flowchart TB
 | Kubernetes | k3s on microVMs, API VIP `k8s.lan.buunk.org`, zone labels per host | ✅ |
 | Monitoring | VictoriaMetrics + VictoriaLogs on every host, router and switch included | ✅ |
 | Platform API | `clusterd` at `api.lan.buunk.org` with the `hgd1` CLI and a web UI on k3s | 🚧 |
-| Workloads | Everything running on k3s lives in a separate workloads repo | ↗️ |
+| Cluster components | Flux, ingress, storage, Postgres on k3s: [`hgd1-k8s`](https://github.com/jurrebuunk/hgd1-k8s) | ↗️ |
 
 Each layer survives the loss of any one host.
 
@@ -89,6 +89,17 @@ then read the
 | [`scripts/`](scripts/) | `deploy.sh`, `vm.sh`, `k3s-roll.sh`, `kubeconfig.sh`, `ceph-bootstrap.sh` |
 | [`secrets/`](secrets/) | agenix-encrypted secrets (no plaintext ever) |
 | [`docs/`](docs/) | The documentation site (Zensical) |
+
+## Related repositories
+
+| Repo | What |
+| --- | --- |
+| [`clusterd`](https://github.com/jurrebuunk/clusterd) | Platform API server and the `hgd1` CLI (flake input here) |
+| [`lab-console`](https://github.com/jurrebuunk/lab-console) | Web UI at `lab.buunk.org` |
+| [`hgd1-k8s`](https://github.com/jurrebuunk/hgd1-k8s) | Base components of the k3s cluster (Flux) |
+| `hgd1-network` (private) | Ansible for the OPNsense router and Aruba switch |
+
+This handbook explains all of them; changes and development happen in each repo.
 
 ## Documentation
 

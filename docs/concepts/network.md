@@ -9,9 +9,8 @@ VLANs behind one OPNsense router.
 
 !!! info "At a glance"
 
-    **Status** <span class="status">Done</span> · **Configured in** OPNsense
-    and the Aruba switch (backed up outside Git), host side in
-    `modules/network.nix` · **Addresses** [Addresses](../reference/addresses.md)
+    **Status** <span class="status">Done</span> · **Router and switch managed in**
+    [`hgd1-network`](https://github.com/jurrebuunk/hgd1-network) (Ansible) · **Host side** `modules/network.nix` · **Addresses** [Addresses](../reference/addresses.md)
     · **Rules** [Firewall](../reference/firewall.md)
 
 ## Overview
@@ -95,7 +94,7 @@ table is in [Firewall](../reference/firewall.md).
 OPNsense runs Unbound with DNSSEC for `lan.buunk.org` and serves NTP. Fixed
 addresses have host overrides such as `hgd1-hv01.lan.buunk.org`,
 `s3.lan.buunk.org`, `k8s.lan.buunk.org`, `mon.lan.buunk.org`,
-`api.lan.buunk.org` and `console.lan.buunk.org`. Hosts also keep each other in
+`api.lan.buunk.org` and `lab.buunk.org` (internal for now). Hosts also keep each other in
 `/etc/hosts`, so they resolve each other when the router is down. Ceph needs
 synced clocks, so hosts run chrony and prefer OPNsense.
 
@@ -116,18 +115,20 @@ RDP and discovery are not forwarded.
 
 | What | Where |
 | --- | --- |
-| VLANs, DHCP, DNS overrides, firewall, NAT | OPNsense, `ssh root@10.10.10.1` or `https://10.10.10.1` |
-| VLANs and port roles | Aruba, `ssh manager@10.10.10.2` |
+| VLANs, DHCP, DNS overrides, firewall, NAT on OPNsense | [`hgd1-network`](https://github.com/jurrebuunk/hgd1-network) |
+| VLANs and port roles on the Aruba | [`hgd1-network`](https://github.com/jurrebuunk/hgd1-network) |
 | Host side | `modules/network.nix`, `modules/microvm/host/networking.nix` |
 | Addresses | `inventory.nix` → `vlans`, `hosts`, `vms` |
 
-The router and switch are not managed by Nix. Their configuration is backed
-up as files outside Git, because they contain password hashes and keys.
+The router and switch are not managed by Nix: their configuration is code in
+the private [`hgd1-network`](../reference/repositories.md) repo (Ansible), and
+exports are backed up as files outside Git, because they contain password
+hashes and keys.
 
 ## Operating
 
-- Back up both devices before every change:
-  [Router and switch](../operate/router-and-switch.md).
+- Router and switch changes, backups and updates: [`hgd1-network`](https://github.com/jurrebuunk/hgd1-network). What's configured
+  and how to reach the devices: [Router and switch](../operate/router-and-switch.md).
 - Building it all again: [Rebuild the network](../operate/rebuild-network.md).
 
 ## Troubleshooting

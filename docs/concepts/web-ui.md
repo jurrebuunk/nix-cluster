@@ -4,64 +4,75 @@ icon: lucide/layout-dashboard
 
 # Web UI
 
-A browser dashboard for the platform at **`https://console.lan.buunk.org`**:
-health of hosts, VMs, k3s and Ceph, metrics and logs, and the same actions as
-the CLI. It is only a frontend; everything it shows or does goes through the
-[Platform API](api.md).
+**`lab-console`**, the browser dashboard at **`https://lab.buunk.org`**:
+health of hosts, VMs, k3s and Ceph, metrics, logs and a few safe actions,
+from any device. It talks to the platform only through the
+[Platform API](api.md), and it isn't tied to this one site.
 
 !!! info "At a glance"
 
     **Status** <span class="status status--partial">In development</span> ·
-    **Runs on** the k3s cluster, deployed from the workloads repo ·
-    **Talks to** `https://api.lan.buunk.org` · **Needs** WARP and an API token
+    **Repo** [`lab-console`](https://github.com/jurrebuunk/lab-console) ·
+    **Runs on** k3s, deployed by Flux from `hgd1-k8s` · **Talks to**
+    `clusterd` with an `operator` token
 
 ## Overview
 
 ```mermaid
 sequenceDiagram
-  participant b as Browser (laptop, WARP on)
-  participant ui as console.lan.buunk.org (k3s)
-  participant api as api.lan.buunk.org (infra VLAN)
-  b->>ui: load the static frontend
-  b->>api: API calls with the token (CORS allowed for console)
-  api-->>b: status, metrics, logs, action results
+  participant b as Browser
+  participant ui as lab.buunk.org (k3s pod)
+  participant api as clusterd (api.lan.buunk.org)
+  b->>ui: page + /api calls
+  ui->>api: same call, with the operator token
+  api-->>ui: status, metrics, logs, action result
+  ui-->>b: response
 ```
 
-- **Static frontend.** k3s serves HTML, CSS and JavaScript, nothing more. It
-  holds no secrets and has no backend of its own.
-- **The browser calls the API directly.** The API is on the infra VLAN, so the
-  console only works with WARP connected (or from the management VLAN). Without
-  it the page loads and tells you to connect WARP.
-- **Same rules as the CLI.** A `read` token shows everything; a `manage` token
-  also enables the action buttons.
+- **Frontend and a thin proxy in one pod.** The pod serves the static
+  frontend and forwards `/api` to `clusterd`. The browser never holds an API
+  token, and `clusterd` never has to be public.
+- **Scope `operator`:** everything a `read` token sees, plus the few actions I
+  allow from anywhere. `manage` stays with the CLI over WARP.
+- **A broken console never affects the platform.** It can be rebuilt or moved
+  freely; the CLI keeps working without it.
+
+## Access
+
+| Stage | How you reach it |
+| --- | --- |
+| Now | Internal only: `lab.buunk.org` points to a load balancer IP in VLAN 40 (`10.10.40.200–249`); reachable over WARP |
+| Later | Public through a Cloudflare Tunnel from `hgd1-k8s`, with login through **Keycloak** (OIDC). It only goes public once Keycloak is in front of it |
 
 ## How it works
 
 | Part | Detail |
 | --- | --- |
-| Address | `console.lan.buunk.org`, a k3s ingress on a load balancer IP in VLAN 40 (`.200–.249`) |
-| Login | Paste an API token once; it's kept in the browser's session storage, never in a cookie |
-| CORS | The API only accepts browser calls from the origin in `inventory.nix` → `api.webOrigin` |
-| Data | Status from `/v1/status`, charts from `/v1/metrics/query_range`, logs from `/v1/logs/query` |
-| Actions | Calls the `/v1/actions/…` endpoints; every action shows what it will do and asks for confirmation |
-| Look | flatwork-ui colours: background `#1b1818`, primary `#8aa1a8` |
-
-Because the console is only a frontend, it can be rebuilt or moved freely; a
-broken console never affects the platform. The CLI keeps working without it.
+| Frontend | A small single-page app; flatwork-ui colours (`#1b1818`, `#8aa1a8`) |
+| Proxy | Caddy or nginx in the same pod, adds the token from a Kubernetes Secret |
+| Token | An `operator` token, encrypted with sops in `hgd1-k8s` |
+| Network | One OPNsense rule in [`hgd1-network`](https://github.com/jurrebuunk/hgd1-network): K8S → `10.10.20.20:443` (the API VIP) |
+| Data | `/v1/status`, `/v1/metrics/query_range`, `/v1/logs/query` |
+| Actions | `/v1/actions/…`; every action shows what it will do and asks for confirmation |
+| Delivery | CI builds `ghcr.io/jurrebuunk/lab-console`; Flux rolls out new images |
 
 ## Configuration
 
-The frontend's code and Kubernetes manifests live in the workloads repo. This
-repo only sets the allowed origin (`inventory.nix` → `api.webOrigin`) and the
-DNS name on OPNsense.
+Code, image and Kubernetes manifests live in `lab-console`; Flux and the
+token Secret in `hgd1-k8s`. This repo only provides the API it talks to.
 
-## Operating
+## Develop
 
-- Open <https://console.lan.buunk.org> with WARP connected and log in with a
-  token from [Use the CLI → Tokens](../how-to/use-the-cli.md#tokens).
-- Logged-out or no data: check WARP first, then `hgd1 status`.
+Building, running locally and releasing the web UI happen in
+[`lab-console`](https://github.com/jurrebuunk/lab-console); deploying it in
+[`hgd1-k8s`](https://github.com/jurrebuunk/hgd1-k8s). This page stays the
+place to understand how it fits into the platform.
+
+## Troubleshooting
+
+See [Troubleshooting → API](../operate/troubleshooting.md#api).
 
 ## Related
 
 - [Platform API](api.md) · [Use the CLI](../how-to/use-the-cli.md) ·
-  [Monitoring](monitoring.md)
+  [Repositories](../reference/repositories.md)

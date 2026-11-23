@@ -4,7 +4,8 @@ icon: lucide/square-terminal
 
 # Use the CLI
 
-`hgd1` is the command-line client for the [Platform API](../concepts/api.md):
+`hgd1` is the command-line client for the [Platform API](../concepts/api.md),
+built in the [`clusterd`](https://github.com/jurrebuunk/clusterd) repo:
 platform status, metrics, logs and actions from your terminal, for daily
 management and while developing. Every command is in the
 [CLI reference](../reference/cli.md).
@@ -15,7 +16,7 @@ management and while developing. Every command is in the
 
 - WARP connected (or a cable into the management VLAN).
 - `nix develop` in this repo (`hgd1` is in the dev shell), or run it anywhere
-  with `nix run github:jurrebuunk/nix-hgd1-cluster#hgd1 -- <command>`.
+  with `nix run github:jurrebuunk/clusterd#hgd1 -- <command>`.
 - An API token (below).
 
 ## Tokens
@@ -45,8 +46,9 @@ live in an agenix secret.
     hgd1 login
     ```
 
-Use `--scope read` for tokens that only look (dashboards, scripts). Revoke a
-token by removing its line from the secret and deploying.
+Use `--scope read` for tokens that only look (dashboards, scripts) and
+`--scope operator` for the web UI's proxy. Revoke a token by removing its line
+from the secret and deploying.
 
 ## Steps
 
@@ -76,3 +78,5 @@ hgd1 status        # everything green
 - `HGD1_API` overrides the endpoint (default `https://api.lan.buunk.org`),
   handy when developing `clusterd` against a single host.
 - If a command fails with a connection error, check WARP first.
+- Working on the CLI itself (new commands, bugs): that happens in the
+  [`clusterd`](https://github.com/jurrebuunk/clusterd) repo.

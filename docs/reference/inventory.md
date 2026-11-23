@@ -84,7 +84,6 @@ secret. Modules and scripts read it; `nix flake check` validates it.
 | --- | --- |
 | `hostname`, `virtualIP` | `api.lan.buunk.org`, `10.10.20.20` |
 | `virtualRouterId` | VRRP ID (21) |
-| `webOrigin` | `https://console.lan.buunk.org`, the only origin allowed for browser calls |
 
 ## Checks
 

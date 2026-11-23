@@ -91,7 +91,8 @@ TAP
 :   A virtual NIC that connects a VM to a host bridge.
 
 Token scope
-:   What an API token may do: `read` (look) or `manage` (also act).
+:   What an API token may do: `read` (look), `operator` (look and a few safe
+    actions) or `manage` (everything).
 
 Tunnel (Cloudflare)
 :   An outbound-only connection from `cloudflared` on the hosts to Cloudflare
@@ -125,8 +126,8 @@ WARP
 :   Cloudflare's device client (Cloudflare One) used for remote access.
 
 Web UI
-:   The browser dashboard at `console.lan.buunk.org`, a frontend for the
-    Platform API running on k3s.
+:   `lab-console`, the browser dashboard at `lab.buunk.org` on k3s; it talks
+    to the Platform API through its own proxy.
 
 Zone
 :   The `topology.kubernetes.io/zone` label: the physical host a node runs on.

@@ -40,8 +40,8 @@ For a dead NVMe or a broken OS on one host:
 
 Each step depends on the one before:
 
-1. **Network:** restore the router and switch from their backups, or
-   [rebuild the network](rebuild-network.md).
+1. **Network:** restore the router and switch with [`hgd1-network`](https://github.com/jurrebuunk/hgd1-network) (backups or a
+   fresh run), after the by-hand bootstrap in [Rebuild the network](rebuild-network.md).
 2. **Hosts:** install NixOS on all three and deploy this repo (new host keys
    mean re-encrypting the secrets).
 3. **Ceph:** a new cluster with `scripts/ceph-bootstrap.sh`, or restore its
@@ -50,7 +50,7 @@ Each step depends on the one before:
 5. **k3s:** the VMs come up with the hosts. Set `k3s.bootstrapServer` back to
    `hgd1-k8m01` so it creates a new cluster, then set it to `null` again
    ([Finish the cluster](../how-to/finish-k3s.md)).
-6. **Workloads** from the workloads repo, then **data** from backups.
+6. **Cluster components and apps** come back through Flux from `hgd1-k8s`, then **data** from backups.
 
 !!! danger "Replication is not a backup"
 

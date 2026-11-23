@@ -10,14 +10,16 @@ Endpoints of the [Platform API](../concepts/api.md) at
 
 <span class="status status--partial">In development</span>
 
+The source of truth is the code in [`clusterd`](https://github.com/jurrebuunk/clusterd); this page summarises it.
+
 ## Conventions
 
 | | |
 | --- | --- |
 | Base URL | `https://api.lan.buunk.org/v1` |
-| Auth | Bearer token, scope `read` or `manage` |
+| Auth | Bearer token, scope `read`, `operator` or `manage` |
 | Errors | HTTP status plus `{"error": "<message>"}` |
-| Browser calls | CORS only for `inventory.nix` → `api.webOrigin` |
+| Browsers | Never call the API directly; the [web UI](../concepts/web-ui.md) proxies with its own token |
 | Audit | Every `manage` request is logged by `clusterd.service` |
 
 ## System
@@ -57,12 +59,12 @@ Scope: `read`.
 
 ## Actions
 
-Scope: `manage`. Actions are added one at a time; each wraps an existing safe
-procedure and is listed here when it exists.
+Actions are added one at a time; each wraps an existing safe procedure and is
+listed here when it exists. The scope column says who may call it.
 
-| Method | Path | Does |
-| --- | --- | --- |
-| POST | `/v1/actions/vms/{name}/restart` | Drain, restart `microvm@{name}`, wait for a new boot to be Ready, uncordon |
+| Method | Path | Scope | Does |
+| --- | --- | --- | --- |
+| POST | `/v1/actions/vms/{name}/restart` | operator | Drain, restart `microvm@{name}`, wait for a new boot to be Ready, uncordon |
 
 ## Example
 

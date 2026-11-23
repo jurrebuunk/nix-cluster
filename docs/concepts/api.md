@@ -13,6 +13,7 @@ to the hosts, Ceph or the monitoring stores directly.
 !!! info "At a glance"
 
     **Status** <span class="status status--partial">In development</span> ·
+    **Repo** [`clusterd`](https://github.com/jurrebuunk/clusterd) (server + CLI) ·
     **Endpoint** `https://api.lan.buunk.org` (VIP `10.10.20.20`, infra VLAN) ·
     **Configured in** `modules/clusterd/`, `inventory.nix` → `api` ·
     **Reference** [API reference](../reference/api.md)
@@ -22,7 +23,7 @@ to the hosts, Ceph or the monitoring stores directly.
 ```mermaid
 flowchart LR
   cli[hgd1 CLI] -- WARP --> vip
-  ui[Web UI in the browser] -- WARP --> vip
+  ui[lab-console on k3s] -- operator token --> vip
   vip[api.lan.buunk.org<br/>VIP 10.10.20.20] --> c1[clusterd hv01]
   vip -.-> c2[clusterd hv02]
   vip -.-> c3[clusterd hv03]
@@ -49,20 +50,21 @@ flowchart LR
 
 Two layers, both required:
 
-1. **Network.** `api.lan.buunk.org` lives on the infra VLAN. Users, k8s and
-   the internet can't reach it; only the management VLAN and remote access
-   through Cloudflare (my email only, see [Remote access](remote-access.md))
-   can.
+1. **Network.** `api.lan.buunk.org` lives on the infra VLAN. The internet and
+   the users VLAN can't reach it. The management VLAN and remote access through
+   Cloudflare (my email only, see [Remote access](remote-access.md)) can, and
+   one OPNsense rule (in [`hgd1-network`](https://github.com/jurrebuunk/hgd1-network)) lets the web UI's pod on k3s reach port 443.
 2. **Tokens.** Every request carries a bearer token. Tokens have a scope:
 
-    | Scope | Allows |
-    | --- | --- |
-    | `read` | Status, metrics and logs |
-    | `manage` | Everything in `read`, plus actions that change something |
+    | Scope | For | Allows |
+    | --- | --- | --- |
+    | `read` | Dashboards, scripts | Status, metrics and logs |
+    | `operator` | The [web UI](web-ui.md)'s proxy | `read` plus a few safe actions |
+    | `manage` | The CLI over WARP | Everything |
 
     Token hashes live in the agenix secret `secrets/api-tokens.age`; the plain
-    token only ever exists on the client. Single sign-on through an identity
-    provider can replace tokens later without changing the clients.
+    token only ever exists on the client. Later, Keycloak (OIDC) replaces
+    hand-made tokens.
 
 ### Metrics and logs proxy
 
@@ -98,15 +100,18 @@ no exceptions.
 
 ## Configuration
 
+The server, the CLI and the NixOS module (`services.clusterd`, including the
+polkit rule) come from the [`clusterd`](https://github.com/jurrebuunk/clusterd)
+repo as a flake input. This repo only configures them:
+
 | File | Owns |
 | --- | --- |
-| `inventory.nix` → `api` | Hostname, VIP, VRRP id, allowed web UI origin |
-| `modules/clusterd/default.nix` | Service, user, imports |
+| `flake.nix` → `inputs.clusterd` | The `clusterd` version in use (`nix flake update clusterd`) |
+| `inventory.nix` → `api` | Hostname, VIP, VRRP id |
+| `modules/clusterd/default.nix` | Enables `services.clusterd` with settings from the inventory |
 | `modules/clusterd/tls.nix` | ACME certificate through DNS-01 |
 | `modules/clusterd/vip.nix` | Keepalived and the health check |
 | `modules/clusterd/firewall.nix` | HTTPS on the management NIC, VRRP from peers |
-| `modules/clusterd/polkit.nix` | Permission to manage `microvm@*` only |
-| `pkgs/clusterd/` | The API server package |
 | `secrets/api-tokens.age`, `secrets/clusterd-kubeconfig.age` | Token hashes, Kubernetes access |
 
 ## Operating
@@ -119,6 +124,14 @@ for h in 11 12 13; do ssh jurre@10.10.20.$h 'systemctl is-active clusterd'; done
 
 - New token: see [Use the CLI → Tokens](../how-to/use-the-cli.md#tokens).
 - Audit trail: `hgd1 logs --unit clusterd.service --since 1d`.
+
+## Develop
+
+Code, tests, the API definition and releases of `clusterd` and the `hgd1` CLI
+live in [`clusterd`](https://github.com/jurrebuunk/clusterd). Adding an
+endpoint or action happens there; this repo then picks up the new version with
+`nix flake update clusterd` and a normal deploy. Point the CLI at a single
+host while developing with `HGD1_API`.
 
 ## Troubleshooting
 

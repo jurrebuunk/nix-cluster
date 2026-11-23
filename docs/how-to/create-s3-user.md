@@ -29,7 +29,7 @@ in `/root/jurre-s3-credentials.json`).
     ```
 
 2. **Hand the keys to the app** through its secret handling (a Kubernetes
-   Secret from the workloads repo, or an agenix secret here). Never paste them
+   Secret through sops in `hgd1-k8s`, or an agenix secret here). Never paste them
    into chat, logs or Git.
 3. **Configure a client** and create a bucket:
 

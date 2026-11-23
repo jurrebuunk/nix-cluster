@@ -39,7 +39,7 @@ create one by hand. Background: [VMs](../concepts/vms.md).
 
     Copy the key into the entry as `hostKey = "ssh-ed25519 …";` and commit.
 
-5. Optional: add a DNS override on OPNsense (`hgd1-k8w03.lan.buunk.org`).
+5. Optional: add a DNS override (`hgd1-k8w03.lan.buunk.org`) in [`hgd1-network`](https://github.com/jurrebuunk/hgd1-network).
 
 Keep an odd number of k3s servers.
 

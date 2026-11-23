@@ -80,8 +80,10 @@ host maintenance.
 
 **Step 9: Platform API, CLI and web UI.** `clusterd`, a REST API on all three
 hosts behind `https://api.lan.buunk.org`, with token auth and a read-only
-proxy for metrics and logs; the `hgd1` CLI; and a frontend on k3s at
-`https://console.lan.buunk.org`. What the API can do grows one action at a
+proxy for metrics and logs, and the `hgd1` CLI (both in the
+[`clusterd`](https://github.com/jurrebuunk/clusterd) repo); and
+[`lab-console`](https://github.com/jurrebuunk/lab-console), the web UI at
+`lab.buunk.org` on k3s. What the API can do grows one action at a
 time; it never defines VMs, Nix does. See [Platform API](../concepts/api.md),
 [Use the CLI](../how-to/use-the-cli.md) and [Web UI](../concepts/web-ui.md).
 
@@ -94,10 +96,14 @@ time; it never defines VMs, Nix does. See [Platform API](../concepts/api.md),
 - **Secrets manager (KMS)** for workloads; see [Credentials](credentials.md#future-a-kms).
 - **Single sign-on** for the API, CLI and web UI instead of tokens.
 
+## Other repos
+
+Cluster components (Flux, ingress, storage, Postgres) live in `hgd1-k8s`, the
+router and switch move to Ansible in `hgd1-network`. Each has a `PLAN.md`
+with its next steps; see [Repositories](repositories.md).
+
 ## Open decisions
 
-- Workloads repo tooling: port the Helm/Terraform approach from `k3s-infra`,
-  or move to Flux or Argo CD.
 - What happens to the old Proxmox-era repos (`k3s-infra`,
   `k3s-nixos-proxmox-prod`).
 - Network extras: Wi-Fi access point, guest and IoT VLANs, a DMZ, LACP over the

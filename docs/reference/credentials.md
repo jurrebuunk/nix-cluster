@@ -52,12 +52,20 @@ agenix files, encrypted to my laptop key and the three host keys
 | Admin SSH key | `~/.ssh/id_ed25519` | Logins on hosts, VMs and the router; decrypting every agenix secret |
 | Switch SSH key | `~/.ssh/id_rsa_hgd1_network` | `manager` on `hgd1-sw01` |
 | Kubeconfig | `~/.kube/hgd1.yaml` (mode 600) | Cluster admin; recreate with `scripts/kubeconfig.sh` |
-| API token | `~/.config/hgd1/token` (mode 600) | The `hgd1` CLI; the web UI keeps its token in session storage |
-| Router and switch exports | `~/.local/state/nix-cluster/network-rollout/` (mode 600) | Contain password hashes and keys |
+| API token | `~/.config/hgd1/token` (mode 600) | The `hgd1` CLI |
+| Router and switch exports | `~/.local/state/nix-cluster/network-rollout/` (mode 600) | Backups taken by `hgd1-network`; contain password hashes and keys |
 | WARP enrolment | The WARP client | Device registration in team `buunk` |
 
 The admin SSH key is the most important credential: it opens every machine
 and every secret. Keep an offline backup of it.
+
+## In other repos
+
+| Credential | Where |
+| --- | --- |
+| Web UI `operator` token | Kubernetes Secret, encrypted with sops in `hgd1-k8s` |
+| Secrets of cluster components (Cloudflare DNS token for cert-manager, …) | sops in `hgd1-k8s` |
+| OPNsense API key, SNMP community, switch login for Ansible | sops (or ansible-vault) in `hgd1-network` |
 
 ## Password manager
 
@@ -73,7 +81,7 @@ has passwordless sudo.
 
 ## Future: a KMS
 
-Tokens for the API will be replaced by single sign-on. Secrets for workloads
+Tokens for the API and the web UI will be replaced by Keycloak (OIDC). Secrets for workloads
 on k3s will move to a central secrets manager
 (OpenBao or HashiCorp Vault) with logins through Keycloak (OIDC), and reach
 the apps through the External Secrets Operator. agenix stays for everything

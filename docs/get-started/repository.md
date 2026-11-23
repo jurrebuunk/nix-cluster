@@ -4,6 +4,10 @@ icon: lucide/folder-git-2
 
 # Tour of the repo
 
+This tour covers `nix-hgd1-cluster`. The API and CLI (`clusterd`), the web
+UI (`lab-console`), the k3s components (`hgd1-k8s`) and the network
+(`hgd1-network`) have their own repos; see [Repositories](../reference/repositories.md).
+
 The repo is a Nix flake. It describes every host and VM as a
 `nixosConfiguration`, and it holds the scripts and docs to run them. This page
 walks through it in the order you will need it.

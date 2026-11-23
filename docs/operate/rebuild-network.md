@@ -8,6 +8,9 @@ This is how I brought the network up the first time. You only need it to
 rebuild the site after a total loss, or to build a similar one. The live
 network is already in its final state; don't repeat these steps on it.
 
+Only N0 is by hand. Everything the router and switch get after that comes
+from the playbooks in [`hgd1-network`](https://github.com/jurrebuunk/hgd1-network); this page explains the order and the reasons.
+
 The order matters because you must never lock yourself out: the laptop starts
 on the home network (the router's WAN side) and only switches to WARP at the
 very end.
@@ -17,13 +20,13 @@ very end.
 | Step | What | Who |
 | --- | --- | --- |
 | N0 | Cabling, OPNsense install, SSH keys, temporary WAN access | By hand |
-| N1 | OPNsense base: firmware, hostname, Unbound with DNSSEC, NTP, backup | Over SSH |
-| N2 | VLAN interfaces 20/40/100, DHCP on mgmt and users, outbound NAT | Over SSH |
-| N3 | Switch: VLANs, management on `10.10.10.2`, port roles; hypervisor ports stay on VLAN 10 | Over SSH |
-| N4 | Firewall rules per the [policy](../reference/firewall.md); temporary WAN rules stay | Over SSH |
+| N1 | OPNsense base: firmware, hostname, Unbound with DNSSEC, NTP, backup | `hgd1-network` |
+| N2 | VLAN interfaces 20/40/100, DHCP on mgmt and users, outbound NAT | `hgd1-network` |
+| N3 | Switch: VLANs, management on `10.10.10.2`, port roles; hypervisor ports stay on VLAN 10 | `hgd1-network` |
+| N4 | Firewall rules per the [policy](../reference/firewall.md); temporary WAN rules stay | `hgd1-network` |
 | N5 | Move each hypervisor to its static addresses, one at a time | [Moving a host](#moving-a-host) |
-| N6 | Verify: inter-VLAN tests from every VLAN, host internet, reboot router and switch | Over SSH |
-| N7 | Remote access, then remove the temporary WAN rules | [Remote access](../concepts/remote-access.md#setting-it-up-again) |
+| N6 | Verify: inter-VLAN tests from every VLAN, host internet, reboot router and switch | By hand, from test clients |
+| N7 | Remote access, then remove the temporary WAN rules (`hgd1-network`) | [Remote access](../concepts/remote-access.md#setting-it-up-again) |
 
 ## Bootstrap (N0)
 
@@ -55,7 +58,8 @@ reserve its address on the home router.
 user too.
 
 From here on, set `JUMP=root@<wan-ip>`; `scripts/deploy.sh` and the other
-scripts accept it until N7.
+scripts accept it until N7. Then run the `hgd1-network` playbooks for N1–N4
+from the laptop through the same jump host.
 
 **If you lock yourself out:** plug the laptop into any switch port that is
 still on the default VLAN. It gets a `10.10.10.x` lease, and the OPNsense web
@@ -83,7 +87,7 @@ For `hgd1-hv01` (then hv02, then hv03, never in parallel):
     ```
 
 3. **Reboot in a minute, and switch its port in that minute** to untagged 20,
-   tagged 30 and 40:
+   tagged 30 and 40 (the port role from `hgd1-network`):
 
     ```sh
     ssh -J "$JUMP" jurre@10.10.10.<lease> 'sudo systemd-run --on-active=60 systemctl reboot'
@@ -119,4 +123,4 @@ checked that everything came back from saved configuration.
 
 ## Related
 
-- [Network](../concepts/network.md) · [Router and switch](router-and-switch.md)
+- [Network](../concepts/network.md) · [Router and switch](router-and-switch.md) · [`hgd1-network`](https://github.com/jurrebuunk/hgd1-network)

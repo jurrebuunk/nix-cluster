@@ -9,13 +9,15 @@ How to set it up: [Use the CLI](../how-to/use-the-cli.md).
 
 <span class="status status--partial">In development</span>
 
+The source of truth is the code in [`clusterd`](https://github.com/jurrebuunk/clusterd); this page summarises it.
+
 ## Install
 
 | Where | How |
 | --- | --- |
 | This repo | `nix develop`, then `hgd1` |
-| Anywhere with Nix | `nix run github:jurrebuunk/nix-hgd1-cluster#hgd1 -- <command>` |
-| A NixOS machine | Add the flake's `packages.x86_64-linux.hgd1` to `environment.systemPackages` |
+| Anywhere with Nix | `nix run github:jurrebuunk/clusterd#hgd1 -- <command>` |
+| A NixOS machine | Add `packages.x86_64-linux.hgd1` from the `clusterd` flake to `environment.systemPackages` |
 
 ## Global options
 
@@ -31,7 +33,7 @@ How to set it up: [Use the CLI](../how-to/use-the-cli.md).
 | --- | --- | --- |
 | `hgd1 login` | – | Ask for a token, check it, store it in `~/.config/hgd1/token` |
 | `hgd1 whoami` | read | Show the token's name and scope |
-| `hgd1 token new --name N --scope read\|manage` | – | Generate a token and the hash line for `secrets/api-tokens.age` (runs locally) |
+| `hgd1 token new --name N --scope read\|operator\|manage` | – | Generate a token and the hash line for `secrets/api-tokens.age` (runs locally) |
 | `hgd1 status` | read | Hosts, VMs, k3s nodes, Ceph and VIP owners |
 | `hgd1 metrics query <promql>` | read | Instant query |
 | `hgd1 metrics range <promql> --since 1h --step 1m` | read | Range query |

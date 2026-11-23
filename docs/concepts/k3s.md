@@ -6,7 +6,7 @@ icon: lucide/ship-wheel
 
 The VMs form one Kubernetes cluster running [k3s](https://k3s.io/) 1.35: three
 servers with embedded etcd, one per host, and two agents. This repo only
-builds the cluster; what runs on it lives in a separate workloads repo.
+builds the cluster; what runs on it lives in [`hgd1-k8s`](../reference/repositories.md) and app repos.
 
 !!! info "At a glance"
 
@@ -31,7 +31,7 @@ builds the cluster; what runs on it lives in a separate workloads repo.
 - **Networking:** flannel VXLAN over the `k8s` NIC; pods `10.42.0.0/16`,
   services `10.43.0.0/16`.
 - **Add-ons:** CoreDNS, metrics-server and `local-path`. Traefik and ServiceLB
-  are off; ingress and load balancers come from the workloads repo.
+  are off; ingress and load balancers come from `hgd1-k8s`.
 
 ## How it works
 

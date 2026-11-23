@@ -94,9 +94,10 @@ between the three hosts). Returning hosts don't take it back.
 | `lib/logs.nix` | Shared Vector pieces: field cleanup, one buffered sink per host |
 | `secrets/snmp-community.age` | snmp_exporter auth file with the switch's read-only community |
 
-On the devices: OPNsense has the `os-node_exporter` plugin (listening on
-`10.10.10.1`) and a syslog destination to `10.10.20.10`. The Aruba has a
-read-only SNMP community and `logging 10.10.20.10`.
+On the devices, configured through [`hgd1-network`](https://github.com/jurrebuunk/hgd1-network): OPNsense has the
+`os-node_exporter` plugin (listening on `10.10.10.1`) and a syslog destination
+to `10.10.20.10`; the Aruba has a read-only SNMP community and
+`logging 10.10.20.10`.
 
 ## Operating
 
@@ -133,7 +134,7 @@ hgd1 logs --host hgd1-fw01 --since 1h
 ```
 
 A Grafana can also use `http://mon.lan.buunk.org:8428` (Prometheus type) and
-`:9428` (VictoriaLogs) directly; from k3s that needs one OPNsense rule:
+`:9428` (VictoriaLogs) directly; from k3s that needs one OPNsense rule in [`hgd1-network`](https://github.com/jurrebuunk/hgd1-network):
 K8S → `10.10.20.10` on TCP 8428 and 9428.
 
 ## Troubleshooting
