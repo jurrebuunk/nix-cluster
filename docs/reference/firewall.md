@@ -4,6 +4,14 @@ icon: lucide/shield
 
 # Firewall
 
+!!! repo "Lives in its own repo: hgd1-network"
+
+    This page covers **the firewall policy** on the hgd1 cluster: how it fits in and how I
+    use it here. Code, development, releases and the full documentation are in
+    the repo (private).
+
+    [:fontawesome-brands-github: jurrebuunk/hgd1-network](https://github.com/jurrebuunk/hgd1-network){ .md-button .md-button--primary }
+
 What may talk to what. OPNsense enforces the VLAN policy (its rules are code in
 [`hgd1-network`](https://github.com/jurrebuunk/hgd1-network)); NixOS firewalls on the hosts and VMs open only the ports below, each
 on one interface (this repo).

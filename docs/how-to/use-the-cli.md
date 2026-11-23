@@ -4,6 +4,14 @@ icon: lucide/square-terminal
 
 # Use the CLI
 
+!!! repo "Lives in its own repo: clusterd"
+
+    This page covers **using `labctl`** on the hgd1 cluster: how it fits in and how I
+    use it here. Code, development, releases and the full documentation are in
+    the repo.
+
+    [:fontawesome-brands-github: jurrebuunk/clusterd](https://github.com/jurrebuunk/clusterd){ .md-button .md-button--primary }
+
 `labctl` is the command-line client for the [Platform API](../concepts/api.md),
 built in the [`clusterd`](https://github.com/jurrebuunk/clusterd) repo next to
 the server (two programs, one repo). The name isn't tied to this site: it

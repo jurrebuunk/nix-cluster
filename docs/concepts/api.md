@@ -4,6 +4,14 @@ icon: lucide/webhook
 
 # Platform API
 
+!!! repo "Lives in its own repo: clusterd"
+
+    This page covers **the Platform API (`clusterd`)** on the hgd1 cluster: how it fits in and how I
+    use it here. Code, development, releases and the full documentation are in
+    the repo.
+
+    [:fontawesome-brands-github: jurrebuunk/clusterd](https://github.com/jurrebuunk/clusterd){ .md-button .md-button--primary }
+
 `clusterd` is a small REST API that runs on all three hypervisors behind one
 highly available address, **`https://api.lan.buunk.org`**. It is the single,
 authenticated entry point for managing and developing on the platform: the
@@ -13,7 +21,6 @@ to the hosts, Ceph or the monitoring stores directly.
 !!! info "At a glance"
 
     **Status** <span class="status status--partial">In development</span> ·
-    **Repo** [`clusterd`](https://github.com/jurrebuunk/clusterd) (server + CLI) ·
     **Endpoint** `https://api.lan.buunk.org` (VIP `10.10.20.20`, infra VLAN) ·
     **Configured in** `modules/clusterd/`, `inventory.nix` → `api` ·
     **Reference** [API reference](../reference/api.md)

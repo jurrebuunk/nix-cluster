@@ -4,6 +4,14 @@ icon: lucide/layout-dashboard
 
 # Web UI
 
+!!! repo "Lives in its own repo: lab-console"
+
+    This page covers **the web UI (`lab-console`)** on the hgd1 cluster: how it fits in and how I
+    use it here. Code, development, releases and the full documentation are in
+    the repo.
+
+    [:fontawesome-brands-github: jurrebuunk/lab-console](https://github.com/jurrebuunk/lab-console){ .md-button .md-button--primary }
+
 **`lab-console`**, the browser dashboard at **`https://lab.buunk.org`**:
 health of hosts, VMs, k3s and Ceph, metrics, logs and a few safe actions,
 from any device. It talks to the platform only through the
@@ -12,7 +20,6 @@ from any device. It talks to the platform only through the
 !!! info "At a glance"
 
     **Status** <span class="status status--partial">In development</span> ·
-    **Repo** [`lab-console`](https://github.com/jurrebuunk/lab-console) ·
     **Runs on** k3s, deployed by Flux from `hgd1-k8s` · **Talks to**
     `clusterd` with an `operator` token
 

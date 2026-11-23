@@ -4,13 +4,19 @@ icon: lucide/braces
 
 # API reference
 
+!!! repo "Lives in its own repo: clusterd"
+
+    This page covers **the API endpoints** on the hgd1 cluster: how it fits in and how I
+    use it here. Code, development, releases and the full documentation are in
+    the repo.
+
+    [:fontawesome-brands-github: jurrebuunk/clusterd](https://github.com/jurrebuunk/clusterd){ .md-button .md-button--primary }
+
 Endpoints of the [Platform API](../concepts/api.md) at
 `https://api.lan.buunk.org`. All responses are JSON. Every endpoint except
 `/v1/health` needs `Authorization: Bearer <token>`.
 
 <span class="status status--partial">In development</span>
-
-The source of truth is the code in [`clusterd`](https://github.com/jurrebuunk/clusterd); this page summarises it.
 
 ## Conventions
 

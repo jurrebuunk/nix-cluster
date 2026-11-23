@@ -4,6 +4,14 @@ icon: lucide/hammer
 
 # Build an app
 
+!!! repo "Lives in its own repo: hgd1-k8s"
+
+    This page covers **building an app on the cluster** on the hgd1 cluster: how it fits in and how I
+    use it here. Code, development, releases and the full documentation are in
+    the repo.
+
+    [:fontawesome-brands-github: jurrebuunk/hgd1-k8s](https://github.com/jurrebuunk/hgd1-k8s){ .md-button .md-button--primary }
+
 This page is for building something on the platform: a new app, a database,
 a service that needs storage. You don't need to know NixOS for that. The
 contract between this repo and your project is a **Kubernetes API**, the

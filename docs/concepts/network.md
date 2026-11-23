@@ -4,6 +4,14 @@ icon: lucide/network
 
 # Network
 
+!!! repo "Lives in its own repo: hgd1-network"
+
+    This page covers **the site network design** on the hgd1 cluster: how it fits in and how I
+    use it here. Code, development, releases and the full documentation are in
+    the repo (private).
+
+    [:fontawesome-brands-github: jurrebuunk/hgd1-network](https://github.com/jurrebuunk/hgd1-network){ .md-button .md-button--primary }
+
 The site separates management, hosts, storage, Kubernetes and users into
 VLANs behind one OPNsense router.
 

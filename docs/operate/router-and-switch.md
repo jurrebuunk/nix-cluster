@@ -4,6 +4,14 @@ icon: lucide/router
 
 # Router and switch
 
+!!! repo "Lives in its own repo: hgd1-network"
+
+    This page covers **the router and switch** on the hgd1 cluster: how it fits in and how I
+    use it here. Code, development, releases and the full documentation are in
+    the repo (private).
+
+    [:fontawesome-brands-github: jurrebuunk/hgd1-network](https://github.com/jurrebuunk/hgd1-network){ .md-button .md-button--primary }
+
 What runs on OPNsense and the Aruba switch, and how to reach them. **Changing
 them is not done from this repo**: their configuration is Ansible in the
 private [`hgd1-network`](https://github.com/jurrebuunk/hgd1-network) repo, which
