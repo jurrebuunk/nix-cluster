@@ -80,6 +80,7 @@
     };
     hgd1-k8m02 = {
       host = "hgd1-hv02"; enabled = true; id = 12; role = "server";
+      hostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGdZk/aQ42sl6WUzNlbhi5wxUrAbcstl1RW1JzVIKFnJ";
       vcpu = 2; memMB = 4096; diskGB = 60;
       ip = { k8s = "10.10.40.12"; storage = "10.10.30.22"; };
     };
@@ -112,7 +113,7 @@
     virtualRouterId = 40;
     # Creates the cluster (--cluster-init) on an empty etcd. Set to null once
     # all servers have joined, so a rebuilt server rejoins instead.
-    bootstrapServer = "hgd1-k8m01";
+    bootstrapServer = null;
   };
 
   # Metrics and logs on the hosts (modules/monitoring/, docs/concepts/monitoring.md).
