@@ -60,8 +60,8 @@ cloudflared tunnel route ip add 10.10.0.0/16 hgd1-admin
       when away).
 - [x] Same profile → **Local Domain Fallback**: add `lan.buunk.org` with
       DNS server `10.10.20.1` (OPNsense).
-- [x] Settings → Network → **Proxy**: TCP and UDP on (needed for WARP traffic
-      to private networks).
+- [x] Traffic policies → Traffic settings → **Proxy**: TCP, UDP and ICMP on (needed for WARP traffic
+      to private networks; ICMP is for ping and cannot be filtered by Gateway).
 - [x] Gateway → Firewall policies → Network: block `10.10.30.0/24` (storage,
       precedence 500); allow `10.10.0.0/16` for your email; block
       `10.10.0.0/16` for everyone else.
