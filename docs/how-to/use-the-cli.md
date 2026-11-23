@@ -20,7 +20,7 @@ platform status, metrics, logs and actions from your terminal, for daily
 management and while developing. Every command is in the
 [CLI reference](../reference/cli.md).
 
-<span class="status status--partial">v1.0.0-rc.1</span>
+<span class="status">v1.0.0</span>
 
 ## Before you start
 
@@ -71,7 +71,8 @@ from the secret and deploying.
 
 ```sh
 labctl status                                   # hosts, VMs, k3s, Ceph, VIPs at a glance
-labctl metrics query 'smartctl_device_percentage_used'
+labctl status disk                              # drives: size, how full, wear, SMART; filesystems
+labctl status s3                                # gateways, buckets, quotas, room left
 labctl logs --host hgd1-hv01 --unit ceph-osd-0.service --since 1h
 labctl logs --follow --host hgd1-fw01           # live router log
 ```

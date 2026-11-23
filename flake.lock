@@ -27,16 +27,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1795449495,
-        "narHash": "sha256-j4EP/qYdF8korvIYdKkwNbQ0S6svtuIQE53wkRid7aU=",
+        "lastModified": 1795457070,
+        "narHash": "sha256-ocUmAkIYBeyQtdCBtbOcCIg1k8IgTFbiq4uBcaw3UHo=",
         "owner": "jurrebuunk",
         "repo": "clusterd",
-        "rev": "7af8091d09bea8ad95c4a3cfbc97505d990c3b04",
+        "rev": "c7169349dcd50043dc2e6fe40179e11e8413239b",
         "type": "github"
       },
       "original": {
         "owner": "jurrebuunk",
-        "ref": "v1.0.0-rc.1",
+        "ref": "v1.0.0",
         "repo": "clusterd",
         "type": "github"
       }

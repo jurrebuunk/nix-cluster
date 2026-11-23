@@ -16,7 +16,7 @@ Endpoints of the [Platform API](../concepts/api.md) at
 `https://api.lan.buunk.org`. All responses are JSON. Every endpoint except
 `/v1/health` needs `Authorization: Bearer <token>`.
 
-<span class="status status--partial">v1.0.0-rc.1</span> · Spec: [`api/openapi.yaml`](https://github.com/jurrebuunk/clusterd/blob/main/api/openapi.yaml)
+<span class="status">v1.0.0</span> · Spec: [`api/openapi.yaml`](https://github.com/jurrebuunk/clusterd/blob/main/api/openapi.yaml)
 
 ## Conventions
 
@@ -37,7 +37,18 @@ Endpoints of the [Platform API](../concepts/api.md) at
 | GET | `/v1/health` | none | `{"status":"ok"}` while this instance serves (Keepalived's check; doesn't depend on the stores) |
 | GET | `/v1/whoami` | read | Token name and scope, the answering host and its version |
 | GET | `/v1/node` | read | The answering host only: uptime, load, memory, VMs, VIPs held, local stores |
-| GET | `/v1/status` | read | Hosts, VMs, k3s nodes, Ceph health, VIP owners. Built from every host's `/v1/node`, asked with your token. Ceph is at most ~10 s old (`ceph.as_of`) |
+| GET | `/v1/status` | read | Everything below in one answer. Host facts come from every host's `/v1/node`, asked with your token |
+| GET | `/v1/status/hosts` | read | `{"hosts": […]}`: reachable, version, uptime, load, memory, stores |
+| GET | `/v1/status/vms` | read | `{"vms": […]}`: every VM in the inventory and its state |
+| GET | `/v1/status/k3s` | read | Kubernetes nodes: Ready, schedulable, roles, version, zone |
+| GET | `/v1/status/ceph` | read | Health, checks, OSDs up/in, PGs, raw capacity; at most ~10 s old (`as_of`) |
+| GET | `/v1/status/vips` | read | `{"vips": […]}`: which host holds each floating address |
+| GET | `/v1/status/disks` | read | `disks` (size, used, role, wear, temperature, SMART), `filesystems` (hosts and VMs), `osds` |
+| GET | `/v1/status/s3` | read | Endpoint, gateways, users, `buckets` (objects, size, quota), totals, data `pool` room, `cert_expires` |
+
+A part that can't be read is reported inside the answer (`error` or
+`errors`), never as a failed request. Byte counts are bytes; percentages are
+0–100.
 
 ## Metrics
 

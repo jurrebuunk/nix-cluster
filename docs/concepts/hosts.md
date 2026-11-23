@@ -81,7 +81,8 @@ history still matters:
   before the test (hour 14214).
 - **hv03 HDD:** reports `Runtime_Bad_Block = 1`.
 - **NVMe wear** (`smartctl_device_percentage_used`): hv01 47%, hv02 7%,
-  hv03 60%. hv01 and hv03 are the ones to replace first.
+  hv03 60%. hv01 and hv03 are the ones to replace first. `labctl status disk`
+  shows the current values, with size and how full every drive is.
 
 I've accepted these used disks for a homelab. Ceph keeps three copies, but
 replication is not a backup. [Monitoring](monitoring.md) collects SMART for every disk; replace failed media quickly.

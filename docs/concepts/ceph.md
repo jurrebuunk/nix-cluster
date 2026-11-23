@@ -105,6 +105,9 @@ sudo ceph osd df tree        # usage per OSD and host
 sudo ceph df                 # usage per pool
 ```
 
+Without SSH: `labctl status ceph` (health, raw capacity) and
+`labctl status disk` (each OSD's drive and how full it is).
+
 - Host work: set `noout` first, see [Host maintenance](../operate/host-maintenance.md).
 - Failed disk: [Disk replacement](../operate/disk-replacement.md).
 - Disk risks: [Hosts → Disk health](hosts.md#disk-health).

@@ -18,4 +18,7 @@ in
   "api-tokens.age".publicKeys = all;
   "clusterd-kubeconfig.age".publicKeys = all;
   "clusterd-ceph-keyring.age".publicKeys = all;
+  # RGW user `clusterd` (caps buckets/users/usage/metadata=read, no buckets of
+  # its own): {"access_key": …, "secret_key": …} for the admin API.
+  "clusterd-s3-admin.age".publicKeys = all;
 }

@@ -35,6 +35,7 @@ in
     api-tokens.file = ../../secrets/api-tokens.age;
     clusterd-kubeconfig.file = ../../secrets/clusterd-kubeconfig.age;
     clusterd-ceph-keyring.file = ../../secrets/clusterd-ceph-keyring.age;
+    clusterd-s3-admin.file = ../../secrets/clusterd-s3-admin.age;
   };
 
   services.clusterd = {
@@ -44,6 +45,8 @@ in
     ceph.keyringFile = config.age.secrets.clusterd-ceph-keyring.path;
     # VM restarts: polkit lets the clusterd user restart/start/stop only these.
     manageUnitPrefixes = [ "microvm@" ];
+    # Bucket usage through the RGW admin API (read-only user `clusterd`).
+    s3.credentialsFile = config.age.secrets.clusterd-s3-admin.path;
     settings = {
       site = inventory.site.name;
       host = hostName;
@@ -64,7 +67,12 @@ in
         api = "https://${h.ip.infra}";
         metrics = store name h 8428;
         logs = store name h 9428;
+        rgw = "http://${h.ip.storage}:7480";
       }) inventory.hosts;
+      s3 = {
+        endpoint = "https://${inventory.ceph.s3.hostname}";
+        data_pool = "default.rgw.buckets.data";
+      };
       vips = [
         { name = "api"; address = cfg.virtualIP; }
         { name = "monitoring"; address = inventory.monitoring.virtualIP; }
@@ -87,6 +95,7 @@ in
       "api-tokens"
       "clusterd-kubeconfig"
       "clusterd-ceph-keyring"
+      "clusterd-s3-admin"
     ];
   };
 }

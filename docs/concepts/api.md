@@ -20,7 +20,7 @@ to the hosts, Ceph or the monitoring stores directly.
 
 !!! info "At a glance"
 
-    **Status** <span class="status status--partial">v1.0.0-rc.1</span> ·
+    **Status** <span class="status">v1.0.0</span> ·
     **Endpoint** `https://api.lan.buunk.org` (VIP `10.10.20.20`, infra VLAN) ·
     **Configured in** `modules/clusterd/`, `inventory.nix` → `api` ·
     **Reference** [API reference](../reference/api.md)
@@ -51,10 +51,10 @@ flowchart LR
   performs actions on what's there (restart, drain, maintenance). It never
   creates or deletes VMs.
 
-`v1.0.0-rc.1` runs now: status, metrics, logs and the first action, a safe
-VM restart. `/v1` is stable from here on: only backward-compatible changes;
-anything breaking would go to `/v2`. The final `v1.0.0` follows after a week
-of use (see the [clusterd plan](https://github.com/jurrebuunk/clusterd/blob/main/PLAN.md)).
+`v1.0.0` runs now: status (as a whole or per part, including disks and S3),
+metrics, logs and the first action, a safe VM restart. `/v1` is stable: only
+backward-compatible changes; anything breaking would go to `/v2` (see the
+[clusterd plan](https://github.com/jurrebuunk/clusterd/blob/main/PLAN.md)).
 
 ## How it works
 
@@ -93,6 +93,21 @@ Two layers, both required:
   no credential of their own, and a peer only tells a caller what it would
   tell them directly. An unreachable peer shows up as `unreachable`; its VMs
   and any VIP it may hold as `unknown`.
+
+- **Every part on its own.** `/v1/status/hosts`, `vms`, `k3s`, `ceph`,
+  `vips`, `disks` and `s3` answer just that part, so a script or the web UI
+  only asks for what it shows; `labctl status disk` uses them.
+
+### Disks and S3
+
+| Part | What it shows | Where it comes from |
+| --- | --- | --- |
+| `disks` | Every physical drive: size, **how full** (its OSD's usage, or the filesystems on its partitions), role (`system`, `osd.N`), NVMe wear, temperature, SMART. Filesystems of hosts and VMs (df-style), OSDs | SMART and node metrics (about 30 s old), `ceph osd df` and `ceph osd metadata` (cached 60 s) |
+| `s3` | Gateways up, users, buckets with objects, size, quota and how full, the data pool's room, the certificate's expiry | The RGW admin API (live) with a read-only RGW user `clusterd`; HAProxy, Ceph pool and probe metrics |
+
+`labctl` warns on stderr about NVMe wear of 80% or more, failing SMART,
+filesystems over 85%, buckets over 90% of their quota and a certificate that
+expires within two weeks.
 
 ### Metrics and logs proxy
 
@@ -158,7 +173,8 @@ sequenceDiagram
 | VM state | `systemctl list-units`, read-only and unprivileged |
 | Restart VMs | A polkit rule (from `services.clusterd.manageUnitPrefixes`) lets the `clusterd` user `restart`, `start` and `stop` only `microvm@*.service`; nothing else |
 | Kubernetes | ServiceAccount `clusterd/clusterd`: read nodes and pods, patch nodes (cordon), create evictions, and manage Leases in its own namespace only. Declared in `modules/microvm/guest/k3s/clusterd.nix`; kubeconfig in `secrets/clusterd-kubeconfig.age` |
-| Ceph status | Read-only client key `client.clusterd` (`mon 'allow r'`) in `secrets/clusterd-ceph-keyring.age` |
+| Ceph status and OSD usage | Client key `client.clusterd` with `mon 'allow r'` and `mgr 'allow r'` (for `osd df`), in `secrets/clusterd-ceph-keyring.age` |
+| S3 buckets and users | RGW user `clusterd`: caps `buckets`, `users`, `usage`, `metadata` all `read`, no buckets of its own; keys in `secrets/clusterd-s3-admin.age`. It talks to each host's RGW on the storage VLAN (`:7480`) |
 | Metrics and logs | Plain HTTP to the local stores on `127.0.0.1`, peers on the infra VLAN |
 
 Secrets reach the service as systemd credentials (`/run/credentials/clusterd.service/`),
@@ -180,14 +196,14 @@ repo as a flake input. This repo only configures them:
 
 | File | Owns |
 | --- | --- |
-| `flake.nix` → `inputs.clusterd` | The `clusterd` release in use, pinned to its tag (now `github:jurrebuunk/clusterd/v1.0.0-rc.1`) |
+| `flake.nix` → `inputs.clusterd` | The `clusterd` release in use, pinned to its tag (now `github:jurrebuunk/clusterd/v1.0.0`) |
 | `inventory.nix` → `api` | Hostname, VIP, VRRP id |
 | `modules/clusterd/default.nix` | Enables `services.clusterd` with settings from the inventory |
 | `modules/clusterd/tls.nix` | ACME certificate through DNS-01 |
 | `modules/clusterd/vip.nix` | Keepalived and the health check |
 | `modules/clusterd/firewall.nix` | HTTPS on the management NIC (VRRP from the peers is already open) |
 | `modules/microvm/guest/k3s/clusterd.nix` | The ServiceAccount and its role, as a k3s manifest |
-| `secrets/api-tokens.age`, `secrets/clusterd-kubeconfig.age`, `secrets/clusterd-ceph-keyring.age` | Token hashes, Kubernetes access, Ceph access |
+| `secrets/api-tokens.age`, `secrets/clusterd-kubeconfig.age`, `secrets/clusterd-ceph-keyring.age`, `secrets/clusterd-s3-admin.age` | Token hashes, Kubernetes access, Ceph access, RGW admin read access |
 
 ## Operating
 
@@ -221,6 +237,17 @@ host while developing with `LABCTL_API`.
 See [Troubleshooting → API](../operate/troubleshooting.md#api).
 
 ## Tested
+
+`v1.0.0`:
+
+- Every `/v1/status/<part>` answers in 0.10–0.15 s; the full status in about
+  0.2 s.
+- Disks: all six drives with size, use, wear, temperature and SMART; the
+  system disks count `/` and `/boot` but not the `/nix/store` bind mount
+  twice; each HDD maps to its OSD.
+- S3: a temporary bucket with one 5 MB object and a 1 GiB quota showed up
+  with the right owner, size, objects and fullness, and was removed again.
+- A VM restart on the released build.
 
 `v1.0.0-rc.1`, from GitHub Releases on all three hosts:
 
