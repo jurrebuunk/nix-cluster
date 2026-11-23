@@ -11,7 +11,7 @@ picture; every other repo has a `README.md` and a `PLAN.md` with its details.
 | Repo | Owns | Delivered by | Visibility |
 | --- | --- | --- | --- |
 | [`nix-hgd1-cluster`](https://github.com/jurrebuunk/nix-hgd1-cluster) | Hosts, Ceph, S3 endpoint, VMs, the k3s nodes, monitoring, remote access, this handbook | `scripts/deploy.sh`, host by host | Public |
-| [`clusterd`](https://github.com/jurrebuunk/clusterd) | The [Platform API](../concepts/api.md) server and the `hgd1` CLI, plus their NixOS module | Flake input of `nix-hgd1-cluster` | Public |
+| [`clusterd`](https://github.com/jurrebuunk/clusterd) | The [Platform API](../concepts/api.md) server and the `labctl` CLI, plus their NixOS module | Flake input of `nix-hgd1-cluster` | Public |
 | [`lab-console`](https://github.com/jurrebuunk/lab-console) | The [web UI](../concepts/web-ui.md) at `lab.buunk.org`: frontend and its thin API proxy | CI image to GHCR, deployed by Flux | Public |
 | [`hgd1-k8s`](https://github.com/jurrebuunk/hgd1-k8s) | Base components on the k3s cluster: Flux, MetalLB, ingress, cert-manager, ceph-csi, CloudNativePG, k3s monitoring | Flux (pull-based GitOps) | Public |
 | `hgd1-network` | Ansible for the router `hgd1-fw01` and the switch `hgd1-sw01` | `ansible-playbook` from the laptop over WARP | Private |
@@ -41,7 +41,7 @@ flowchart LR
 - **Secrets stay encrypted:** agenix here, sops with age in `hgd1-k8s` and
   `hgd1-network`. See [Credentials](credentials.md).
 - **Package and module in the tool's repo, configuration here.** `clusterd`
-  exports `packages.clusterd`, `packages.hgd1` and `nixosModules.clusterd`;
+  exports `packages.clusterd`, `packages.labctl` and `nixosModules.clusterd`;
   this repo sets the options.
 
 ## Related

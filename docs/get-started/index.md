@@ -51,7 +51,7 @@ order the first time.
     ```
 
 `nix develop` gives you every tool these docs use: `nixos-rebuild`, `agenix`,
-`cloudflared`, `kubectl`, the `hgd1` CLI, `jq`, `nmap`, `shellcheck` and
+`cloudflared`, `kubectl`, the `labctl` CLI, `jq`, `nmap`, `shellcheck` and
 `zensical`.
 
 ## Then read

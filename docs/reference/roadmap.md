@@ -80,7 +80,7 @@ host maintenance.
 
 **Step 9: Platform API, CLI and web UI.** `clusterd`, a REST API on all three
 hosts behind `https://api.lan.buunk.org`, with token auth and a read-only
-proxy for metrics and logs, and the `hgd1` CLI (both in the
+proxy for metrics and logs, and the `labctl` CLI (both in the
 [`clusterd`](https://github.com/jurrebuunk/clusterd) repo); and
 [`lab-console`](https://github.com/jurrebuunk/lab-console), the web UI at
 `lab.buunk.org` on k3s. What the API can do grows one action at a

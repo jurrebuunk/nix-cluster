@@ -98,9 +98,9 @@ ssh jurre@<vm-ip> 'sudo journalctl -u k3s -b --no-pager | tail -50'
 
 | You see | Likely cause and fix |
 | --- | --- |
-| `hgd1` exits with code 3 | API unreachable: check WARP, then `curl -s https://api.lan.buunk.org/v1/health` |
+| `labctl` exits with code 3 | API unreachable: check WARP, then `curl -s https://api.lan.buunk.org/v1/health` |
 | `/v1/health` fails | No host passes the VIP check: `systemctl status clusterd keepalived` on each host |
-| 401 / exit code 4 | Token unknown or revoked; `hgd1 whoami`, or create a new one ([Tokens](../how-to/use-the-cli.md#tokens)) |
+| 401 / exit code 4 | Token unknown or revoked; `labctl whoami`, or create a new one ([Tokens](../how-to/use-the-cli.md#tokens)) |
 | 403 on an action | The token has scope `read`; actions need `manage` |
 | Web UI loads but shows no data | The pod can't reach `10.10.20.20:443` (OPNsense rule in [`hgd1-network`](https://github.com/jurrebuunk/hgd1-network)), or its `operator` token is revoked |
 | Metrics or logs empty through the API | Check the stores themselves: [Monitoring](#monitoring) |

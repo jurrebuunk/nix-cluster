@@ -85,7 +85,7 @@ flowchart TB
   cluster --> vms[microVMs<br/>k3s: 3 servers, 2 agents]
   vms --> ceph
   cluster --> mon[Monitoring<br/>mon.lan.buunk.org]
-  laptop[Laptop + WARP<br/>hgd1 CLI, web UI] -. Cloudflare tunnel .-> api[Platform API<br/>api.lan.buunk.org]
+  laptop[Laptop + WARP<br/>labctl CLI, web UI] -. Cloudflare tunnel .-> api[Platform API<br/>api.lan.buunk.org]
   api --> cluster
 ```
 

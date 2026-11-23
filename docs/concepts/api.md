@@ -22,7 +22,7 @@ to the hosts, Ceph or the monitoring stores directly.
 
 ```mermaid
 flowchart LR
-  cli[hgd1 CLI] -- WARP --> vip
+  cli[labctl CLI] -- WARP --> vip
   ui[lab-console on k3s] -- operator token --> vip
   vip[api.lan.buunk.org<br/>VIP 10.10.20.20] --> c1[clusterd hv01]
   vip -.-> c2[clusterd hv02]
@@ -117,21 +117,21 @@ repo as a flake input. This repo only configures them:
 ## Operating
 
 ```sh
-hgd1 status                                   # through the API
+labctl status                                   # through the API
 curl -s https://api.lan.buunk.org/v1/health   # no token needed
 for h in 11 12 13; do ssh jurre@10.10.20.$h 'systemctl is-active clusterd'; done
 ```
 
 - New token: see [Use the CLI → Tokens](../how-to/use-the-cli.md#tokens).
-- Audit trail: `hgd1 logs --unit clusterd.service --since 1d`.
+- Audit trail: `labctl logs --unit clusterd.service --since 1d`.
 
 ## Develop
 
-Code, tests, the API definition and releases of `clusterd` and the `hgd1` CLI
+Code, tests, the API definition and releases of `clusterd` and the `labctl` CLI
 live in [`clusterd`](https://github.com/jurrebuunk/clusterd). Adding an
 endpoint or action happens there; this repo then picks up the new version with
 `nix flake update clusterd` and a normal deploy. Point the CLI at a single
-host while developing with `HGD1_API`.
+host while developing with `LABCTL_API`.
 
 ## Troubleshooting
 

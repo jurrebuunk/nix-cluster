@@ -31,7 +31,7 @@ For a single node you can also use the CLI, which runs the same sequence
 through the [Platform API](../concepts/api.md):
 
 ```sh
-hgd1 vm restart hgd1-k8w01
+labctl vm restart hgd1-k8w01
 ```
 
 ## Check it worked

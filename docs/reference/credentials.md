@@ -52,7 +52,7 @@ agenix files, encrypted to my laptop key and the three host keys
 | Admin SSH key | `~/.ssh/id_ed25519` | Logins on hosts, VMs and the router; decrypting every agenix secret |
 | Switch SSH key | `~/.ssh/id_rsa_hgd1_network` | `manager` on `hgd1-sw01` |
 | Kubeconfig | `~/.kube/hgd1.yaml` (mode 600) | Cluster admin; recreate with `scripts/kubeconfig.sh` |
-| API token | `~/.config/hgd1/token` (mode 600) | The `hgd1` CLI |
+| API token | `~/.config/labctl/token` (mode 600) | The `labctl` CLI |
 | Router and switch exports | `~/.local/state/nix-cluster/network-rollout/` (mode 600) | Backups taken by `hgd1-network`; contain password hashes and keys |
 | WARP enrolment | The WARP client | Device registration in team `buunk` |
 

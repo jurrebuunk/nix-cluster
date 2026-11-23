@@ -18,7 +18,7 @@ changing anything; the other concept pages assume you know it.
 - **One host may fail at any time** without losing data or the services built
   on top.
 - **One API to manage it all:** the [Platform API](api.md) on every host, used
-  by the `hgd1` CLI and the web UI, with auth and an audit trail.
+  by the `labctl` CLI and the web UI, with auth and an audit trail.
 
 ## Hardware
 
@@ -88,7 +88,7 @@ flowchart TB
 7. **Monitoring.** Metrics and logs for everything above, stored on every
    host and queried through `mon.lan.buunk.org`. See [Monitoring](monitoring.md).
 8. **Platform API.** `clusterd` on every host behind `api.lan.buunk.org`:
-   status, metrics, logs and actions with token auth, for the `hgd1` CLI and
+   status, metrics, logs and actions with token auth, for the `labctl` CLI and
    the web UI. See [Platform API](api.md).
 9. **Workloads.** Everything that runs on Kubernetes lives in a separate
    repo that only needs a kubeconfig. See [Build on top](../how-to/build-an-app.md).
@@ -152,7 +152,7 @@ one server and one agent with it.
 
 ## Naming
 
-Names follow `<site>-<role><nn>`: site `hgd1` (Hengelo Gld, site 1), a role
+Names follow `<site>-<role><nn>`: site `labctl` (Hengelo Gld, site 1), a role
 code and a two-digit number starting at 01.
 
 | Role | Meaning | Examples |

@@ -67,11 +67,11 @@ as `KUBECONFIG`. It points at `https://k8s.lan.buunk.org:6443`.
 ## CLI login
 
 ```sh
-hgd1 login          # paste your API token once
-hgd1 status
+labctl login          # paste your API token once
+labctl status
 ```
 
-`hgd1` is in the dev shell. Getting a token: [Use the CLI → Tokens](../how-to/use-the-cli.md#tokens).
+`labctl` is in the dev shell. Getting a token: [Use the CLI → Tokens](../how-to/use-the-cli.md#tokens).
 
 ## Without WARP
 

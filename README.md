@@ -2,7 +2,7 @@
 
 # nix-hgd1-cluster
 
-**My homelab at site `hgd1`, fully declared in Nix:**
+**My homelab at site `labctl`, fully declared in Nix:**
 three small x86 nodes running NixOS, Ceph and a k3s cluster on microVMs,
 with the OPNsense/Aruba network, remote access and monitoring around them.
 
@@ -32,7 +32,7 @@ with the OPNsense/Aruba network, remote access and monitoring around them.
 
 ```mermaid
 flowchart TB
-  laptop[Laptop + WARP<br/>hgd1 CLI · web UI] -. Cloudflare tunnel .-> api
+  laptop[Laptop + WARP<br/>labctl CLI · web UI] -. Cloudflare tunnel .-> api
   fw[OPNsense hgd1-fw01] --- sw[Aruba hgd1-sw01] --- hosts
   subgraph hosts [hgd1-hv01 · hgd1-hv02 · hgd1-hv03 — NixOS]
     ceph[(Ceph: 3 HDD OSDs, RBD + S3)]
@@ -54,7 +54,7 @@ flowchart TB
 | Object storage | `https://s3.lan.buunk.org`, highly available, Let's Encrypt via DNS-01 | ✅ |
 | Kubernetes | k3s on microVMs, API VIP `k8s.lan.buunk.org`, zone labels per host | ✅ |
 | Monitoring | VictoriaMetrics + VictoriaLogs on every host, router and switch included | ✅ |
-| Platform API | `clusterd` at `api.lan.buunk.org` with the `hgd1` CLI and a web UI on k3s | 🚧 |
+| Platform API | `clusterd` at `api.lan.buunk.org` with the `labctl` CLI and a web UI on k3s | 🚧 |
 | Cluster components | Flux, ingress, storage, Postgres on k3s: [`hgd1-k8s`](https://github.com/jurrebuunk/hgd1-k8s) | ↗️ |
 
 Each layer survives the loss of any one host.
@@ -69,7 +69,7 @@ warp-cli connect                     # reach 10.10.0.0/16 from anywhere
 nix flake check --no-build           # evaluate every host and VM, run inventory checks
 scripts/deploy.sh hgd1-hv01 switch   # deploy one host; then the next
 scripts/kubeconfig.sh                # ~/.kube/hgd1.yaml for the k3s cluster
-hgd1 status                          # the platform at a glance, via the API
+labctl status                          # the platform at a glance, via the API
 ```
 
 New here? Start with
@@ -94,7 +94,7 @@ then read the
 
 | Repo | What |
 | --- | --- |
-| [`clusterd`](https://github.com/jurrebuunk/clusterd) | Platform API server and the `hgd1` CLI (flake input here) |
+| [`clusterd`](https://github.com/jurrebuunk/clusterd) | Platform API server and the `labctl` CLI (flake input here) |
 | [`lab-console`](https://github.com/jurrebuunk/lab-console) | Web UI at `lab.buunk.org` |
 | [`hgd1-k8s`](https://github.com/jurrebuunk/hgd1-k8s) | Base components of the k3s cluster (Flux) |
 | `hgd1-network` (private) | Ansible for the OPNsense router and Aruba switch |

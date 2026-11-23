@@ -11,7 +11,7 @@ secret. Modules and scripts read it; `nix flake check` validates it.
 
 | Field | Meaning |
 | --- | --- |
-| `site.name`, `site.domain` | `hgd1`, `lan.buunk.org` |
+| `site.name`, `site.domain` | `labctl`, `lan.buunk.org` |
 | `vlans.<name>` | `id`, `subnet` and (except storage) `gateway` per VLAN |
 | `prefixLength` | `24` for every subnet |
 | `dns`, `ntp` | Servers for the hosts: OPNsense on infra |

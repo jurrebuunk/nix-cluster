@@ -112,7 +112,7 @@ guests on a host without KVM.
 ## Operating
 
 ```sh
-hgd1 status                          # every VM, through the Platform API
+labctl status                          # every VM, through the Platform API
 scripts/vm.sh list
 scripts/vm.sh hgd1-k8m01 status      # also: logs, start, stop, restart
 ssh jurre@10.10.40.11

@@ -69,7 +69,7 @@ listed here when it exists. The scope column says who may call it.
 ## Example
 
 ```sh
-curl -s -H "Authorization: Bearer $(cat ~/.config/hgd1/token)" \
+curl -s -H "Authorization: Bearer $(cat ~/.config/labctl/token)" \
   "https://api.lan.buunk.org/v1/metrics/query" --data-urlencode 'query=probe_success == 0'
 ```
 

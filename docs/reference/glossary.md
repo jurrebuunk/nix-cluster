@@ -21,7 +21,7 @@ Bootstrap server
 Ceph
 :   Distributed storage that keeps several copies of data across hosts.
 
-CLI (`hgd1`)
+CLI (`labctl`)
 :   The command-line client for the Platform API.
 
 clusterd

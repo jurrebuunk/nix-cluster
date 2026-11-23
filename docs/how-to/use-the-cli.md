@@ -4,8 +4,10 @@ icon: lucide/square-terminal
 
 # Use the CLI
 
-`hgd1` is the command-line client for the [Platform API](../concepts/api.md),
-built in the [`clusterd`](https://github.com/jurrebuunk/clusterd) repo:
+`labctl` is the command-line client for the [Platform API](../concepts/api.md),
+built in the [`clusterd`](https://github.com/jurrebuunk/clusterd) repo next to
+the server (two programs, one repo). The name isn't tied to this site: it
+keeps one context per site, like kubeconfig.
 platform status, metrics, logs and actions from your terminal, for daily
 management and while developing. Every command is in the
 [CLI reference](../reference/cli.md).
@@ -15,8 +17,10 @@ management and while developing. Every command is in the
 ## Before you start
 
 - WARP connected (or a cable into the management VLAN).
-- `nix develop` in this repo (`hgd1` is in the dev shell), or run it anywhere
-  with `nix run github:jurrebuunk/clusterd#hgd1 -- <command>`.
+- `labctl` installed: in this repo's dev shell, ad hoc with
+  `nix run github:jurrebuunk/clusterd#labctl -- <command>`, or permanently on
+  the laptop through the `clusterd` flake input of `~/nixos` (see the
+  [CLI reference](../reference/cli.md#install)).
 - An API token (below).
 
 ## Tokens
@@ -27,7 +31,7 @@ live in an agenix secret.
 1. Create the token and its hash:
 
     ```sh
-    hgd1 token new --name laptop-jurre --scope manage
+    labctl token new --name laptop-jurre --scope manage
     # prints the token once, and a hash line for the secret
     ```
 
@@ -39,11 +43,11 @@ live in an agenix secret.
     scripts/deploy.sh hgd1-hv01 switch    # then hv02, hv03
     ```
 
-3. Log in on the client; the token is stored in `~/.config/hgd1/token`
+3. Log in on the client; the token is stored in `~/.config/labctl/token`
    (mode 600):
 
     ```sh
-    hgd1 login
+    labctl login
     ```
 
 Use `--scope read` for tokens that only look (dashboards, scripts) and
@@ -53,29 +57,29 @@ from the secret and deploying.
 ## Steps
 
 ```sh
-hgd1 status                                   # hosts, VMs, k3s, Ceph, VIPs at a glance
-hgd1 metrics query 'smartctl_device_percentage_used'
-hgd1 logs --host hgd1-hv01 --unit ceph-osd-0.service --since 1h
-hgd1 logs --follow --host hgd1-fw01           # live router log
+labctl status                                   # hosts, VMs, k3s, Ceph, VIPs at a glance
+labctl metrics query 'smartctl_device_percentage_used'
+labctl logs --host hgd1-hv01 --unit ceph-osd-0.service --since 1h
+labctl logs --follow --host hgd1-fw01           # live router log
 ```
 
 Actions need a `manage` token and ask for confirmation:
 
 ```sh
-hgd1 vm restart hgd1-k8w01                    # drain → restart → Ready → uncordon
+labctl vm restart hgd1-k8w01                    # drain → restart → Ready → uncordon
 ```
 
 ## Check it worked
 
 ```sh
-hgd1 whoami        # token name and scope
-hgd1 status        # everything green
+labctl whoami        # token name and scope
+labctl status        # everything green
 ```
 
 ## Good to know
 
 - Output is a table by default; add `--json` for scripts.
-- `HGD1_API` overrides the endpoint (default `https://api.lan.buunk.org`),
+- `LABCTL_API` overrides the endpoint (default `https://api.lan.buunk.org`),
   handy when developing `clusterd` against a single host.
 - If a command fails with a connection error, check WARP first.
 - Working on the CLI itself (new commands, bugs): that happens in the

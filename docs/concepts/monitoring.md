@@ -41,7 +41,7 @@ flowchart LR
 - **Data on local NVMe**, not on Ceph: monitoring must not depend on what it
   monitors.
 - **Who reads it:** the [Platform API](api.md) proxies the query endpoints with
-  token auth, so the `hgd1` CLI and the [web UI](web-ui.md) never talk to the
+  token auth, so the `labctl` CLI and the [web UI](web-ui.md) never talk to the
   stores directly. Both stores also have their own web UI over WARP.
 
 ## How it works
@@ -129,8 +129,8 @@ ssh jurre@10.10.20.11 'curl -s 127.0.0.1:8429/api/v1/targets' | jq -r '.data.act
 **Through the API** (token auth), the usual way:
 
 ```sh
-hgd1 metrics query 'probe_success == 0'
-hgd1 logs --host hgd1-fw01 --since 1h
+labctl metrics query 'probe_success == 0'
+labctl logs --host hgd1-fw01 --since 1h
 ```
 
 A Grafana can also use `http://mon.lan.buunk.org:8428` (Prometheus type) and
