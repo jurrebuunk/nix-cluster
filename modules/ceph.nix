@@ -1,7 +1,7 @@
 # Ceph on every host: mon + mgr + one HDD OSD + an RGW (S3) gateway, all on the
 # storage VLAN (br-stor, see modules/network.nix).
 # Daemons only start once their keyring exists, so this can be deployed before
-# scripts/ceph-bootstrap.sh has created the cluster. See CEPH.md.
+# scripts/ceph-bootstrap.sh has created the cluster. See docs/storage/ceph.md.
 { config, lib, pkgs, inventory, ... }:
 let
   hostName = config.networking.hostName;

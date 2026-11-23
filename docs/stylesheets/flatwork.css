@@ -1,0 +1,37 @@
+/* Two colours from jurrebuunk/flatwork-ui (theme hue-gradient-design):
+   the background #1b1818 and the primary technical blue #8aa1a8. */
+[data-md-color-scheme="slate"] {
+  --md-default-bg-color: #1b1818;
+  --md-default-bg-color--light: #1b1818e6;
+  --md-default-bg-color--lighter: #1b18184d;
+  --md-default-bg-color--lightest: #1b18181f;
+  --md-footer-bg-color--dark: #1b1818;
+
+  --md-primary-fg-color: #8aa1a8;
+  --md-primary-fg-color--light: #a5bbc2;
+  --md-primary-fg-color--dark: #6f868d;
+  --md-primary-bg-color: #1b1818;
+  --md-primary-bg-color--light: #1b1818b3;
+  --md-accent-fg-color: #8aa1a8;
+  --md-accent-fg-color--transparent: #8aa1a81a;
+  --md-accent-bg-color: #1b1818;
+  --md-typeset-a-color: #8aa1a8;
+
+  /* Code surfaces: a lighter shade of the background instead of the
+     theme's cold blue tint. */
+  --md-code-bg-color: #241f1f;
+  --md-code-bg-color--light: #241f1fe6;
+  --md-code-bg-color--lighter: #241f1f8a;
+  --md-code-fg-color: var(--md-default-fg-color);
+
+  /* The modern theme also draws its surfaces from this RGB triplet. */
+  --color-background: 27 24 24;
+  --color-background-subtle: 36 31 31;
+}
+
+/* Primary colour for the current page and hovered links in the navigation. */
+[data-md-color-scheme="slate"] .md-nav__link--active,
+[data-md-color-scheme="slate"] .md-nav__link:hover,
+[data-md-color-scheme="slate"] .md-nav__link:focus {
+  color: var(--md-primary-fg-color);
+}

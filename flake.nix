@@ -53,6 +53,7 @@
           pkgs.nmap
           pkgs.nixos-rebuild-ng
           pkgs.shellcheck
+          pkgs.zensical
         ];
         # Written by scripts/kubeconfig.sh.
         shellHook = ''

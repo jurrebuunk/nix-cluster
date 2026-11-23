@@ -32,7 +32,7 @@ in
     tokenFile = "${k3s.guestSecretDir}/${vm.role}-token";
     agentTokenFile = if isServer then "${k3s.guestSecretDir}/agent-token" else null;
     nodeIP = vm.ip.k8s;
-    # Registration-time only: a moved VM is deleted and rejoins (K3S.md).
+    # Registration-time only: a moved VM is deleted and rejoins (docs/compute/k3s.md).
     nodeLabel = [ "topology.kubernetes.io/zone=${vm.host}" ];
     # Ingress and load balancers come from the workloads repo.
     disable = lib.optionals isServer [

@@ -11,7 +11,7 @@ VM="${1:-$(jq -r '[.vms | to_entries[] | select(.value.enabled and .value.role =
 jq -e --arg vm "$VM" '.vms[$vm].role == "server" and .vms[$vm].enabled' <<<"$INVENTORY" >/dev/null \
   || { echo "$VM is not an enabled server VM" >&2; exit 1; }
 EXPECTED=$(jq -r --arg vm "$VM" '.vms[$vm].hostKey // empty' <<<"$INVENTORY")
-[ -n "$EXPECTED" ] || { echo "$VM: pin its hostKey in inventory first (VMS.md)" >&2; exit 1; }
+[ -n "$EXPECTED" ] || { echo "$VM: pin its hostKey in inventory first (docs/compute/vms.md)" >&2; exit 1; }
 ADDR=$(jq -r --arg vm "$VM" '.vms[$vm].ip.k8s' <<<"$INVENTORY")
 API="https://$(jq -r '.k3s.apiName' <<<"$INVENTORY"):6443"
 OUT="${KUBECONFIG_OUT:-$HOME/.kube/hgd1.yaml}"
