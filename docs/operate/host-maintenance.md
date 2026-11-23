@@ -14,17 +14,8 @@ Reboot, update or open up a host without an outage. One host at a time.
 !!! warning "Not yet run live"
 
     `labctl host maintenance` and `resume` are tested, but haven't taken a real
-    host down yet. They also need the Ceph key `client.clusterd` to be allowed
-    `osd set-group` and `osd unset-group`; without that, maintenance stops at
-    the `noout` step with the VMs already stopped (run `labctl host resume` to
-    undo). Grant it once on any host, output discarded because it prints the
-    key:
-
-    ```sh
-    sudo ceph auth caps client.clusterd mon 'allow r, allow command "osd set-group", allow command "osd unset-group"' mgr 'allow r' >/dev/null
-    ```
-
-    Until the first real run, keep the manual steps below at hand.
+    host down yet. Until the first real run, keep the manual steps below at
+    hand.
 
 ## Steps
 
