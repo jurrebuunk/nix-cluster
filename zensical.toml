@@ -75,7 +75,8 @@ nav = [
   ] },
 ]
 
-extra_css = ["stylesheets/flatwork.css"]
+# Bump ?v= when the stylesheet changes, so browsers drop their cached copy.
+extra_css = ["stylesheets/flatwork.css?v=2"]
 
 [project.theme]
 language = "en"
