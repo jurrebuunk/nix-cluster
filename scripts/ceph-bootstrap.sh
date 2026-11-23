@@ -37,7 +37,7 @@ SSH_OPTS=(-o BatchMode=yes -o ConnectTimeout=10)
 # Run a bash script (read from stdin) as root on a host; extra args become $1, $2, ...
 on() {
   local host="$1"; shift
-  ssh "${SSH_OPTS[@]}" "$SSH_USER@$(ip_of "$host")" sudo -n bash -euo pipefail -s -- "$@"
+  run "$host" 'exec bash -euo pipefail -s -- "$@"' "$@"
 }
 
 # Run a bash script (given as an argument) as root on a host, leaving stdin
@@ -45,7 +45,7 @@ on() {
 run() {
   local host="$1" script="$2"; shift 2
   ssh "${SSH_OPTS[@]}" "$SSH_USER@$(ip_of "$host")" \
-    "sudo -n bash -euo pipefail -c $(printf '%q' "$script") bash $(printf '%q ' "$@")"
+    "sudo -n bash -euo pipefail -c $(printf '%q' "umask 077; $script") bash $(printf '%q ' "$@")"
 }
 
 say() { printf '\n==> %s\n' "$*"; }
@@ -173,6 +173,7 @@ if [ ! -s "$dir/keyring" ]; then
   ceph auth get-or-create "mgr.$id" mon 'allow profile mgr' osd 'allow *' mds 'allow *' > "$dir/keyring.tmp"
   chown ceph:ceph "$dir/keyring.tmp"; mv "$dir/keyring.tmp" "$dir/keyring"; sync
 fi
+chmod 0600 "$dir/keyring"
 systemctl start "ceph-mgr-$id"
 EOF
   done
@@ -288,6 +289,7 @@ if [ ! -s "$dir/keyring" ]; then
   ceph auth get-or-create "client.$id" osd 'allow rwx' mon 'allow rw' > "$dir/keyring.tmp"
   chown ceph:ceph "$dir/keyring.tmp"; mv "$dir/keyring.tmp" "$dir/keyring"; sync
 fi
+chmod 0600 "$dir/keyring"
 systemctl start "ceph-rgw-$id"
 EOF
   done

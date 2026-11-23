@@ -35,7 +35,7 @@ unless a step says so. Code snippets are sketches, not final config.
 | CPU | Intel i5-6500T, 4 cores |
 | RAM | 16 GiB |
 | NVMe | 256 GB: EFI + ext4 root (unchanged, no repartitioning) |
-| HDD | 1 TB HGST, blank, dedicated to Ceph |
+| HDD | 1 TB HGST, initialized as an LVM/BlueStore Ceph OSD |
 
 Rough RAM budget per node: ~3–4 GB Ceph, ~1 GB host, ~11 GB for VMs.
 
@@ -140,7 +140,7 @@ a reboot and reach each other on `10.10.30.0/24`.
 
 ## Step 2: Ceph on the hosts
 
-**Repo:** `nix-hgd1-cluster` (`modules/ceph.nix`, `scripts/ceph-bootstrap.sh`) · **Status:** configuration deployed, services gated off; waiting for extended SMART tests. No OSDs initialized. See [CEPH.md](CEPH.md) and [ROLLOUT.md](ROLLOUT.md).
+**Repo:** `nix-hgd1-cluster` (`modules/ceph.nix`, `scripts/ceph-bootstrap.sh`) · **Status:** **done 2026-11-23**. HEALTH_OK, three monitors in quorum, three OSDs up/in and three RGWs. All pools use replica 3/min_size 2 with host-separated placement. RBD and S3 reads/writes passed through each single-host Ceph outage; hv02/hv03 reboot recovery and hv01 service recovery passed. Runtime-key backups are encrypted and decrypt-verified. See [CEPH.md](CEPH.md) and [ROLLOUT.md](ROLLOUT.md).
 
 - Complete the extended SMART tests on all HDDs first. hv01 has historical
   unrecoverable-read errors; hv03 has a historical `Runtime_Bad_Block` count

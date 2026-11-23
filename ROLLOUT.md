@@ -35,8 +35,8 @@ export JUMP=root@<opnsense-wan-ip>
 ## B. Router and switch (Claude, network plan N1–N4)
 
 **Status: done 2026-11-21.** N5/N6 completed 2026-11-22. Extended HDD tests
-were started after each node's migration reboot and are still pending; do not
-reboot the hosts again until those tests finish.
+were started after each node's migration reboot, passed, and Ceph was initialized
+on 2026-11-23. Future host maintenance must respect Ceph quorum/replica health.
 
 1. N1: OPNsense base (DNS, NTP, hostname, backup).
 2. N2: VLAN interfaces 20/40/100, DHCP on 10 and 100.
@@ -132,11 +132,17 @@ aliases it. Pick unused addresses and verify inventory before any future test.
 
 ## E. Ceph (PLAN step 2)
 
-**Status: pending disk qualification.** Services/configuration are deployed
-but remain gated off without keyrings. No Ceph cluster, pools or buckets have
-been initialized. See [CEPH.md](CEPH.md) for disk cautions and S3 access.
+**Status: done 2026-11-23.** Three mons in quorum, one active/two standby
+managers, three HDD OSDs up/in, and three storage-IP RGWs. All nine pools have
+replica 3/min_size 2 and host-separated placement. RBD and S3 read/write tests
+passed with each host's Ceph services down in turn. hv02/hv03 also passed
+actual reboot recovery; hv01 used service recovery to preserve its live VM.
+All PGs returned clean and `noout` was removed after each case. Encrypted runtime
+key backups were decrypt-verified. Temporary test images/bucket/client removed;
+`jurre` S3 credentials remain root-only on hv01. See [CEPH.md](CEPH.md).
 
-Check the SMART results first; any reallocated or pending sectors, or a failed
+The bootstrap commands below are a reference, **not a disk-replacement procedure**.
+On fresh media, check SMART first; any reallocated or pending sectors, or a failed
 long test, means that disk does not go into Ceph:
 
 ```sh
@@ -161,7 +167,7 @@ scripts/ceph-bootstrap.sh           # all phases (asks you to type "wipe" before
 | `rgw` | S3 gateway `client.rgw.hgd1-hvNN` on every host, port 7480; it creates its own pools. |
 
 Every phase skips work that already exists, so re-running is safe. Keyrings are
-runtime state on the hosts and never in this repo. Ceph listens only on
+runtime state on the hosts and never in this repo. Ceph is reachable only on
 `br-stor` (VLAN 30), so it is not reachable from the laptop directly.
 
 ### Verify
@@ -208,7 +214,8 @@ Sunshine forwards and leave the WAN private-network block off (see the network
 plan's gaming exception). From then on, no `JUMP` is needed: with WARP
 connected, `ssh jurre@10.10.20.11` works from anywhere.
 
-Next: PLAN step 3 (VM platform).
+Next: PLAN step 4 (k3s), after enabling and verifying hv02's BIOS virtualization.
+Step 3 is already complete.
 
 ## Daily Ceph operations
 

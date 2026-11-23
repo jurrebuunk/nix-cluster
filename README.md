@@ -1,32 +1,35 @@
 # nix-hgd1-cluster
 
 NixOS configuration for my homelab at site `hgd1`: three small x86_64 nodes
-(`hgd1-hv01`, `hgd1-hv02`, `hgd1-hv03`) that will run Ceph on their HDDs and a
-k3s cluster in microVMs on top. The site network (OPNsense router and Aruba
+(`hgd1-hv01`, `hgd1-hv02`, `hgd1-hv03`) running Ceph on their HDDs, with a
+microVM platform ready for a future k3s cluster. The site network (OPNsense router and Aruba
 switch) is configured, verified and documented here too.
 
 I manage everything from this repo on my laptop and deploy over SSH.
 
-## Current state — 2026-11-22
+## Current state — 2026-11-23
 
-**Done:** network rollout N0–N6 and the step-3 VM platform. All three hosts
-are on their static INFRA/storage addresses. The network passed 83/83 checks
+**Done:** network rollout N0–N6, Ceph (step 2), and the step-3 VM platform.
+All three hosts are on their static INFRA/storage addresses. The network passed 83/83 checks
 and router/switch reboot tests. One base VM, `hgd1-k8m01`, is live; its data
 and SSH identity survived VM restarts, and a host deploy did not restart it.
 
+Ceph is **HEALTH_OK**: three monitors in quorum, three HDD OSDs up/in, and
+three S3 gateways serving one shared object store. All pools use three replicas
+across hosts with `min_size=2`. RBD and S3 reads/writes passed with each host's
+Ceph services down in turn; hv02/hv03 also passed actual reboot recovery.
+Runtime-key backups are encrypted and decrypt-verified. See [CEPH.md](CEPH.md).
+
 **Still pending:**
 
-- **Ceph:** HDD extended SMART tests are still running. No OSDs, pools, S3
-  endpoints or buckets have been initialized. Zero current bad-sector counters
-  do not mean the disks are qualified; hv01's HDD has concerning historical
-  read errors and hv03 has a historical bad-block indicator.
-- **hv02 virtualization:** enable VT-x in BIOS only after its disk test finishes,
-  then verify KVM before enabling guests there. Do not reboot hosts during tests.
+- **hv02 virtualization:** enable VT-x in BIOS, verify KVM, then enable guests
+  there. Its HDD test has passed; use the Ceph one-host maintenance procedure.
 - **k3s (step 4):** not installed. The other four VM definitions remain disabled.
 - **N7:** in progress. Tunnel `hgd1-admin`, routes, WARP settings and the OPNsense rule are in place; next is deploying hv01–03 and testing from outside. Bootstrap WAN management stays until then.
 
-Deployment, VM and storage runbooks are linked below. Network/VM work has not
-initialized the reserved HDDs or changed the separate GPU server's VM setup.
+Deployment, VM and storage runbooks are linked below. Ceph uses only the
+reserved HDDs; host/VM disks remain on NVMe. This Ceph rollout did not change
+the separate GPU server's VM setup.
 
 ## Documentation
 
@@ -62,7 +65,7 @@ The nodes now live at infra `10.10.20.11–13` and storage
 
 ## Roadmap
 
-Status as of 2026-11-22. Network steps `N*` are in
+Status as of 2026-11-23. Network steps `N*` are in
 [network/PLAN.md](network/PLAN.md), cluster steps in [PLAN.md](PLAN.md).
 
 | Step | What | Status |
@@ -76,7 +79,7 @@ Status as of 2026-11-22. Network steps `N*` are in
 | N5 / 1 | Move `hgd1-hv01..03` to their static VLAN 20/30/40 addresses | **Done** 2026-11-22; ports 5/7/9 native 20, tagged 30/40; each host rebooted and verified |
 | N6 | Verify the network | **Done** 2026-11-22; 83/83 probes, router/switch reboots, saved VLANs, node isolation and unrouted storage verified |
 | N7 | Cloudflare Zero Trust remote access, close bootstrap WAN management | **In progress (2026-11-23): Cloudflare side, tunnel secret and OPNsense rule done; deploy to hv01–03 and test pending**; temporary management rules remain |
-| 2 | Ceph on the nodes (mon/mgr/osd/rgw) | Configuration deployed, services gated off; extended SMART tests pending, no disks initialized |
+| 2 | Ceph on the nodes (mon/mgr/osd/rgw) | **Done** 2026-11-23; HEALTH_OK, 3 mons/OSDs/RGWs, replica 3/min_size 2, RBD/S3 and one-host-outage recovery verified |
 | 3 | VM platform (microvm.nix) | **Done** 2026-11-22; one empty VM live, SSH/storage/internet and restart persistence verified; host deploy does not restart guests |
 | 4 | k3s nodes (3 servers, 2 agents) | Planned |
 | 5 | Operations docs | **Partial**: deployment, VM lifecycle and Ceph/S3 runbooks written; workload-aware procedures follow step 4 |
@@ -97,15 +100,16 @@ Still to do outside the repo:
 NixOS VM, **not yet a k3s server**. The other four entries remain disabled until
 step 4. See [VMS.md](VMS.md) for lifecycle, SSH and update commands.
 
-hv02 currently exposes no VT-x/KVM: enable virtualization in its BIOS after
-its HDD test completes before enabling guests there. hv01/hv03 expose KVM.
+hv02 currently exposes no VT-x/KVM: enable virtualization in its BIOS before
+enabling guests there. Its HDD test has passed; maintain Ceph one host at a
+time. hv01/hv03 expose KVM.
 
 ## Nodes
 
 All three run NixOS 26.05 with UEFI systemd-boot, a 1 GiB EFI partition and
 an ext4 root on the rest of the NVMe; `/srv/volumes` lives on that root. No
-swap. The HDDs had no filesystem signatures at preflight and have not been
-initialized for Ceph. Each node has one NIC, `enp2s0`. They used to run Proxmox
+swap. Each HDD now holds its inventory-defined LVM/BlueStore OSD; NVMe layout
+is unchanged. Each node has one NIC, `enp2s0`. They used to run Proxmox
 as `pve0`–`pve2`.
 
 | Node | Was | MAC | NVMe | Ceph HDD |
@@ -114,11 +118,13 @@ as `pve0`–`pve2`.
 | `hgd1-hv02` | pve1 | `fc:3f:db:0a:b1:c3` | Samsung `MZ9LQ256HBJQ` (replacement) | HGST `JR1000D30JXXWF` |
 | `hgd1-hv03` | pve2 | `fc:3f:db:0a:c1:42` | SK hynix `HFM256GD3GX013N` (60% endurance used) | HGST `JR1000D30JXYRF` |
 
-HDD qualification is pending: `hgd1-hv01` has historical unrecoverable-read
-errors (ATA log counter saturated at 65535), and `hgd1-hv03` reports a historical
-`Runtime_Bad_Block` count of 1. All three currently have zero reallocated,
-pending and offline-uncorrectable sectors; that alone is not proof of healthy
-media. Extended tests must pass before Ceph initialization. See [CEPH.md](CEPH.md).
+All three HDDs passed recent extended SMART tests before initialization, with
+zero reallocated, pending and offline-uncorrectable sectors. Historical cautions
+remain: hv01 has old unrecoverable-read errors (ATA counter saturated at 65535)
+and hv03 reports `Runtime_Bad_Block = 1`. The current disks were accepted for
+this homelab after the tests passed. Monitor them, replace failed media promptly,
+and keep separate backups; replication does not erase disk history. See
+[CEPH.md](CEPH.md).
 Serials and disk ids are in `inventory.nix`.
 
 When adopting this config on a fresh install, keep its `system.stateVersion`

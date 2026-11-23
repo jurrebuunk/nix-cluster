@@ -21,8 +21,9 @@ Verified on the live VM:
   needed; extended HDD tests continued.
 
 **Hardware prerequisite:** hv01 and hv03 expose VT-x and `/dev/kvm`; hv02 does
-not currently expose VMX/KVM. After its HDD test finishes, enable Intel
-virtualization in its BIOS, verify `/dev/kvm`, and change
+not currently expose VMX/KVM. Its HDD test has passed and Ceph is initialized:
+use one-host-at-a-time Ceph maintenance to enable Intel virtualization in its
+BIOS, verify `/dev/kvm`, and change
 `hosts.hgd1-hv02.kvmAvailable` to true before enabling guests there. No slow
 software-emulation fallback is provisioned in place of that hardware fix.
 

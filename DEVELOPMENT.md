@@ -165,8 +165,14 @@ it may be stale.
 Avoid permanent manual edits on the servers; express them here instead.
 
 N5/N6 established and reboot-tested static addresses; 83/83 network checks
-passed. Ceph configuration is deployed but services remain gated off until
-bootstrap, and the HDDs are still blank pending extended SMART qualification.
-See [CEPH.md](CEPH.md) for current disk cautions. Never reboot a host while its
-qualification test is running. Use agenix for deployed secrets; runtime admin
-keyrings and plaintext backups do not belong in Git or the Nix store.
+passed. Ceph step 2 completed on 2026-11-23 after all extended SMART tests
+passed: the reserved HDDs now hold BlueStore OSDs, with three monitors/OSDs/RGWs
+and replica 3/min_size 2. Real RBD/S3 operations survived each single-host Ceph
+outage and all replicas recovered; hv02/hv03 rebooted, while hv01's VM stayed
+running during service recovery. See [CEPH.md](CEPH.md) for tests, disk cautions
+and encrypted recovery-key backups.
+
+Never reboot during a future qualification test. Once Ceph is initialized,
+maintain one host at a time and wait for HEALTH_OK before touching the next.
+Use agenix for deployed secrets; runtime admin/S3 credentials and plaintext
+backups do not belong in Git or the Nix store.
