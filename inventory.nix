@@ -1,5 +1,5 @@
 # Single source of truth for cluster-wide facts. Nothing in here is secret.
-# Network design: docs/network/index.md.
+# Network design: docs/concepts/network.md.
 {
   site = {
     name = "hgd1";
@@ -73,7 +73,7 @@
   # VM resources live on host NVMe, not the reserved Ceph HDDs. k8m02 waits
   # for VT-x on hv02 (hosts.hgd1-hv02.kvmAvailable).
   # id determines stable, unique TAP names and MAC addresses (see lib/vm-network.nix).
-  # hostKey: public SSH key from the hypervisor's VM_HOST_KEY journal line (docs/compute/vms.md).
+  # hostKey: public SSH key from the hypervisor's VM_HOST_KEY journal line (docs/concepts/vms.md).
   vms = {
     hgd1-k8m01 = {
       host = "hgd1-hv01"; enabled = true; id = 11; role = "server";
@@ -107,7 +107,7 @@
     };
   };
 
-  # k3s on the VMs (modules/microvm/guest/k3s/, docs/compute/k3s.md). The API VIP moves
+  # k3s on the VMs (modules/microvm/guest/k3s/, docs/concepts/k3s.md). The API VIP moves
   # between ready servers (keepalived); agents and kubectl join through it.
   k3s = {
     apiName = "k8s.lan.buunk.org";

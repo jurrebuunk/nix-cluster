@@ -1,3 +1,7 @@
+---
+icon: lucide/terminal
+---
+
 # Scripts
 
 All scripts live in `scripts/`, run from anywhere in the repo, and read
@@ -15,7 +19,7 @@ scripts/deploy.sh <host> [switch|boot|test|dry-activate]     # default: switch
 
 Refuses a dirty working tree and a host whose key differs from the inventory;
 the host builds its own system. Environment: `TARGET`, `JUMP`, `ALLOW_DIRTY=1`,
-`SSH_USER`. See [Change and deploy](../hosts/deploy.md).
+`SSH_USER`. See [Deploy a change](../how-to/deploy.md).
 
 ## vm.sh
 
@@ -27,7 +31,7 @@ scripts/vm.sh <vm> [status|start|stop|restart|logs]
 ```
 
 Never creates, moves or deletes disks, and doesn't drain Kubernetes. Refuses
-VMs that are disabled in the inventory. See [VMs](../compute/vms.md#lifecycle).
+VMs that are disabled in the inventory. See [VMs](../concepts/vms.md#operating).
 
 ## k3s-roll.sh
 
@@ -39,7 +43,7 @@ scripts/k3s-roll.sh [vm...]       # default: all enabled VMs, agents first
 
 Needs `KUBECONFIG`. Per VM: every node Ready → drain → restart → new boot
 Ready → uncordon. Stops and leaves the node cordoned on any failure. See
-[k3s](../compute/k3s.md#rolling-restarts).
+[Restart k3s nodes](../how-to/restart-k3s-nodes.md).
 
 ## kubeconfig.sh
 
@@ -63,4 +67,4 @@ scripts/ceph-bootstrap.sh [check|mon|mgr|osd|pools|rgw|all]     # default: all
 
 `check` is read-only. The OSD phase wipes HDDs only after strict SMART and
 identity checks and a typed `wipe` confirmation. Every phase skips what
-already exists. See [Ceph](../storage/ceph.md#bootstrapping-a-new-cluster).
+already exists. See [Ceph](../concepts/ceph.md#creating-a-cluster).

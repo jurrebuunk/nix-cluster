@@ -12,40 +12,58 @@ copyright = "Jurre Buunk"
 
 nav = [
   { "Home" = "index.md" },
-  { "Understand the project" = [
-    "understand/architecture.md",
-    "understand/repository.md",
-    "understand/roadmap.md",
+  { "Get started" = [
+    "get-started/index.md",
+    "get-started/access.md",
+    "get-started/first-change.md",
+    "get-started/repository.md",
   ] },
-  { "Network" = [
-    "network/index.md",
-    "network/remote-access.md",
-    "network/bootstrap.md",
+  { "Concepts" = [
+    "concepts/index.md",
+    "concepts/network.md",
+    "concepts/remote-access.md",
+    "concepts/hosts.md",
+    "concepts/ceph.md",
+    "concepts/s3.md",
+    "concepts/vms.md",
+    "concepts/k3s.md",
   ] },
-  { "Hosts" = [
-    "hosts/index.md",
-    "hosts/deploy.md",
+  { "How-to" = [
+    "how-to/index.md",
+    { "Changes" = [
+      "how-to/deploy.md",
+      "how-to/roll-back.md",
+      "how-to/update-dependencies.md",
+      "how-to/manage-secrets.md",
+    ] },
+    { "VMs and k3s" = [
+      "how-to/manage-vms.md",
+      "how-to/restart-k3s-nodes.md",
+      "how-to/finish-k3s.md",
+    ] },
+    { "Building on top" = [
+      "how-to/build-an-app.md",
+      "how-to/create-s3-user.md",
+    ] },
   ] },
-  { "Storage" = [
-    "storage/ceph.md",
-    "storage/s3.md",
-  ] },
-  { "Compute" = [
-    "compute/vms.md",
-    "compute/k3s.md",
-  ] },
-  { "Build on top" = [
-    "build/index.md",
-  ] },
-  { "Operations" = [
-    "operations/index.md",
-    "operations/maintenance.md",
-    "operations/secrets.md",
-    "operations/recovery.md",
+  { "Operate" = [
+    "operate/index.md",
+    "operate/host-maintenance.md",
+    "operate/router-and-switch.md",
+    "operate/disk-replacement.md",
+    "operate/troubleshooting.md",
+    "operate/disaster-recovery.md",
+    "operate/rebuild-network.md",
   ] },
   { "Reference" = [
+    "reference/index.md",
     "reference/addresses.md",
+    "reference/firewall.md",
+    "reference/inventory.md",
+    "reference/files.md",
     "reference/scripts.md",
+    "reference/glossary.md",
+    "reference/roadmap.md",
   ] },
 ]
 
@@ -66,6 +84,8 @@ features = [
   "navigation.instant.prefetch",
   "navigation.path",
   "navigation.sections",
+  "navigation.tabs",
+  "navigation.tabs.sticky",
   "navigation.top",
   "navigation.tracking",
   "search.highlight",
@@ -106,6 +126,9 @@ pymdownx.inlinehilite = {}
 pymdownx.keys = {}
 pymdownx.mark = {}
 pymdownx.smartsymbols = {}
+# Glossary terms (includes/abbreviations.md) get a hover tooltip on every page.
+pymdownx.snippets.base_path = ["includes"]
+pymdownx.snippets.auto_append = ["abbreviations.md"]
 pymdownx.superfences.custom_fences = [
   { name = "mermaid", class = "mermaid", format = "pymdownx.superfences.fence_code_format" },
 ]

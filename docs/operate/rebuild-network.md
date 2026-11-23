@@ -1,4 +1,8 @@
-# Building the network from scratch
+---
+icon: lucide/cable
+---
+
+# Rebuild the network
 
 This is how I brought the network up the first time. You only need it to
 rebuild the site after a total loss, or to build a similar one. The live
@@ -16,12 +20,12 @@ very end.
 | N1 | OPNsense base: firmware, hostname, Unbound with DNSSEC, NTP, backup | Over SSH |
 | N2 | VLAN interfaces 20/40/100, DHCP on mgmt and users, outbound NAT | Over SSH |
 | N3 | Switch: VLANs, management on `10.10.10.2`, port roles; hypervisor ports stay on VLAN 10 | Over SSH |
-| N4 | Firewall rules per the [policy](index.md#firewall-policy); temporary WAN rules stay | Over SSH |
-| N5 | Move each hypervisor to its static addresses, one at a time | [Host move](#n5-moving-a-host-to-its-static-addresses) |
+| N4 | Firewall rules per the [policy](../reference/firewall.md); temporary WAN rules stay | Over SSH |
+| N5 | Move each hypervisor to its static addresses, one at a time | [Moving a host](#moving-a-host) |
 | N6 | Verify: inter-VLAN tests from every VLAN, host internet, reboot router and switch | Over SSH |
-| N7 | Remote access, then remove the temporary WAN rules | [Remote access](remote-access.md#setting-it-up-from-scratch) |
+| N7 | Remote access, then remove the temporary WAN rules | [Remote access](../concepts/remote-access.md#setting-it-up-again) |
 
-## N0: by hand (about an hour)
+## Bootstrap (N0)
 
 **Cabling.**
 
@@ -57,7 +61,7 @@ scripts accept it until N7.
 still on the default VLAN. It gets a `10.10.10.x` lease, and the OPNsense web
 UI at `https://10.10.10.1` is always allowed from LAN.
 
-## N5: moving a host to its static addresses
+## Moving a host
 
 During N0–N4 the hypervisors run on temporary DHCP leases in `10.10.10.x`.
 Each one moves to its final addresses in a single reboot, guarded by a timer
@@ -100,7 +104,7 @@ failed before systemd started, pick the previous generation in the boot menu.
 
 After all three hosts, they must ping each other on `10.10.30.0/24`.
 
-## N6: what "verified" meant
+## Verification (N6)
 
 From throwaway clients on every VLAN I tested DHCP and its options, DNS, NTP,
 NAT, every allowed and blocked path in the policy, SSH isolation of the hosts,
@@ -112,3 +116,7 @@ checked that everything came back from saved configuration.
 
     Never reuse a live address for a test client. `10.10.40.11` was a test
     fixture during N6 and is now `hgd1-k8m01`. Check the inventory first.
+
+## Related
+
+- [Network](../concepts/network.md) · [Router and switch](router-and-switch.md)

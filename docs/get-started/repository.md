@@ -1,4 +1,8 @@
-# The repository
+---
+icon: lucide/folder-git-2
+---
+
+# Tour of the repo
 
 The repo is a Nix flake. It describes every host and VM as a
 `nixosConfiguration`, and it holds the scripts and docs to run them. This page
@@ -22,9 +26,9 @@ walks through it in the order you will need it.
 | `lib/` | Pure helpers shared by host and guest modules (`vm-network.nix`, `k3s.nix`) |
 | `scripts/` | `deploy.sh`, `vm.sh`, `k3s-roll.sh`, `kubeconfig.sh`, `ceph-bootstrap.sh` |
 | `secrets/` | agenix recipients (`secrets.nix`) and encrypted `*.age` files |
-| `docs/`, `zensical.toml` | This documentation site |
+| `docs/`, `zensical.toml`, `includes/` | This documentation site |
 
-## The inventory is the source of truth
+## Inventory
 
 `inventory.nix` is a plain attribute set with nothing secret in it. Modules
 never hard-code an address; they read it from the inventory. To understand
@@ -58,7 +62,7 @@ example, that VM ids and IPs are unique, that VM IPs sit in the right VLANs,
 that no host gets more than 11 GiB of VM memory, and that the k3s VIP is free.
 `nix flake check` fails on any of those before anything is deployed.
 
-## How the flake is built
+## Flake outputs
 
 ```mermaid
 flowchart LR
@@ -78,7 +82,7 @@ flowchart LR
 - Both appear as flake outputs, so `nix build .#nixosConfigurations.hgd1-k8m01.config.system.build.toplevel`
   works for a VM too.
 
-## Module conventions
+## Conventions
 
 These keep the code readable. Follow them when you add something.
 
@@ -102,13 +106,13 @@ These keep the code readable. Follow them when you add something.
     and after. Identical paths prove nothing changed and nothing needs to be
     deployed.
 
-## The dev shell
+## Dev shell
 
 `nix develop` gives you the tools these docs use: `nixos-rebuild`, `agenix`,
 `cloudflared`, `kubectl`, `jq`, `nmap`, `shellcheck` and `zensical`. It also
 sets `KUBECONFIG` to `~/.kube/hgd1.yaml`.
 
-## Working on these docs
+## These docs
 
 The docs are Markdown in `docs/`, built with [Zensical](https://zensical.org/).
 
@@ -120,3 +124,15 @@ zensical serve          # http://localhost:8000, rebuilds on save
 Every push to `main` builds the site and publishes it to GitHub Pages
 (`.github/workflows/docs.yml`). Link to code with full GitHub URLs, because
 relative links to files outside `docs/` don't exist on the site.
+
+Each page starts with an `icon:` (a [Lucide](https://lucide.dev/icons/) name)
+in its front matter. Keep headings to one to three words, two levels deep at
+most, so the "On this page" sidebar stays scannable. Concept pages follow
+the same sections: Overview, How it works, Configuration, Operating,
+Troubleshooting, Related. Glossary tooltips come from `includes/abbreviations.md`.
+
+## Related
+
+- [Files reference](../reference/files.md): every file and what it configures.
+- [Inventory fields](../reference/inventory.md): every field explained.
+- [Deploy a change](../how-to/deploy.md).

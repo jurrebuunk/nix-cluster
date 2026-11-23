@@ -1,4 +1,8 @@
-# Addresses and names
+---
+icon: lucide/map-pin
+---
+
+# Addresses
 
 Every fixed address in one place. The source of truth is
 [`inventory.nix`](https://github.com/jurrebuunk/nix-hgd1-cluster/blob/main/inventory.nix)

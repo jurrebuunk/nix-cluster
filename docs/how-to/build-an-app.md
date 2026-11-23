@@ -1,11 +1,15 @@
-# Build on top
+---
+icon: lucide/hammer
+---
+
+# Build an app
 
 This page is for building something on the platform: a new app, a database,
 a service that needs storage. You don't need to know NixOS for that. The
 contract between this repo and your project is a **Kubernetes API**, the
 **S3 endpoint** and the **Ceph cluster**.
 
-## What the platform gives you
+## Platform
 
 | You get | Details |
 | --- | --- |
@@ -21,7 +25,7 @@ contract between this repo and your project is a **Kubernetes API**, the
 cert-manager, ceph-csi (so no `ceph-bulk` StorageClass yet) and the Postgres
 operator. Until then, services only work inside the cluster.
 
-## Getting access
+## Access
 
 ```sh
 git clone https://github.com/jurrebuunk/nix-hgd1-cluster
@@ -35,7 +39,7 @@ kubectl get nodes -L topology.kubernetes.io/zone
 The workloads repo itself needs nothing from this flake, only that file.
 Tools like Helm, Terraform, Flux or Argo CD can all use it.
 
-## Where does your app's state go?
+## Where state goes
 
 Ask this for every new app. The answer is almost always "Postgres", "S3" or
 "nowhere".
@@ -68,7 +72,7 @@ Why: the Ceph HDDs are reliable but slow (three laptop disks over 1 GbE), and
 the NVMe is fast but local to one host. Databases get speed from NVMe and
 safety from replicating themselves; everything else gets safety from Ceph.
 
-## Spreading over hosts
+## Spreading
 
 Use the zone label so replicas don't end up on one physical machine:
 
@@ -85,12 +89,12 @@ topologySpreadConstraints:
 Two nodes share hv01 and two share hv03, so spreading by node name alone isn't
 enough.
 
-## Using S3 from a pod
+## Object storage
 
 Every node has a NIC on the storage VLAN, so pods reach
 `https://s3.lan.buunk.org` directly with a valid certificate.
 
-1. Create a user for your app (see [S3](../storage/s3.md#users-and-buckets)).
+1. Create a user for your app ([Create an S3 user](create-s3-user.md)).
 2. Put its keys in a Kubernetes Secret through your workloads repo's secret
    handling. Never put them in plain text in Git.
 3. Configure the client: endpoint `https://s3.lan.buunk.org`, region
@@ -100,7 +104,10 @@ If browsers must upload or download directly (presigned URLs), remember the
 endpoint is only reachable on the storage VLAN. Exposing S3 to users is a
 separate design decision.
 
-## Ceph block storage (from step 6)
+## Block storage
+
+<span class="status status--planned">Step 6</span>
+
 
 ceph-csi reads the cluster facts from the ConfigMap, so nothing has to be
 copied by hand:
@@ -115,7 +122,10 @@ a VM has been tested against this Ceph version. ceph-csi needs a Ceph client
 key restricted to the `k8s` pool; create it on a host and store it as a
 Kubernetes Secret.
 
-## Exposing an app (from step 6)
+## Exposing
+
+<span class="status status--planned">Step 6</span>
+
 
 The plan: an ingress controller behind load balancer IPs on VLAN 40
 (`10.10.40.200–249`). OPNsense already allows the users VLAN to reach those
@@ -124,7 +134,7 @@ S3 endpoint. Public exposure to the internet is not part of the design; that
 would need its own security review (a DMZ or a Cloudflare tunnel for that
 app).
 
-## Checklist for a new app
+## Checklist
 
 - [ ] Where does its state go (the diagram above)?
 - [ ] Deployment with at least two replicas if it must survive a host loss,
@@ -136,9 +146,9 @@ app).
 - [ ] Tested: stop one VM with `scripts/k3s-roll.sh <vm>` and check the app
       keeps working.
 
-## Changing the platform itself
+## Platform changes
 
 If your project needs something from the platform (another VM, more memory,
 a firewall rule, a new VLAN), that change happens in this repo. Read
-[The repository](../understand/repository.md) and
-[Change and deploy](../hosts/deploy.md) first.
+[Tour of the repo](../get-started/repository.md) and
+[Deploy a change](deploy.md) first.

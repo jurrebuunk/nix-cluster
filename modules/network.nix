@@ -1,4 +1,4 @@
-# Host networking on one NIC (docs/network/index.md):
+# Host networking on one NIC (docs/concepts/network.md):
 #   enp2s0 (untagged, VLAN 20)  host management, default route
 #   enp2s0.30 -> br-stor        Ceph, host address, not routed
 #   enp2s0.40 -> br-k8s         k3s VMs later, no host address

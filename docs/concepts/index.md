@@ -1,7 +1,11 @@
+---
+icon: lucide/layers
+---
+
 # Architecture
 
-This page explains how the pieces fit together and why I chose them. Read it
-once before changing anything; the other pages assume you know this.
+How the pieces fit together and why I chose them. Read this once before
+changing anything; the other concept pages assume you know it.
 
 ## Goals
 
@@ -16,7 +20,7 @@ once before changing anything; the other pages assume you know this.
 - **Later:** a small self-written backend for monitoring and simple actions
   (restart a VM, put a host in maintenance), usable from a web UI or a CLI.
 
-## The hardware
+## Hardware
 
 Three identical small-form-factor office PCs. They used to run Proxmox as
 `pve0..2`; now they run NixOS as `hgd1-hv01..03`.
@@ -42,7 +46,7 @@ The internet comes from my home router (`192.168.2.0/24`). OPNsense treats
 that whole home network as WAN, so nothing from home reaches the site unless
 a rule allows it.
 
-## The layers
+## Layers
 
 ```mermaid
 flowchart TB
@@ -64,23 +68,23 @@ flowchart TB
 
 1. **Network.** Every host has one cable. The untagged VLAN 20 carries host
    management; VLAN 30 (storage) and VLAN 40 (k8s) arrive tagged and end in
-   two bridges, `br-stor` and `br-k8s`. See [Network](../network/index.md).
+   two bridges, `br-stor` and `br-k8s`. See [Network](network.md).
 2. **NixOS host.** The same configuration on all three, with per-host facts
    from the inventory. Deployed from the laptop; the host builds its own
-   system. See [Hosts](../hosts/index.md).
+   system. See [Hosts](hosts.md).
 3. **Ceph.** One monitor, one manager, one OSD and one S3 gateway (RGW) per
    host. Three copies of every object, one per host. See
-   [Ceph](../storage/ceph.md).
+   [Ceph](ceph.md).
 4. **S3 endpoint.** A floating IP on the storage VLAN with HTTPS in front of
-   the three gateways, independent of Kubernetes. See [S3](../storage/s3.md).
+   the three gateways, independent of Kubernetes. See [S3](s3.md).
 5. **microVMs.** Small QEMU VMs defined in Nix and run as systemd services on
-   the hosts. Their disks live on the host NVMe. See [VMs](../compute/vms.md).
+   the hosts. Their disks live on the host NVMe. See [VMs](vms.md).
 6. **k3s.** Three servers (one per host, embedded etcd) and two agents. See
-   [k3s](../compute/k3s.md).
+   [k3s](k3s.md).
 7. **Workloads.** Everything that runs on Kubernetes lives in a separate
-   repo that only needs a kubeconfig. See [Build on top](../build/index.md).
+   repo that only needs a kubeconfig. See [Build on top](../how-to/build-an-app.md).
 
-## Key decisions
+## Decisions
 
 ??? note "microvm.nix instead of Proxmox or libvirt"
 
@@ -122,7 +126,7 @@ flowchart TB
     one IP to a healthy node. It is simple, has no extra moving parts and
     behaves the same in both places.
 
-## Resource budget
+## Resources
 
 Per host, roughly: 1 GB for the host OS, 2–4 GB for Ceph (each OSD targets
 2 GiB), and up to 11 GiB for VMs. The inventory checks refuse a configuration
@@ -151,3 +155,17 @@ code and a two-digit number starting at 01.
 | `gpu` | GPU server (own repo) | `hgd1-gpu1` |
 
 Possible later roles: `st` (storage), `db`, `lb` and `bk` (backup).
+
+## Concept pages
+
+<div class="grid cards" markdown>
+
+- :lucide-network: [**Network**](network.md): VLANs, switch, firewall, DNS
+- :lucide-globe-lock: [**Remote access**](remote-access.md): Cloudflare tunnel and WARP
+- :lucide-server: [**Hosts**](hosts.md): the three NixOS machines
+- :lucide-database: [**Ceph**](ceph.md): replicated storage on the HDDs
+- :lucide-archive: [**S3 endpoint**](s3.md): one HTTPS address for object storage
+- :lucide-box: [**VMs**](vms.md): microVMs defined in Nix
+- :lucide-ship-wheel: [**k3s**](k3s.md): the Kubernetes cluster
+
+</div>

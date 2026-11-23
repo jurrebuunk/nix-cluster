@@ -1,4 +1,8 @@
-# Roadmap and history
+---
+icon: lucide/map
+---
+
+# Roadmap
 
 The project was built in numbered steps. Network steps start with **N**,
 cluster steps are plain numbers. Each step had a "done when" check, and a step
@@ -8,40 +12,40 @@ was only marked done after that check passed on the live system.
 
 | Step | What | Status |
 | --- | --- | --- |
-| N0 | Bootstrap: cabling, OPNsense install, SSH access | Done 2026-11-21 |
-| N1 | OPNsense base: firmware, DNS with DNSSEC, NTP, backups | Done 2026-11-21 |
-| N2 | VLAN interfaces 20/40/100, DHCP on MGMT and USERS, outbound NAT | Done 2026-11-21 |
-| N3 | Switch: VLANs, port roles, management on `10.10.10.2`, key-based SSH | Done 2026-11-21 |
-| N4 | Firewall policy between VLANs | Done 2026-11-21 |
-| N5 / 1 | Hosts on their static VLAN 20/30/40 addresses | Done 2026-11-22 |
-| N6 | Verify the network | Done 2026-11-22 |
-| N7 | Remote access through Cloudflare; WAN management closed | Done 2026-11-23 |
-| 2 | Ceph on the hosts | Done 2026-11-23 |
-| 2.1 | Highly available S3 endpoint with trusted HTTPS | Done 2026-11-23 |
-| 3 | VM platform (microvm.nix) | Done 2026-11-22 |
-| 4 | k3s nodes: 3 servers, 2 agents | **Partly done**: 4 of 5 nodes; `hgd1-k8m02` waits for VT-x on hv02 |
-| 5 | Operations docs, each procedure run once | Partly done: these docs |
-| 6 | Platform add-ons on k3s (workloads repo) | Planned |
-| 7 | Monitoring and logs | Planned |
-| 8 | Apps, Cloudreve first | Planned |
-| 9 | My own backend for monitoring and small actions | Later |
+| N0 | Bootstrap: cabling, OPNsense install, SSH access | <span class="status">Done</span> Done 2026-11-21 |
+| N1 | OPNsense base: firmware, DNS with DNSSEC, NTP, backups | <span class="status">Done</span> Done 2026-11-21 |
+| N2 | VLAN interfaces 20/40/100, DHCP on MGMT and USERS, outbound NAT | <span class="status">Done</span> Done 2026-11-21 |
+| N3 | Switch: VLANs, port roles, management on `10.10.10.2`, key-based SSH | <span class="status">Done</span> Done 2026-11-21 |
+| N4 | Firewall policy between VLANs | <span class="status">Done</span> Done 2026-11-21 |
+| N5 / 1 | Hosts on their static VLAN 20/30/40 addresses | <span class="status">Done</span> Done 2026-11-22 |
+| N6 | Verify the network | <span class="status">Done</span> Done 2026-11-22 |
+| N7 | Remote access through Cloudflare; WAN management closed | <span class="status">Done</span> Done 2026-11-23 |
+| 2 | Ceph on the hosts | <span class="status">Done</span> Done 2026-11-23 |
+| 2.1 | Highly available S3 endpoint with trusted HTTPS | <span class="status">Done</span> Done 2026-11-23 |
+| 3 | VM platform (microvm.nix) | <span class="status">Done</span> Done 2026-11-22 |
+| 4 | k3s nodes: 3 servers, 2 agents | <span class="status status--partial">Partial</span> 4 of 5 nodes; `hgd1-k8m02` waits for VT-x on hv02 |
+| 5 | Operations docs, each procedure run once | <span class="status status--partial">Partial</span> these docs |
+| 6 | Platform add-ons on k3s (workloads repo) | <span class="status status--planned">Planned</span> |
+| 7 | Monitoring and logs | <span class="status status--planned">Planned</span> |
+| 8 | Apps, Cloudreve first | <span class="status status--planned">Planned</span> |
+| 9 | My own backend for monitoring and small actions | <span class="status status--planned">Later</span> |
 
 Outside the repo, still to do:
 
 - [ ] Enable VT-x in hv02's BIOS, then finish step 4
-      ([how](../compute/k3s.md#finishing-the-cluster)).
+      ([how](../how-to/finish-k3s.md)).
 - [ ] Reserve WAN address `192.168.2.12` on the home router for OPNsense's
       onboard MAC `90:1b:0e:fa:70:dd`.
 - [ ] Update the Aruba firmware (still `YA.16.02.0012`).
 
-## What each finished step proved
+## Proven
 
 **Network (N0–N7).** 83 of 83 probes passed from throwaway clients on every
 VLAN: DHCP, DNS, NTP, NAT, inter-VLAN policy, host SSH isolation, load
 balancer boundaries, and storage reachable on layer 2 with no router
 interface. OPNsense and the switch were rebooted; everything came back from
 saved config. Remote access worked with one hypervisor's connector stopped.
-See [Network](../network/index.md).
+See [Network](../concepts/network.md).
 
 **Hosts on static addresses (N5).** Each host was identified by MAC and SSH
 host key, moved one at a time with a self-reverting guard armed, rebooted and
@@ -50,12 +54,12 @@ verified before the next one.
 **Ceph (2).** All three HDDs passed an extended SMART test first. RBD and S3
 reads and writes kept working with each host's Ceph services stopped in turn;
 hv02 and hv03 also survived real reboots. Every placement group returned to
-clean. See [Ceph](../storage/ceph.md).
+clean. See [Ceph](../concepts/ceph.md).
 
 **S3 endpoint (2.1).** Signed requests, multipart and presigned uploads worked
 through the HTTPS VIP. Stopping the active proxy moved the VIP in about five
 seconds, and an interrupted 12 MiB upload completed after a retry. See
-[S3](../storage/s3.md).
+[S3](../concepts/s3.md).
 
 **VM platform (3).** A test VM kept its data and SSH identity across restarts,
 and a host deploy did not restart it. A VM could not reach host management
@@ -65,11 +69,11 @@ through either guest bridge.
 internet, the Ceph monitors and the S3 endpoint. `kubectl` works from the
 laptop over WARP. A rolling restart of an agent worked, and a VM mapped and
 wrote a real Ceph RBD image with the kernel client. See
-[k3s](../compute/k3s.md).
+[k3s](../concepts/k3s.md).
 
-## Planned work
+## Planned
 
-**Step 5: operations.** Each procedure in [Operations](../operations/index.md)
+**Step 5: operations.** Each procedure in [Operate](../operate/index.md)
 gets run once by following the docs: add a VM, move a VM, roll out VMs, and
 host maintenance.
 

@@ -1,9 +1,9 @@
-# Remote admin access through Cloudflare Zero Trust (docs/network/remote-access.md).
+# Remote admin access through Cloudflare Zero Trust (docs/concepts/remote-access.md).
 # Every host runs the same tunnel, so any one host keeps access up. The tunnel
 # only connects outwards; nothing in the cluster depends on it.
 #
 # Off until inventory.remoteAccess.tunnelId is set and
-# secrets/cloudflared-tunnel.age exists (see docs/network/remote-access.md).
+# secrets/cloudflared-tunnel.age exists (see docs/concepts/remote-access.md).
 { lib, inventory, ... }:
 let
   cfg = inventory.remoteAccess;

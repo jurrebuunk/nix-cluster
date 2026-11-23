@@ -35,3 +35,25 @@
 [data-md-color-scheme="slate"] .md-nav__link:focus {
   color: var(--md-primary-fg-color);
 }
+
+/* Status badges at the top of a page: <span class="status">Done</span>. */
+.md-typeset .status {
+  display: inline-block;
+  padding: 0 0.5em;
+  border: 1px solid var(--md-primary-fg-color);
+  color: var(--md-primary-fg-color);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+
+.md-typeset .status--partial {
+  border-style: dashed;
+}
+
+.md-typeset .status--planned {
+  border-color: var(--md-default-fg-color--lighter);
+  color: var(--md-default-fg-color--light);
+}
