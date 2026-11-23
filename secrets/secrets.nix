@@ -10,6 +10,6 @@ in
   # Hosts share these read-only into their VMs (modules/microvm/host/k3s-secrets.nix).
   "k3s-server-token.age".publicKeys = all;
   "k3s-agent-token.age".publicKeys = all;
-  # SNMP_COMMUNITY=<read-only community of hgd1-sw01>, for snmp_exporter.
+  # snmp_exporter auth file (auths.hgd1.community: the switch's read-only community).
   "snmp-community.age".publicKeys = all;
 }

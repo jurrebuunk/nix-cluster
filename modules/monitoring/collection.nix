@@ -103,15 +103,6 @@ let
     }
   );
 
-  snmpAuth = pkgs.writeText "snmp-auth.yml" (
-    builtins.toJSON {
-      auths.hgd1 = {
-        community = "\${SNMP_COMMUNITY}";
-        version = 2;
-      };
-    }
-  );
-
   scrapeConfigs = lib.optional inventory.ceph.s3.enable (local "haproxy" 8405) ++ [
     (local "node" 9100)
     (local "smartctl" 9633)
@@ -219,10 +210,15 @@ in
       configurationPath = pkgs.runCommand "snmp.yml" { } ''
         cp ${pkgs.prometheus-snmp-exporter.src}/snmp.yml $out
       '';
-      environmentFile = config.age.secrets.snmp-community.path;
-      extraFlags = [ "--config.file=${snmpAuth}" ];
+      # The community lives in an agenix auth file (snmp_exporter only expands
+      # env vars for SNMPv3 credentials), passed in as a systemd credential.
+      extraFlags = [ "--config.file=%d/snmp-auth" ];
     };
   };
+
+  systemd.services.prometheus-snmp-exporter.serviceConfig.LoadCredential = [
+    "snmp-auth:${config.age.secrets.snmp-community.path}"
+  ];
 
   age.secrets.snmp-community.file = ../../secrets/snmp-community.age;
 
