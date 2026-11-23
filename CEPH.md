@@ -9,6 +9,8 @@
 - CRUSH `replicated_rule` uses host failure domains; all nine current pools
   have `size=3`, `min_size=2`. `k8s` is initialized for RBD.
 - Three RGWs bound to their storage IPs on port 7480, sharing one object store.
+- HA application endpoint **`https://s3.lan.buunk.org`**, VIP `10.10.30.10`,
+  with trusted TLS and host-level failover; see [S3-HA.md](S3-HA.md).
 - The `jurre` S3 user exists; its credentials are root-only on hv01 at
   `/root/jurre-s3-credentials.json`, not in Git or the Nix store.
 - Temporary RBD images/bucket and the temporary RBD client were removed after
@@ -90,7 +92,14 @@ part E for phases and post-bootstrap verification. Replication is not a backup.
 
 ## Live S3 endpoints
 
-Each host runs one RGW frontend for the **same** Ceph object store:
+**Use `https://s3.lan.buunk.org` for applications.** It resolves internally to
+VIP `10.10.30.10`; HAProxy/Keepalived on all three hosts provide health-checked
+RGW selection and VIP failover. Let's Encrypt certificates use Cloudflare
+DNS-01, not the Cloudflare public proxy. See [S3-HA.md](S3-HA.md) for operations,
+TLS, client retries and the verified failure tests.
+
+The original direct RGW endpoints remain for diagnostics, serving the **same**
+object store:
 
 | Endpoint | Host |
 | --- | --- |
@@ -98,14 +107,15 @@ Each host runs one RGW frontend for the **same** Ceph object store:
 | `http://10.10.30.12:7480` | hgd1-hv02 |
 | `http://10.10.30.13:7480` | hgd1-hv03 |
 
-Credentials and buckets are shared across frontends. These are private HTTP
-endpoints on the unrouted storage VLAN; there is currently no S3 VIP, friendly
-S3 DNS alias, TLS ingress or public exposure. Three frontends alone do not give
-a client automatic failover. Workloads with a storage NIC can use them directly;
-a future authenticated/TLS ingress is separate work.
+Credentials and buckets are shared across frontends. Direct RGW traffic is
+HTTP on the private storage VLAN; applications should use the HTTPS VIP instead
+of pinning themselves to a single frontend. There is no public S3 exposure.
+Backend HTTP and TLS termination are documented in [S3-HA.md](S3-HA.md).
 
-From the laptop, tunnel through a hypervisor with WARP connected (the router
-cannot route storage, and Gateway blocks `10.10.30.0/24` over WARP):
+Storage-connected VMs can use HTTPS directly. The laptop still needs an
+SSH forward: Gateway intentionally blocks `10.10.30.0/24` over WARP. For a
+TLS-valid VIP forward, follow [S3-HA.md](S3-HA.md). The old HTTP diagnostic
+forward remains available with WARP management connected:
 
 ```sh
 ssh -N -L 17480:10.10.30.11:7480 jurre@10.10.20.11
@@ -135,12 +145,14 @@ into chat/logs or commit it. On the client, configure an AWS CLI profile:
 ```sh
 aws configure --profile homelab
 # Enter the S3 user's keys; default region us-east-1.
-aws --profile homelab --endpoint-url http://127.0.0.1:17480 \
+aws configure set s3.addressing_style path --profile homelab
+# Run from a storage-connected client:
+aws --profile homelab --endpoint-url https://s3.lan.buunk.org \
   s3 mb s3://my-bucket
-aws --profile homelab --endpoint-url http://127.0.0.1:17480 s3 ls
+aws --profile homelab --endpoint-url https://s3.lan.buunk.org s3 ls
 ```
 
-Inside the storage network, substitute one of the direct RGW endpoints.
+Use path-style addressing; wildcard bucket DNS/certificates are not configured.
 Bucket names are shared across this object store, not separate per frontend.
 Create separate users/credentials for applications rather than sharing a
 personal user's keys or the cluster's administrator keyring.

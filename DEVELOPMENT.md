@@ -176,3 +176,10 @@ Never reboot during a future qualification test. Once Ceph is initialized,
 maintain one host at a time and wait for HEALTH_OK before touching the next.
 Use agenix for deployed secrets; runtime admin/S3 credentials and plaintext
 backups do not belong in Git or the Nix store.
+
+The S3 HA endpoint (step 2.1) is also live. `modules/s3-ha.nix` owns the private
+VIP, proxies and automatic DNS-01 TLS; [S3-HA.md](S3-HA.md) covers validated
+failover and certificate/credential handling. Proxy changes reload gracefully.
+Changes to the VIP/firewall/Keepalived still require one-node-at-a-time rollout
+and a check that exactly one host owns the VIP. Never use Ceph HEALTH_OK as the
+VIP's liveness predicate: a single-host degraded cluster must remain usable.

@@ -190,6 +190,16 @@ ssh -J "$JUMP" jurre@10.10.20.11 'sudo ceph -s'
 ssh -J "$JUMP" jurre@10.10.20.11 'sudo ceph osd unset noout'
 ```
 
+## S3 HA endpoint (PLAN step 2.1)
+
+**Done 2026-11-23.** `https://s3.lan.buunk.org`, private VIP `10.10.30.10`.
+HAProxy/Keepalived run on all three hosts; Let's Encrypt DNS-01 certificates
+use encrypted Cloudflare credentials. Signed operations, multipart/presigned
+requests, interrupted-upload retry, proxy/VIP failure and actual owner reboot
+passed. Ceph returned HEALTH_OK, temporary test data was removed, the live VM
+stayed running and TLS/account backups were encrypted/decrypt-verified.
+Existing WARP storage isolation remains. See [S3-HA.md](S3-HA.md).
+
 ## VM platform (PLAN step 3)
 
 **Done 2026-11-22 while HDD qualification was running.** The platform is deployed
@@ -242,7 +252,7 @@ sudo radosgw-admin user create --uid=cloudreve --display-name=Cloudreve
   need Linux ≥ 7.0 for Ceph 20.2.4's `aes256k` auth cipher (the nixpkgs Ceph
   test pins `linuxPackages_latest` for this). Hosts run 6.18 but use no kernel
   client. Check this in PLAN step 4.
-- RGW is plain HTTP on the storage VLAN; HTTPS for clients comes through the
-  k3s ingress (PLAN step 6).
+- Backend RGW HTTP stays on the storage VLAN. Applications use the independent
+  host-level HTTPS VIP from step 2.1, not a k3s-dependent ingress.
 - CephFS (MDS) is not configured yet; add it when an app needs it.
 - No Ceph dashboard; monitoring goes through the mgr Prometheus endpoint.

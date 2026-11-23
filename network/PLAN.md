@@ -58,6 +58,7 @@ VLAN 10 is untagged on the router↔switch trunk (it is the bootstrap LAN);
 | hgd1-hv01 | – | .11 | .11 | – |
 | hgd1-hv02 | – | .12 | .12 | – |
 | hgd1-hv03 | – | .13 | .13 | – |
+| S3 HA VIP (`s3.lan.buunk.org`) | – | – | .10 | – |
 | hgd1-k8m01–03 | – | – | .21–.23 | .11–.13 |
 | hgd1-k8w01–02 | – | – | .31–.32 | .21–.22 |
 
@@ -72,6 +73,10 @@ disposable network test fixtures. The remaining four guest IPs are reserved
 in inventory but disabled until step 4.
 
 Internal DNS zone: `lan.buunk.org`, served by OPNsense (Unbound).
+The `s3` host override points to storage VIP `10.10.30.10` (TTL 60).
+HAProxy/Keepalived provide HTTPS on storage only; VRRP is exact-peer scoped to
+hv01–03. No router storage interface/route or WARP storage exception was added.
+See [S3-HA.md](../S3-HA.md).
 
 ### Switch ports
 

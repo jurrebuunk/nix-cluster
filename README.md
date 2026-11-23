@@ -9,7 +9,8 @@ I manage everything from this repo on my laptop and deploy over SSH.
 
 ## Current state — 2026-11-23
 
-**Done:** network rollout N0–N6, Ceph (step 2), and the step-3 VM platform.
+**Done:** network rollout N0–N7, Ceph (step 2), S3 HA/TLS (step 2.1),
+and the step-3 VM platform.
 All three hosts are on their static INFRA/storage addresses. The network passed 83/83 checks
 and router/switch reboot tests. One base VM, `hgd1-k8m01`, is live; its data
 and SSH identity survived VM restarts, and a host deploy did not restart it.
@@ -19,6 +20,13 @@ three S3 gateways serving one shared object store. All pools use three replicas
 across hosts with `min_size=2`. RBD and S3 reads/writes passed with each host's
 Ceph services down in turn; hv02/hv03 also passed actual reboot recovery.
 Runtime-key backups are encrypted and decrypt-verified. See [CEPH.md](CEPH.md).
+
+**S3 application endpoint: [`https://s3.lan.buunk.org`](https://s3.lan.buunk.org)**
+(private VIP `10.10.30.10`). HAProxy/Keepalived run on all three hosts, with
+trusted Let's Encrypt certificates obtained through Cloudflare DNS-01.
+Signed S3 operations, an interrupted upload retry, proxy failure and VIP-owner
+reboot recovery passed. No public exposure or k3s dependency. See
+[S3-HA.md](S3-HA.md), including laptop access through the existing storage block.
 
 **Still pending:**
 
@@ -38,6 +46,7 @@ the separate GPU server's VM setup.
 - [DEVELOPMENT.md](DEVELOPMENT.md): how I edit, validate, deploy, verify and
   roll back
 - [CEPH.md](CEPH.md): disk qualification, S3 endpoints and bucket access
+- [S3-HA.md](S3-HA.md): stable HTTPS endpoint, certificates, failover and operations
 - [VMS.md](VMS.md): live VM inventory, persistence, lifecycle and updates
 - [network/](network/): the site network design, bootstrap and remote access
 
@@ -50,6 +59,7 @@ the separate GPU server's VM setup.
 | `hosts/<host>/` | Per-node config and hardware configuration |
 | `modules/network.nix` | VLAN networking |
 | `modules/ceph.nix` | Ceph mon, mgr, osd and rgw |
+| `modules/s3-ha.nix` | Storage VIP, HAProxy, Keepalived and automated trusted TLS |
 | `modules/remote-access.nix` | Cloudflare tunnel for remote access |
 | `modules/hypervisor.nix`, `modules/vm-guest.nix` | Declarative microVM host/guest platform |
 | `scripts/vm.sh` | Inventory/key-checked VM lifecycle commands |
@@ -73,12 +83,13 @@ Status as of 2026-11-23. Network steps `N*` are in
 | N1 | OPNsense base: firmware 26.7.9_3, `hgd1-fw01`, Unbound DNSSEC, NTP, backups | **Done** 2026-11-21 |
 | N2 | OPNsense VLANs 20/40/100, DHCP on mgmt and users, outbound NAT | **Done** 2026-11-21 |
 | N3 | Aruba `hgd1-sw01` at `10.10.10.2`, VLANs, port roles, key-based SSH | **Done** 2026-11-21 |
-| N4 | Firewall policy between VLANs (temporary WAN management rules still on) | **Done** 2026-11-21 |
+| N4 | Firewall policy between VLANs (bootstrap WAN access later closed in N7) | **Done** 2026-11-21 |
 | – | `hgd1-gpu1` on INFRA `10.10.20.50`, gaming VM on USERS `10.10.100.50`, Sunshine reachable from the home network | **Done** 2026-11-21 |
 | N5 / 1 | Move `hgd1-hv01..03` to their static VLAN 20/30/40 addresses | **Done** 2026-11-22; ports 5/7/9 native 20, tagged 30/40; each host rebooted and verified |
 | N6 | Verify the network | **Done** 2026-11-22; 83/83 probes, router/switch reboots, saved VLANs, node isolation and unrouted storage verified |
 | N7 | Cloudflare Zero Trust remote access, close bootstrap WAN management | **Done** 2026-11-23 |
 | 2 | Ceph on the nodes (mon/mgr/osd/rgw) | **Done** 2026-11-23; HEALTH_OK, 3 mons/OSDs/RGWs, replica 3/min_size 2, RBD/S3 and one-host-outage recovery verified |
+| 2.1 | S3 HA endpoint and trusted HTTPS | **Done** 2026-11-23; VIP failover, signed S3/multipart/presigned requests, upload retry and owner reboot verified |
 | 3 | VM platform (microvm.nix) | **Done** 2026-11-22; one empty VM live, SSH/storage/internet and restart persistence verified; host deploy does not restart guests |
 | 4 | k3s nodes (3 servers, 2 agents) | Planned |
 | 5 | Operations docs | **Partial**: deployment, VM lifecycle and Ceph/S3 runbooks written; workload-aware procedures follow step 4 |

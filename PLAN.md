@@ -156,6 +156,15 @@ a reboot and reach each other on `10.10.30.0/24`.
 **Done when:** `ceph -s` shows `HEALTH_OK`, 3 mons, 3 OSDs up/in, and a test
 RBD image and S3 bucket work.
 
+## Step 2.1: S3 HA endpoint and trusted HTTPS
+
+**Status: done 2026-11-23.** `https://s3.lan.buunk.org` resolves internally to
+storage VIP `10.10.30.10`. HAProxy/Keepalived run directly on all three hosts;
+Let's Encrypt certificates renew through Cloudflare DNS-01. Signed S3, multipart,
+presigned URLs, an interrupted-upload retry, proxy/VIP failover and owner reboot
+passed, with Ceph HEALTH_OK after recovery and the live VM preserved.
+No public storage exposure or k3s dependency. See [S3-HA.md](S3-HA.md).
+
 ## Step 3: VM platform (microvm.nix)
 
 **Repo:** `nix-hgd1-cluster` (`inventory.nix`, `modules/hypervisor.nix`, `modules/vm-guest.nix`) · **Status:** **done 2026-11-22**. Platform deployed on all hosts; `hgd1-k8m01` is live at `10.10.40.11` / `10.10.30.21`, with SSH, connectivity, persistent `/var/lib` and SSH identity verified across a VM restart. Host deployment preserved the running VM PID. See [VMS.md](VMS.md). hv02 needs BIOS virtualization enabled before it can run guests. Installing k3s/enabling the remaining four VMs is step 4.
@@ -210,7 +219,9 @@ server VM can be restarted without losing quorum.
 - ceph-csi RBD (StorageClass `ceph-bulk`), CephFS when needed.
 - local-path StorageClass for replicated databases only.
 - Ingress and cert-manager (port from `k3s-infra`).
-- S3 endpoint for RGW behind ingress with HTTPS.
+- Reuse the host-level HTTPS S3 endpoint from step 2.1; do not make storage
+  availability depend on k3s ingress. Public/browser S3 reachability, if needed,
+  is a separate explicit design/security decision.
 - CloudNativePG operator plus the reusable Postgres template (3 instances,
   zone spread, backups to Ceph S3).
 
