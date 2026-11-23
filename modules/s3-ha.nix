@@ -91,7 +91,8 @@ lib.mkIf cfg.enable {
       defaults
         mode http
         log global
-        option httplog
+        # Never log S3 object paths or bearer-style presigned query strings.
+        log-format "%ci:%cp [%tr] %ft %b/%s %ST %B %Tt"
         timeout connect 5s
         timeout client 15m
         timeout server 15m
@@ -120,6 +121,8 @@ lib.mkIf cfg.enable {
   };
 
   systemd.services.haproxy = {
+    # Config/certificate updates should drain old workers, not cut uploads.
+    reloadIfChanged = true;
     requires = [ "acme-${cfg.hostname}.service" ];
     after = [
       "acme-${cfg.hostname}.service"
