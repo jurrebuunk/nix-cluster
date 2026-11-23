@@ -8,7 +8,8 @@ A guided first deploy: add a small package to every host, deploy it to one
 host, check it, then roll it out. It shows the loop you'll use for every
 change.
 
-**Before you start:** [access](access.md) works, and `git status` is clean.
+**Before you start:** [access](access.md) works, you're in `nix develop`
+(for the `deploy` command), and `git status` is clean.
 
 ## 1. Make the change
 
@@ -45,8 +46,8 @@ matches a commit.
 ## 4. Deploy one host
 
 ```sh
-scripts/deploy.sh hgd1-hv01 dry-activate
-scripts/deploy.sh hgd1-hv01 switch
+deploy hgd1-hv01 dry-activate
+deploy hgd1-hv01 switch
 ```
 
 The preview lists what would change. Note the line

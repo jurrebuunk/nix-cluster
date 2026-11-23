@@ -10,7 +10,7 @@ picture; every other repo has a `README.md` and a `PLAN.md` with its details.
 
 | Repo | Owns | Delivered by | Visibility |
 | --- | --- | --- | --- |
-| [`nix-hgd1-cluster`](https://github.com/jurrebuunk/nix-hgd1-cluster) | Hosts, Ceph, S3 endpoint, VMs, the k3s nodes, monitoring, remote access, this handbook | `scripts/deploy.sh`, host by host | Public |
+| [`nix-hgd1-cluster`](https://github.com/jurrebuunk/nix-hgd1-cluster) | Hosts, Ceph, S3 endpoint, VMs, the k3s nodes, monitoring, remote access, this handbook | `deploy`, host by host | Public |
 | [`clusterd`](https://github.com/jurrebuunk/clusterd) | The [Platform API](../concepts/api.md) server and the `labctl` CLI, plus their NixOS module | Flake input of `nix-hgd1-cluster` | Public |
 | [`lab-console`](https://github.com/jurrebuunk/lab-console) | The [web UI](../concepts/web-ui.md) at `lab.buunk.org`: frontend and its thin API proxy | CI image to GHCR, deployed by Flux | Public |
 | [`hgd1-k8s`](https://github.com/jurrebuunk/hgd1-k8s) | Base components on the k3s cluster: Flux, MetalLB, ingress, cert-manager, ceph-csi, CloudNativePG, k3s monitoring | Flux (pull-based GitOps) | Public |

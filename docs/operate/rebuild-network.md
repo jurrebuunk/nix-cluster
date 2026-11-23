@@ -65,7 +65,7 @@ reserve its address on the home router.
 `ssh -J root@<wan-ip> manager@<switch-ip>`. Install your SSH key for the admin
 user too.
 
-From here on, set `JUMP=root@<wan-ip>`; `scripts/deploy.sh` and the other
+From here on, set `JUMP=root@<wan-ip>`; `deploy` and the other
 scripts accept it until N7. Then run the `hgd1-network` playbooks for N1–N4
 from the laptop through the same jump host.
 
@@ -91,7 +91,7 @@ For `hgd1-hv01` (then hv02, then hv03, never in parallel):
 2. **Install the new config for the next boot**, through the temporary lease:
 
     ```sh
-    TARGET=10.10.10.<lease> scripts/deploy.sh hgd1-hv01 boot
+    TARGET=10.10.10.<lease> deploy hgd1-hv01 boot
     ```
 
 3. **Reboot in a minute, and switch its port in that minute** to untagged 20,

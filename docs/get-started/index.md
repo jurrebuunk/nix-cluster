@@ -52,7 +52,8 @@ order the first time.
 
 `nix develop` gives you every tool these docs use: `nixos-rebuild`, `agenix`,
 `cloudflared`, `kubectl`, the `labctl` CLI, `jq`, `nmap`, `shellcheck` and
-`zensical`.
+`zensical`, plus the repo's scripts as short commands: `deploy`,
+`kubeconfig` and `ceph-bootstrap` (see [Scripts](../reference/scripts.md)).
 
 ## Then read
 

@@ -53,7 +53,7 @@ live in an agenix secret.
     ```sh
     cd secrets && agenix -e api-tokens.age && cd ..   # paste the line
     git commit -am "API: token for laptop-jurre"
-    scripts/deploy.sh hgd1-hv01 switch    # then hv02, hv03
+    deploy hgd1-hv01 switch                          # then hv02, hv03
     ```
 
 3. Log in on the client. This checks the token and stores it in

@@ -63,7 +63,12 @@
           pkgs.nixos-rebuild-ng
           pkgs.shellcheck
           pkgs.zensical
-        ];
+        ]
+        # Short names for scripts/*.sh that work from anywhere in the repo,
+        # also with `nix develop -c`: deploy, kubeconfig, ceph-bootstrap.
+        ++ map (name: pkgs.writeShellScriptBin name ''
+          exec "$(git rev-parse --show-toplevel)/scripts/${name}.sh" "$@"
+        '') [ "deploy" "kubeconfig" "ceph-bootstrap" ];
         # Written by scripts/kubeconfig.sh.
         shellHook = ''
           export KUBECONFIG="''${KUBECONFIG:-$HOME/.kube/hgd1.yaml}"

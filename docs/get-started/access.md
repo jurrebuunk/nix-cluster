@@ -63,7 +63,7 @@ The same rules apply. All addresses are in [Addresses](../reference/addresses.md
 ## Get a kubeconfig
 
 ```sh
-scripts/kubeconfig.sh
+kubeconfig
 kubectl get nodes -L topology.kubernetes.io/zone
 ```
 

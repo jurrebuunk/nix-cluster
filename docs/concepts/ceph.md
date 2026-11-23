@@ -13,7 +13,7 @@ VMs or Kubernetes that use it.
     **Status** <span class="status">Done</span>, HEALTH_OK · **Version** Ceph
     20.2.4 (Tentacle) · **Configured in** `modules/ceph.nix`,
     `inventory.nix` → `ceph`, `hosts.*.osd` · **Created with**
-    `scripts/ceph-bootstrap.sh`
+    `ceph-bootstrap`
 
 ## Overview
 
@@ -77,12 +77,12 @@ IP, so Ceph never advertises the S3 VIP.
 
 ### Creating a cluster
 
-`scripts/ceph-bootstrap.sh` created this cluster. Use it only for a brand new
+`ceph-bootstrap` created this cluster. Use it only for a brand new
 one, never to replace a disk.
 
 ```sh
-scripts/ceph-bootstrap.sh check    # read-only: identity, FSID, reachability, clock offset
-scripts/ceph-bootstrap.sh          # all phases; asks you to type "wipe" before touching disks
+ceph-bootstrap check  # read-only: identity, FSID, reachability, clock offset
+ceph-bootstrap        # all phases; asks you to type "wipe" before touching disks
 ```
 
 | Phase | What it does |

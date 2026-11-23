@@ -13,7 +13,7 @@ builds the cluster; what runs on it lives in [`hgd1-k8s`](../reference/repositor
     **Status** <span class="status">Done</span> ·
     **API** `https://k8s.lan.buunk.org:6443` (VIP `10.10.40.10`) ·
     **Configured in** `modules/microvm/guest/k3s/`, `inventory.nix` → `k3s`
-    · **Access** `scripts/kubeconfig.sh`
+    · **Access** `kubeconfig`
 
 ## Overview
 
@@ -106,7 +106,7 @@ yet.
 labctl status node                    # Ready, roles, version, zone
 labctl vm restart hgd1-k8w01          # one node: drain, restart, Ready, uncordon
 labctl logs --host hgd1-k8m01 --unit k3s --since 1h
-scripts/kubeconfig.sh                 # a cluster-admin kubeconfig, for kubectl
+kubeconfig                            # a cluster-admin kubeconfig, for kubectl
 ```
 
 - [Restart k3s nodes](../how-to/restart-k3s-nodes.md)

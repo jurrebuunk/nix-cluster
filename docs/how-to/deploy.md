@@ -38,13 +38,13 @@ verify, next host. Deploys are manual and deliberately one host at a time.
 3. **Preview** on the first host:
 
     ```sh
-    scripts/deploy.sh hgd1-hv01 dry-activate
+    deploy hgd1-hv01 dry-activate
     ```
 
 4. **Deploy** it:
 
     ```sh
-    scripts/deploy.sh hgd1-hv01 switch
+    deploy hgd1-hv01 switch
     ```
 
 5. **Verify** with a **new** SSH connection:

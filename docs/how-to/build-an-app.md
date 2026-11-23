@@ -37,9 +37,9 @@ operator. Until then, services only work inside the cluster.
 
 ```sh
 git clone https://github.com/jurrebuunk/nix-hgd1-cluster
-cd nix-hgd1-cluster
+cd nix-hgd1-cluster && nix develop
 warp-cli connect
-scripts/kubeconfig.sh            # ~/.kube/hgd1.yaml
+kubeconfig                  # ~/.kube/hgd1.yaml
 export KUBECONFIG=~/.kube/hgd1.yaml
 kubectl get nodes -L topology.kubernetes.io/zone
 ```

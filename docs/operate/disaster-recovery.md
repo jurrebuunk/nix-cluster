@@ -27,7 +27,7 @@ For a dead NVMe or a broken OS on one host:
    don't import the installer's `configuration.nix`.
 3. **Host key:** put the new public key in `inventory.nix` and re-encrypt the
    secrets ([Manage secrets → Re-key](../how-to/manage-secrets.md#re-key)).
-4. **Deploy** with `scripts/deploy.sh`. Use `TARGET=<temporary address>` if it
+4. **Deploy** with `deploy`. Use `TARGET=<temporary address>` if it
    isn't on its static address yet.
 5. **Ceph:** its monitor store and keyrings were on the NVMe, so they're gone.
    Set `noout`, remove and re-add its monitor, and bring its OSD back with the
@@ -44,7 +44,7 @@ Each step depends on the one before:
    fresh run), after the by-hand bootstrap in [Rebuild the network](rebuild-network.md).
 2. **Hosts:** install NixOS on all three and deploy this repo (new host keys
    mean re-encrypting the secrets).
-3. **Ceph:** a new cluster with `scripts/ceph-bootstrap.sh`, or restore its
+3. **Ceph:** a new cluster with `ceph-bootstrap`, or restore its
    identity from the keyring backups if the HDDs survived.
 4. **Remote access** works as soon as one host has the tunnel secret.
 5. **k3s:** the VMs come up with the hosts. Set `k3s.bootstrapServer` back to

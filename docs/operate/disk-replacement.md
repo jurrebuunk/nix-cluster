@@ -48,7 +48,7 @@ first time you do it.
 
 5. **Update `inventory.nix`:** the host's `hdd` path and, for a new OSD, its
    `osd.id` and `osd.uuid`. Commit and deploy the host.
-6. **Create the OSD.** `scripts/ceph-bootstrap.sh osd` holds the exact
+6. **Create the OSD.** `ceph-bootstrap osd` holds the exact
    checks and `ceph-volume` commands used for the first OSDs (serial, blank
    media, SMART, a typed `wipe`), but it was written for a new cluster and has
    not been tested for a replacement. It walks all hosts and skips OSDs that

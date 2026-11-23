@@ -113,8 +113,10 @@ These keep the code readable. Follow them when you add something.
 ## Dev shell
 
 `nix develop` gives you the tools these docs use: `nixos-rebuild`, `agenix`,
-`cloudflared`, `kubectl`, `jq`, `nmap`, `shellcheck` and `zensical`. It also
-sets `KUBECONFIG` to `~/.kube/hgd1.yaml`.
+`cloudflared`, `kubectl`, `labctl`, `jq`, `nmap`, `shellcheck` and
+`zensical`, and the scripts in `scripts/` as `deploy`, `kubeconfig` and
+`ceph-bootstrap` (see [Scripts](../reference/scripts.md)). It also sets
+`KUBECONFIG` to `~/.kube/hgd1.yaml`.
 
 ## These docs
 

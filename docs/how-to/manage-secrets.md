@@ -69,7 +69,7 @@ A reinstalled host has a new SSH host key and can't decrypt anything:
 2. Re-encrypt everything: `cd secrets && agenix -r`.
 3. Commit and deploy.
 
-`scripts/deploy.sh` refuses a host whose key doesn't match, so you can't skip
+`deploy` refuses a host whose key doesn't match, so you can't skip
 step 1.
 
 ## Rotate

@@ -67,8 +67,8 @@ nix develop                          # nixos-rebuild, agenix, kubectl, zensical,
 warp-cli connect                     # reach 10.10.0.0/16 from anywhere
 
 nix flake check --no-build           # evaluate every host and VM, run inventory checks
-scripts/deploy.sh hgd1-hv01 switch   # deploy one host; then the next
-scripts/kubeconfig.sh                # ~/.kube/hgd1.yaml for the k3s cluster
+deploy hgd1-hv01 switch              # deploy one host; then the next
+kubeconfig                           # ~/.kube/hgd1.yaml for the k3s cluster
 labctl status                          # the platform at a glance, via the API
 ```
 

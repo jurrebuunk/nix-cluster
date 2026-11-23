@@ -21,6 +21,10 @@ cd "$(git rev-parse --show-toplevel)"
 
 SSH_USER="${SSH_USER:-jurre}"
 PHASE="${1:-all}"
+case "$PHASE" in
+  check|mon|mgr|osd|pools|rgw|all) ;;
+  *) echo "usage: $0 [check|mon|mgr|osd|pools|rgw|all]" >&2; exit 1 ;;
+esac
 
 INVENTORY=$(nix eval --json --file inventory.nix)
 mapfile -t HOSTS < <(jq -r '.hosts | keys[]' <<<"$INVENTORY")
