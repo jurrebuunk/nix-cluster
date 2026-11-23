@@ -49,10 +49,15 @@
           agenix.packages.${system}.default
           pkgs.cloudflared
           pkgs.jq
+          pkgs.kubectl
           pkgs.nmap
           pkgs.nixos-rebuild-ng
           pkgs.shellcheck
         ];
+        # Written by scripts/kubeconfig.sh.
+        shellHook = ''
+          export KUBECONFIG="''${KUBECONFIG:-$HOME/.kube/hgd1.yaml}"
+        '';
       };
     };
 }

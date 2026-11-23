@@ -49,6 +49,18 @@ in
       message = "VM roles/resources must be valid and positive";
     }
     {
+      assertion =
+        lib.hasPrefix "10.10.40." inventory.k3s.apiVIP
+        && !lib.elem inventory.k3s.apiVIP (k8sIPs ++ [ inventory.vlans.k8s.gateway ]);
+      message = "k3s API VIP must be a free address on VLAN 40";
+    }
+    {
+      assertion =
+        inventory.k3s.bootstrapServer == null
+        || (inventory.vms.${inventory.k3s.bootstrapServer} or { role = null; }).role == "server";
+      message = "k3s.bootstrapServer must be null or a server VM";
+    }
+    {
       assertion = enabled == { } || host.kvmAvailable;
       message = "${name}: KVM unavailable; enable VT-x in BIOS before enabling guests";
     }

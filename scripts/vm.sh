@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Operate a declaratively enabled VM; never create/move/delete its disks here.
 # Usage: vm.sh list | vm.sh <name> [status|start|stop|restart|logs]
-# JUMP=root@192.168.2.12 during bootstrap. Stop/restart do NOT drain k3s.
+# Needs WARP or a site network. Stop/restart do NOT drain k3s: use k3s-roll.sh.
 # Validated actions and shell-quoted unit names intentionally expand locally.
 # shellcheck disable=SC2029
 set -euo pipefail

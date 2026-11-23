@@ -9,6 +9,7 @@ in
   imports = [
     ./validation.nix
     ./networking.nix
+    ./k3s-secrets.nix
   ];
 
   # hv02's firmware hides VMX: avoid a failed modules-load unit there.

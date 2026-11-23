@@ -96,11 +96,23 @@
       vcpu = 4; memMB = 4096; diskGB = 60;
       ip = { k8s = "10.10.40.21"; storage = "10.10.30.31"; };
     };
+    # On hv03, not hv02: hv02 then only runs a server and the hosts stay balanced.
     hgd1-k8w02 = {
-      host = "hgd1-hv02"; enabled = false; id = 22; role = "agent";
+      host = "hgd1-hv03"; enabled = false; id = 22; role = "agent";
       vcpu = 4; memMB = 4096; diskGB = 60;
       ip = { k8s = "10.10.40.22"; storage = "10.10.30.32"; };
     };
+  };
+
+  # k3s on the VMs (modules/microvm/guest/k3s/, K3S.md). The API VIP moves
+  # between ready servers (keepalived); agents and kubectl join through it.
+  k3s = {
+    apiName = "k8s.lan.buunk.org";
+    apiVIP = "10.10.40.10";
+    virtualRouterId = 40;
+    # Creates the cluster (--cluster-init) on an empty etcd. Set to null once
+    # all servers have joined, so a rebuilt server rejoins instead.
+    bootstrapServer = "hgd1-k8m01";
   };
 
   # Cloudflare Tunnel for remote admin access (modules/remote-access.nix).

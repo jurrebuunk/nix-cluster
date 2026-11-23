@@ -1,12 +1,14 @@
-# Base VM runtime only; k3s installation/join remains a separate step.
-{ lib, pkgs, vm, ... }:
+# Base VM runtime plus the k3s node (./k3s).
+{ lib, pkgs, inventory, vm, ... }:
 let
   net = (import ../../../lib/vm-network.nix { inherit lib; }).networkFor vm;
+  k3s = import ../../../lib/k3s.nix { inherit inventory; };
 in
 {
   imports = [
     ./networking.nix
     ./access.nix
+    ./k3s
   ];
 
   # Ceph 20's kernel-client auth cipher needs Linux >= 7. Guest kernel only.
@@ -36,6 +38,14 @@ in
         source = "/nix/store";
         mountPoint = "/nix/.ro-store";
         tag = "ro-store";
+        proto = "virtiofs";
+        readOnly = true;
+      }
+      {
+        # k3s tokens for this VM's role (modules/microvm/host/k3s-secrets.nix).
+        source = k3s.hostSecretDir vm.role;
+        mountPoint = k3s.guestSecretDir;
+        tag = "k3s-secrets";
         proto = "virtiofs";
         readOnly = true;
       }
