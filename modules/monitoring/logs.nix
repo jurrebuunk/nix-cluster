@@ -2,6 +2,7 @@
 # VIP) to every host's VictoriaLogs.
 { lib, inventory, ... }:
 let
+  cfg = inventory.monitoring;
   logs = import ../../lib/logs.nix { inherit lib; };
   urls = map (h: "http://${h.ip.infra}:9428") (lib.attrValues inventory.hosts);
 in
@@ -11,8 +12,6 @@ in
     journaldAccess = true;
     settings = {
       data_dir = "/var/lib/vector";
-      # Classic syslog carries no timezone; the router and switch log local time.
-      timezone = "Europe/Amsterdam";
       sources = {
         journald.type = "journald";
         syslog_udp = {
@@ -27,7 +26,10 @@ in
         };
         internal_metrics.type = "internal_metrics";
       };
-      transforms.normalized = logs.normalize inventory.site.domain [
+      transforms.normalized = logs.normalize inventory.site.domain {
+        ${cfg.router.ip} = cfg.router.name;
+        ${cfg.switch.ip} = cfg.switch.name;
+      } [
         "journald"
         "syslog_udp"
         "syslog_tcp"

@@ -3,15 +3,24 @@
 { lib }:
 {
   # Fields VictoriaLogs groups streams by: short host name and unit/app name.
-  normalize = domain: inputs: {
-    type = "remap";
-    inherit inputs;
-    source = ''
-      if exists(.hostname) { .host = .hostname }
-      .host = replace(to_string(.host) ?? "unknown", ".${domain}", "")
-      .unit = if exists(._SYSTEMD_UNIT) { ._SYSTEMD_UNIT } else if exists(.appname) { .appname } else { "unknown" }
-    '';
-  };
+  # `names` maps sender addresses to names for devices that send no hostname.
+  normalize =
+    domain: names: inputs: {
+      type = "remap";
+      inherit inputs;
+      source = ''
+        if exists(.hostname) { .host = .hostname }
+        .host = replace(to_string(.host) ?? "unknown", ".${domain}", "")
+        ${lib.concatStrings (
+          lib.mapAttrsToList (ip: name: ''
+            if .host == "${ip}" { .host = "${name}" }
+          '') names
+        )}
+        .unit = if exists(._SYSTEMD_UNIT) { ._SYSTEMD_UNIT } else if exists(.appname) { .appname } else { "unknown" }
+        # Classic syslog carries no timezone; trust the receive time instead.
+        if .source_type == "syslog" { .timestamp = now() }
+      '';
+    };
 
   # One sink per destination, each with its own disk buffer, so a host that is
   # down catches up later and never blocks the others.

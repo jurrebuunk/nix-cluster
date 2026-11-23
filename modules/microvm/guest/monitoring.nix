@@ -18,7 +18,7 @@ in
     settings = {
       data_dir = "/var/lib/vector";
       sources.journald.type = "journald";
-      transforms.normalized = logs.normalize inventory.site.domain [ "journald" ];
+      transforms.normalized = logs.normalize inventory.site.domain { } [ "journald" ];
       sinks = logs.sinks "normalized" urls;
     };
   };
