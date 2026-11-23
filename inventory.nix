@@ -52,9 +52,7 @@
       ip = { infra = "10.10.20.12"; storage = "10.10.30.12"; };
       interface = "enp2s0";
       mac = "fc:3f:db:0a:b1:c3";
-      # CPU supports VT-x, but firmware currently hides VMX and /dev/kvm.
-      # Enable virtualization in BIOS after the HDD test, then update this flag.
-      kvmAvailable = false;
+      kvmAvailable = true;
       hostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOWM/JrVeGLdoY8URpx5bu4w03HjVZKtF2PX4zR+l3IW";
       hdd = "/dev/disk/by-id/ata-HGST_HTS721010A9E630_JR1000D30JXXWF";
       osd = { id = "1"; uuid = "bdb491cd-e5a9-42b7-8118-5abdb0cd0f33"; };
@@ -70,8 +68,7 @@
     };
   };
 
-  # VM resources live on host NVMe, not the reserved Ceph HDDs. k8m02 waits
-  # for VT-x on hv02 (hosts.hgd1-hv02.kvmAvailable).
+  # VM resources live on host NVMe, not the reserved Ceph HDDs.
   # id determines stable, unique TAP names and MAC addresses (see lib/vm-network.nix).
   # hostKey: public SSH key from the hypervisor's VM_HOST_KEY journal line (docs/concepts/vms.md).
   vms = {
@@ -82,7 +79,7 @@
       ip = { k8s = "10.10.40.11"; storage = "10.10.30.21"; };
     };
     hgd1-k8m02 = {
-      host = "hgd1-hv02"; enabled = false; id = 12; role = "server";
+      host = "hgd1-hv02"; enabled = true; id = 12; role = "server";
       vcpu = 2; memMB = 4096; diskGB = 60;
       ip = { k8s = "10.10.40.12"; storage = "10.10.30.22"; };
     };
