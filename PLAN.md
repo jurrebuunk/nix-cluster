@@ -167,7 +167,7 @@ No public storage exposure or k3s dependency. See [S3-HA.md](S3-HA.md).
 
 ## Step 3: VM platform (microvm.nix)
 
-**Repo:** `nix-hgd1-cluster` (`inventory.nix`, `modules/hypervisor.nix`, `modules/vm-guest.nix`) · **Status:** **done 2026-11-22**. Platform deployed on all hosts; `hgd1-k8m01` is live at `10.10.40.11` / `10.10.30.21`, with SSH, connectivity, persistent `/var/lib` and SSH identity verified across a VM restart. Host deployment preserved the running VM PID. See [VMS.md](VMS.md). hv02 needs BIOS virtualization enabled before it can run guests. Installing k3s/enabling the remaining four VMs is step 4.
+**Repo:** `nix-hgd1-cluster` (`inventory.nix`, `modules/microvm/host/`, `modules/microvm/guest/`) · **Status:** **done 2026-11-22**. Platform deployed on all hosts; `hgd1-k8m01` is live at `10.10.40.11` / `10.10.30.21`, with SSH, connectivity, persistent `/var/lib` and SSH identity verified across a VM restart. Host deployment preserved the running VM PID. See [VMS.md](VMS.md). hv02 needs BIOS virtualization enabled before it can run guests. Installing k3s/enabling the remaining four VMs is step 4.
 
 - Add microvm.nix as a flake input.
 - Add a `vms` section to `inventory.nix`: one entry per VM with `host`, `vcpu`,

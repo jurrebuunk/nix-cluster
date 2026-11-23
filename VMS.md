@@ -32,10 +32,19 @@ software-emulation fallback is provisioned in place of that hardware fix.
 | File | Responsibility |
 | --- | --- |
 | `inventory.nix` → `vms` | Host placement, enabled flag, role, CPU, RAM, disk size, ID and both static IPs |
-| `modules/vm-lib.nix` | Stable MACs and TAP names from the numeric ID |
-| `modules/hypervisor.nix` | Enabled guests on each host, bridge attachment, resource/identity assertions, isolation |
-| `modules/vm-guest.nix` | Base NixOS, dual-NIC networking, persistent volume, SSH and read-only store |
+| `lib/vm-network.nix` | Pure helper: stable MACs and TAP names from the numeric ID |
+| `modules/microvm/host/default.nix` | Enabled guests, KVM, runner lifecycle and service dependencies |
+| `modules/microvm/host/validation.nix` | Inventory identities, addresses and resource limits |
+| `modules/microvm/host/networking.nix` | TAP attachment and bridge isolation |
+| `modules/microvm/guest/default.nix` | QEMU resources, persistent volume, read-only store and OS defaults |
+| `modules/microvm/guest/networking.nix` | Stable NIC names, addresses, routing, DNS and SSH port scope |
+| `modules/microvm/guest/access.nix` | Users, SSH configuration, persistent keys and trusted key reporting |
 | `scripts/vm.sh` | Inventory/key-checked lifecycle operations |
+
+Each directory's `default.nix` explicitly imports its children. The flake
+passes `vm` and `vmName` through guest `specialArgs`; `lib/vm-network.nix` is a
+pure helper, not a NixOS module. Splitting files does not change runner restart
+behavior, disk paths, interface identities or firewall policy.
 
 All five future guests have flake outputs and inventory entries; four remain
 disabled until step 4:

@@ -59,9 +59,11 @@ the separate GPU server's VM setup.
 | `hosts/<host>/` | Per-node config and hardware configuration |
 | `modules/network.nix` | VLAN networking |
 | `modules/ceph.nix` | Ceph mon, mgr, osd and rgw |
-| `modules/s3-ha.nix` | Storage VIP, HAProxy, Keepalived and automated trusted TLS |
+| `modules/s3-ha/` | Explicit entrypoint plus TLS, proxy, failover and firewall modules |
 | `modules/remote-access.nix` | Cloudflare tunnel for remote access |
-| `modules/hypervisor.nix`, `modules/vm-guest.nix` | Declarative microVM host/guest platform |
+| `modules/microvm/host/` | Runner lifecycle, inventory validation and TAP/isolation networking |
+| `modules/microvm/guest/` | Guest runtime/storage, networking and access |
+| `lib/vm-network.nix` | Shared pure MAC/TAP identity helper |
 | `scripts/vm.sh` | Inventory/key-checked VM lifecycle commands |
 | `secrets/` | agenix recipients and encrypted secrets |
 | `scripts/deploy.sh` | `scripts/deploy.sh <host> [switch\|boot\|test\|dry-activate]` |

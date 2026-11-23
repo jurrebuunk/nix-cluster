@@ -72,7 +72,7 @@
 
   # VM resources live on host NVMe, not the reserved Ceph HDDs. Only m01 is
   # enabled in step 3 to prove the platform; deploying k3s/all five is step 4.
-  # id determines stable, unique TAP names and MAC addresses (see vm-lib.nix).
+  # id determines stable, unique TAP names and MAC addresses (see lib/vm-network.nix).
   vms = {
     hgd1-k8m01 = {
       host = "hgd1-hv01"; enabled = true; id = 11; role = "server";

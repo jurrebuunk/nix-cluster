@@ -2,13 +2,7 @@
 # storage VLAN (br-stor, see modules/network.nix).
 # Daemons only start once their keyring exists, so this can be deployed before
 # scripts/ceph-bootstrap.sh has created the cluster. See CEPH.md.
-{
-  config,
-  lib,
-  pkgs,
-  inventory,
-  ...
-}:
+{ config, lib, pkgs, inventory, ... }:
 let
   hostName = config.networking.hostName;
   host = inventory.hosts.${hostName};

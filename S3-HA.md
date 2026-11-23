@@ -33,10 +33,19 @@ so S3 signatures and presigned URLs continue to work.
 | File | Owns |
 | --- | --- |
 | `inventory.nix` → `ceph.s3` | Hostname, VIP, VRRP ID, ACME email/server |
-| `modules/s3-ha.nix` | HAProxy, Keepalived, TLS issuance/renewal, scoped firewall rules |
+| `modules/s3-ha/default.nix` | Explicit imports and VIP/inventory validation |
+| `modules/s3-ha/tls.nix` | DNS-01 credentials, certificate issuance and renewal |
+| `modules/s3-ha/proxy.nix` | HAProxy, listeners, backends and graceful reload dependencies |
+| `modules/s3-ha/failover.nix` | Keepalived, trusted-TLS liveness probe and standby binding |
+| `modules/s3-ha/firewall.nix` | Storage HTTPS and exact-peer VRRP rules |
 | `modules/ceph.nix` | Pins Ceph's advertised addresses to physical node IPs, never the VIP |
 | `secrets/s3-acme-cloudflare.age` | Encrypted Cloudflare DNS credential |
 | `secrets/secrets.nix` | Laptop and pinned hypervisor SSH-key recipients |
+
+Every child module retains the `inventory.ceph.s3.enable` guard: importing the
+entrypoint with S3 HA disabled must not configure any of these services/rules.
+The liveness probe stays with failover; service dependencies stay alongside
+their service, not in a separate generic systemd module.
 
 OPNsense Unbound has a host override for `s3.lan.buunk.org → 10.10.30.10`.
 It is a DNS record only: storage still has no router interface/default gateway.

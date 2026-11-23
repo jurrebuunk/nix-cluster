@@ -177,9 +177,30 @@ maintain one host at a time and wait for HEALTH_OK before touching the next.
 Use agenix for deployed secrets; runtime admin/S3 credentials and plaintext
 backups do not belong in Git or the Nix store.
 
-The S3 HA endpoint (step 2.1) is also live. `modules/s3-ha.nix` owns the private
+The S3 HA endpoint (step 2.1) is also live. `modules/s3-ha/` owns the private
 VIP, proxies and automatic DNS-01 TLS; [S3-HA.md](S3-HA.md) covers validated
 failover and certificate/credential handling. Proxy changes reload gracefully.
 Changes to the VIP/firewall/Keepalived still require one-node-at-a-time rollout
 and a check that exactly one host owns the VIP. Never use Ceph HEALTH_OK as the
 VIP's liveness predicate: a single-host degraded cluster must remain usable.
+
+### Module organization
+
+- Keep function argument headers on one line, e.g.
+  `{ config, lib, inventory, ... }:`. Preserve this convention if a formatter
+  expands headers; it applies to host, guest and standalone Nix modules alike.
+- Feature directories have an explicit `default.nix` entrypoint, not automatic
+  directory scanning. Standalone focused modules can remain single files.
+- `modules/s3-ha/` separates TLS, proxy, failover and firewall responsibilities.
+  Each child retains its enable guard; `mkIf` does not conditionally import files.
+- `modules/microvm/host/` separates runtime, validation and bridge networking;
+  `modules/microvm/guest/` separates runtime/storage, networking and access.
+- `lib/vm-network.nix` is a pure helper, not an imported NixOS module. Guest
+  `vm`/`vmName` context comes from flake `specialArgs`, not hidden module arguments.
+- Keep dependencies with their service and short embedded scripts/configuration
+  with their feature. Avoid tiny wrapper files or abstractions just to save lines.
+
+For a structure-only refactor, capture all eight
+`nixosConfigurations.<name>.config.system.build.toplevel.outPath` values before
+and after. Identical outputs mean no system behavior changed and no deployment
+is needed. Also check the S3-disabled branch and negative inventory assertions.

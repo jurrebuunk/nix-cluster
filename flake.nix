@@ -22,7 +22,7 @@
         nixpkgs.lib.nixosSystem {
           inherit system;
           specialArgs = { inherit inventory vmName vm; };
-          modules = [ microvm.nixosModules.microvm ./modules/vm-guest.nix ];
+          modules = [ microvm.nixosModules.microvm ./modules/microvm/guest ];
         }) inventory.vms;
     in
     {
@@ -35,10 +35,10 @@
             microvm.nixosModules.host
             ./hosts/common.nix
             ./modules/network.nix
-            ./modules/hypervisor.nix
+            ./modules/microvm/host
             ./modules/rollout-safety.nix
             ./modules/ceph.nix
-            ./modules/s3-ha.nix
+            ./modules/s3-ha
             ./modules/remote-access.nix
             (./hosts + "/${host}")
           ];
