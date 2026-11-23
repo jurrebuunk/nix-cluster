@@ -98,15 +98,23 @@ Every phase skips work that already exists, so rerunning is safe.
 ## Operating
 
 ```sh
-sudo ceph -s                 # overall health
-sudo ceph health detail      # why it is not OK
-sudo ceph osd tree           # OSDs per host
-sudo ceph osd df tree        # usage per OSD and host
-sudo ceph df                 # usage per pool
+labctl status ceph                     # health, every check, OSDs up/in, PGs, raw capacity
+labctl status disk                     # each OSD's drive: size, how full, SMART
+labctl status s3                       # the object store on top: buckets and room left
+labctl logs --since 1h 'unit:"ceph-osd"*'  # what the OSDs said
 ```
 
-Without SSH: `labctl status ceph` (health, raw capacity) and
-`labctl status disk` (each OSD's drive and how full it is).
+??? note "On a host: the full Ceph CLI"
+
+    For anything beyond status, and for changes (flags, OSDs), SSH in:
+
+    ```sh
+    ssh jurre@10.10.20.11
+    sudo ceph health detail      # why it is not OK
+    sudo ceph osd tree           # OSDs per host
+    sudo ceph osd df tree        # usage per OSD and host
+    sudo ceph df                 # usage per pool
+    ```
 
 - Host work: set `noout` first, see [Host maintenance](../operate/host-maintenance.md).
 - Failed disk: [Disk replacement](../operate/disk-replacement.md).

@@ -11,8 +11,8 @@ Reboot, update or open up a host without an outage. One host at a time.
 A host runs a Ceph monitor and OSD, maybe the S3 VIP, a tunnel connector and
 up to two k3s VMs. Taking it down is safe only if the other two are healthy:
 
-- The [health check](index.md#health-check) passes.
-- All three k3s servers are Ready (`kubectl get nodes`).
+- The [health check](index.md#health-check) passes: `labctl status` without
+  warnings, all three k3s servers Ready.
 
 ## Steps
 
@@ -31,11 +31,13 @@ up to two k3s VMs. Taking it down is safe only if the other two are healthy:
 
 3. **Do the work:** `ssh jurre@10.10.20.11 'sudo systemctl reboot'`, or power
    off for hardware. Its VMs shut down with it and start again at boot.
-4. **Wait for it to return:** SSH works, its monitor is in quorum, its OSD is
-   `up`:
+4. **Wait for it to return:** the host `Up` again, its OSD up, its VMs
+   running and Ready:
 
     ```sh
-    ssh jurre@10.10.20.11 'sudo ceph -s'
+    labctl status host
+    labctl status ceph      # 3/3 up; a "noout flag(s) set" warning is expected until step 5
+    labctl status vm
     ```
 
 5. **Undo the flags:**
@@ -45,14 +47,19 @@ up to two k3s VMs. Taking it down is safe only if the other two are healthy:
     kubectl uncordon hgd1-k8m01 hgd1-k8w01
     ```
 
-6. **Wait for `HEALTH_OK`** and Ready nodes before touching the next host.
+6. **Wait for `HEALTH_OK`** and Ready nodes before touching the next host:
+   `labctl status ceph` and `labctl status node`.
 
 The S3 VIP and the tunnel move to or keep using the other hosts by themselves.
 
 ## Check it worked
 
-The [health check](index.md#health-check) passes: `HEALTH_OK`, every node
-Ready and uncordoned, exactly one S3 VIP owner, no `noout` flag.
+The [health check](index.md#health-check) passes: `labctl status` shows
+`HEALTH_OK` without warnings, every node Ready and uncordoned, one owner per
+VIP.
+
+Steps 1–3 and 5 still need `kubectl` and SSH. Host maintenance through
+`labctl` is on the [wish list](../reference/roadmap.md#future).
 
 ## Related
 

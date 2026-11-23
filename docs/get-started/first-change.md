@@ -56,7 +56,8 @@ deploys never restart VMs.
 ## 5. Check it
 
 ```sh
-ssh jurre@10.10.20.11 'which htop; systemctl is-system-running; systemctl --failed --no-pager'
+ssh jurre@10.10.20.11 'which htop'                                   # the new package is there
+labctl metrics query 'node_systemd_unit_state{state="failed"} == 1'  # and nothing broke: (no data)
 ```
 
 ## 6. Roll out

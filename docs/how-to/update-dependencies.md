@@ -32,8 +32,8 @@ Run the [health check](../operate/index.md); don't update a degraded cluster.
 ## Check it worked
 
 ```sh
-for h in 11 12 13; do ssh jurre@10.10.20.$h 'echo "$(hostname) $(nixos-version)"'; done
-kubectl get nodes -o wide
+labctl metrics query 'node_os_info'    # NixOS version of every host and VM
+labctl status node                     # k3s version per node
 ```
 
 ## Good to know

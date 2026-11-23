@@ -208,9 +208,9 @@ repo as a flake input. This repo only configures them:
 ## Operating
 
 ```sh
-labctl status                                   # through the API
+labctl status host                              # every instance and its version (CLUSTERD)
+labctl status vip                               # who holds api
 curl -s https://api.lan.buunk.org/v1/health   # no token needed
-for h in 11 12 13; do ssh jurre@10.10.20.$h 'systemctl is-active clusterd'; done
 ```
 
 - New token: see [Use the CLI → Tokens](../how-to/use-the-cli.md#tokens).

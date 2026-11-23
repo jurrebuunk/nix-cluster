@@ -4,50 +4,48 @@ icon: lucide/heart-pulse
 
 # Operate
 
-Running the site day to day. Commands run from the repo root on the laptop
-with WARP connected, unless they say "on a host".
+Running the site day to day. Commands run on the laptop with WARP connected.
+Day to day that means [`labctl`](../how-to/use-the-cli.md): it reaches every
+host, VM, Ceph and the monitoring through one authenticated API, so most
+checks need no SSH and no `sudo`. SSH is for the few things the API can't do
+yet, and for when the API itself is down.
 
 ## Health check
 
-The quick version, through the [Platform API](../concepts/api.md):
-
 ```sh
-labctl status
+labctl status                                                        # hosts, VMs, nodes, Ceph, VIPs, disks, S3
+labctl metrics query 'node_systemd_unit_state{state="failed"} == 1'  # failed units on the hosts
+labctl metrics query 'probe_success == 0 or up == 0'                 # failing probes, down scrape targets
+labctl metrics query 'cloudflared_tunnel_ha_connections'             # remote access, per host
+kubectl get pods -A | grep -v -E 'Running|Completed'                 # workloads (from hgd1-k8s)
 ```
 
-The same checks by hand:
-
-```sh
-# Hosts: running, no failed units
-for h in 11 12 13; do
-  ssh jurre@10.10.20.$h 'echo "$(hostname): $(systemctl is-system-running)"; systemctl --failed --no-legend --no-pager'
-done
-
-# Ceph
-ssh jurre@10.10.20.11 'sudo ceph -s'
-
-# S3 VIP: exactly one host has 10.10.30.10
-for h in 11 12 13; do ssh jurre@10.10.20.$h 'ip -br addr show br-stor | grep -q 10.10.30.10 && hostname'; done
-
-# Kubernetes
-kubectl get nodes -L topology.kubernetes.io/zone
-kubectl get pods -A | grep -v -E 'Running|Completed'
-
-# Remote access: three tunnel connectors
-for h in 11 12 13; do ssh jurre@10.10.20.$h 'systemctl is-active "cloudflared-tunnel-*"'; done
-
-# Monitoring: failing probes and down scrape targets (both should print nothing)
-curl -s http://mon.lan.buunk.org:8428/api/v1/query --data-urlencode 'query=probe_success == 0 or up == 0' | jq -r '.data.result[].metric | "\(.job) \(.instance)"'
-```
+The two queries that look for problems print `(no data)` when there are none.
+`labctl status` prints problems as `warning:` lines on stderr, so a quiet
+run is a good sign.
 
 **Healthy means:**
 
-- [x] every host is `running` with no failed units;
-- [x] Ceph is `HEALTH_OK`, 3 monitors in quorum, `3 osds: 3 up, 3 in`;
-- [x] exactly one host owns the S3 VIP;
-- [x] all nodes `Ready`, no stuck pods;
-- [x] all tunnel services `active`;
-- [x] no failing probes or down targets in [monitoring](../concepts/monitoring.md).
+- [x] every host `Up` and on the same `clusterd` version; no failed units;
+- [x] every VM `Running`, every node `Ready` (without `SchedulingDisabled`);
+- [x] Ceph `HEALTH_OK`, `3/3` OSDs up and in, all PGs clean;
+- [x] each VIP has exactly one owner;
+- [x] no disk warnings (wear, SMART, fullness) and S3 gateways `3/3`;
+- [x] 4 tunnel connections per host;
+- [x] no failing probes or down targets in [monitoring](../concepts/monitoring.md), no stuck pods.
+
+??? note "Without the API: the same checks on the hosts"
+
+    When `api.lan.buunk.org` itself is down, check over SSH:
+
+    ```sh
+    for h in 11 12 13; do
+      ssh jurre@10.10.20.$h 'echo "$(hostname): $(systemctl is-system-running)"; systemctl --failed --no-legend --no-pager'
+    done
+    ssh jurre@10.10.20.11 'sudo ceph -s'
+    for h in 11 12 13; do ssh jurre@10.10.20.$h 'ip -br addr show | grep -E "10.10.(20.10|20.20|30.10)/" && hostname'; done
+    for h in 11 12 13; do ssh jurre@10.10.20.$h 'systemctl is-active "cloudflared-tunnel-*" clusterd'; done
+    ```
 
 Anything else: [Troubleshooting](troubleshooting.md).
 

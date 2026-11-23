@@ -11,7 +11,9 @@ first time you do it.
 
 ## Before you start
 
-- Only one disk is out. With two hosts' disks gone, I/O has already stopped.
+- Only one disk is out (`labctl status disk`: which drive, its SMART state;
+  `labctl status ceph`: which OSD is down). With two hosts' disks gone, I/O
+  has already stopped.
 - A replacement 2.5" SATA disk, and time for an extended SMART test (hours).
 
 ## Steps
@@ -19,8 +21,8 @@ first time you do it.
 1. **Take the OSD out** so Ceph re-creates its copies elsewhere:
 
     ```sh
-    sudo ceph osd out <id>
-    sudo ceph -s                  # wait until backfill is done
+    ssh jurre@<host> 'sudo ceph osd out <id>'
+    labctl status ceph            # wait until all PGs are clean again
     ```
 
     With three hosts, the third copy can only come back on the new disk; until
@@ -57,8 +59,8 @@ first time you do it.
 ## Check it worked
 
 ```sh
-sudo ceph osd tree      # one up/in OSD per host
-sudo ceph -s            # HEALTH_OK, all PGs active+clean
+labctl status ceph      # HEALTH_OK, 3/3 up and in, all PGs clean
+labctl status disk      # the new drive: its serial, osd.<id>, SMART OK
 ```
 
 ## Related

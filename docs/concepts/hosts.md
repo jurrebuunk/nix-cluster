@@ -63,7 +63,10 @@ whose key doesn't match, and agenix encrypts secrets to these keys.
 ## Operating
 
 ```sh
-ssh jurre@10.10.20.11 'hostname; nixos-version; systemctl is-system-running; systemctl --failed --no-pager'
+labctl status host                                                     # up, uptime, load, memory
+labctl metrics query 'node_systemd_unit_state{state="failed"} == 1'    # failed units
+labctl metrics query 'node_os_info'                                    # NixOS version per host and VM
+labctl status disk                                                     # drives and filesystems
 ```
 
 - Changes: [Deploy a change](../how-to/deploy.md), [Roll back](../how-to/roll-back.md).

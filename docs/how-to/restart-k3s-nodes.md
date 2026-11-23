@@ -9,8 +9,9 @@ after a deploy (deploys never restart VMs) and for any planned VM restart.
 
 ## Before you start
 
-- A [kubeconfig](../get-started/access.md#get-a-kubeconfig).
-- Every enabled VM is a Ready node: `kubectl get nodes`.
+- Every enabled VM is a Ready node: `labctl status node`.
+- For `scripts/k3s-roll.sh`: a [kubeconfig](../get-started/access.md#get-a-kubeconfig).
+  `labctl` needs only an `operator` token.
 
 ## Steps
 
@@ -39,7 +40,7 @@ for vm in hgd1-k8w01 hgd1-k8w02 hgd1-k8m01 hgd1-k8m02 hgd1-k8m03; do labctl vm r
 ## Check it worked
 
 ```sh
-kubectl get nodes -L topology.kubernetes.io/zone
+labctl status node
 ```
 
 All nodes are `Ready` and none shows `SchedulingDisabled`.

@@ -34,7 +34,7 @@ create one by hand. Background: [VMs](../concepts/vms.md).
 4. Pin its SSH host key, read from the trusted host:
 
     ```sh
-    ssh jurre@10.10.20.12 'sudo journalctl -u microvm@hgd1-k8w03 -o cat | grep VM_HOST_KEY'
+    labctl logs --unit microvm@hgd1-k8w03 --since 1h VM_HOST_KEY
     ```
 
     Copy the key into the entry as `hostKey = "ssh-ed25519 …";` and commit.
@@ -72,8 +72,8 @@ has to be deleted.
 ## Check it worked
 
 ```sh
-scripts/vm.sh list
-kubectl get nodes -L topology.kubernetes.io/zone
+labctl status vm        # Running on the right host
+labctl status node      # Ready, with the right zone
 ```
 
 !!! note "Disk size"

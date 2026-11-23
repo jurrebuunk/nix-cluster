@@ -111,6 +111,9 @@ labctl status        # everything green
 
 ## Good to know
 
+- `--unit` takes a unit or syslog app name, with or without `.service`
+  (`--unit clusterd`). For several units, or names with dots, use a LogsQL
+  filter as the query: `labctl logs --since 1h 'unit:"ceph-osd"*'`.
 - Output is a table by default; add `--json` for scripts
   (`labctl --json status | jq .ceph`).
 - Another site: `labctl login --site <name> --api https://…`, then

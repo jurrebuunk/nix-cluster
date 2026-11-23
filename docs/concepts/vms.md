@@ -13,7 +13,7 @@ only because the inventory says so.
 
     **Status** <span class="status">Done</span> · **Configured in**
     `inventory.nix` → `vms`, `modules/microvm/` · **Operate**
-    `scripts/vm.sh` · **How-to** [Manage VMs](../how-to/manage-vms.md)
+    `labctl status vm`, `labctl vm restart` · **How-to** [Manage VMs](../how-to/manage-vms.md)
 
 ## Overview
 
@@ -112,11 +112,15 @@ guests on a host without KVM.
 ## Operating
 
 ```sh
-labctl status                          # every VM, through the Platform API
-scripts/vm.sh list
-scripts/vm.sh hgd1-k8m01 status      # also: logs, start, stop, restart
-ssh jurre@10.10.40.11
+labctl status vm                                  # every VM and its state
+labctl status disk                                # their /var/lib filesystems, how full
+labctl logs --unit microvm@hgd1-k8m01 --since 1h  # the VM's console, from its host
+labctl logs --host hgd1-k8m01 --since 1h          # inside the VM
+labctl vm restart hgd1-k8m01                      # drain, restart, Ready, uncordon
 ```
+
+`scripts/vm.sh <vm> start|stop` and `ssh jurre@10.10.40.11` remain for what
+the API doesn't do: stopping a VM for good, and a shell inside it.
 
 !!! warning "vm.sh doesn't know about Kubernetes"
 

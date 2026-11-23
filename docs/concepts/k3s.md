@@ -103,10 +103,10 @@ yet.
 ## Operating
 
 ```sh
-scripts/kubeconfig.sh
-kubectl get nodes -L topology.kubernetes.io/zone
-scripts/k3s-roll.sh                 # restart VMs one at a time, safely
-labctl vm restart hgd1-k8w01          # one node, through the Platform API
+labctl status node                    # Ready, roles, version, zone
+labctl vm restart hgd1-k8w01          # one node: drain, restart, Ready, uncordon
+labctl logs --host hgd1-k8m01 --unit k3s --since 1h
+scripts/kubeconfig.sh                 # a cluster-admin kubeconfig, for kubectl
 ```
 
 - [Restart k3s nodes](../how-to/restart-k3s-nodes.md)

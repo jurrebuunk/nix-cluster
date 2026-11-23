@@ -50,7 +50,8 @@ verify, next host. Deploys are manual and deliberately one host at a time.
 5. **Verify** with a **new** SSH connection:
 
     ```sh
-    ssh jurre@10.10.20.11 'systemctl is-system-running; systemctl --failed --no-pager; sudo ceph health'
+    labctl status                                                        # no warnings
+    labctl metrics query 'node_systemd_unit_state{state="failed"} == 1'  # (no data)
     ```
 
     Also test the service you changed and read its logs.
@@ -59,6 +60,15 @@ verify, next host. Deploys are manual and deliberately one host at a time.
 7. **Push:** `git push`.
 8. **VM changes?** A deploy never restarts VMs. Boot them into the new
    version with [Restart k3s nodes](restart-k3s-nodes.md).
+
+!!! warning "Known issue: Ceph heartbeats after the first clusterd rollout"
+
+    On 2026-11-23 the first deploy of clusterd (which also reloaded the host
+    firewall and added a Keepalived instance) was followed by about 12
+    minutes of OSD heartbeat failures on hv01 and hv02 and a `SLOW_OPS`
+    warning. No OSD went down and it cleared by itself. Later deploys,
+    including other firewall reloads, didn't do this; the cause isn't known
+    yet. After a deploy, check `labctl status ceph` before the next host.
 
 ## Actions
 

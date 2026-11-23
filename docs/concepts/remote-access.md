@@ -75,7 +75,7 @@ stay blocked.
 ```sh
 warp-cli connect          # away, or managing the site from home
 warp-cli disconnect       # normal use at home
-for h in 11 12 13; do ssh jurre@10.10.20.$h 'systemctl is-active "cloudflared-tunnel-*"'; done
+labctl metrics query 'cloudflared_tunnel_ha_connections'   # 4 per host is healthy
 ```
 
 On the users VLAN at home, disconnect WARP; otherwise site traffic goes out to

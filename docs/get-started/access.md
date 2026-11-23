@@ -28,6 +28,20 @@ goes straight through the router. Details: [Remote access](../concepts/remote-ac
     Cloudflare One app and log in to team `buunk`. Only allowed email
     addresses can enrol.
 
+## CLI
+
+The main way in. `labctl` shows and operates the whole site through the
+[Platform API](../concepts/api.md): status, disks, S3, metrics, logs of every
+host and VM, and safe VM restarts.
+
+```sh
+labctl login          # paste your API token once
+labctl status
+```
+
+`labctl` is in the dev shell and on my laptop. Getting a token:
+[Use the CLI → Tokens](../how-to/use-the-cli.md#tokens).
+
 ## Host login
 
 ```sh
@@ -35,11 +49,8 @@ ssh jurre@10.10.20.11              # hgd1-hv01
 ssh jurre@hgd1-hv02.lan.buunk.org  # names work too
 ```
 
-Key-only, no root login, passwordless `sudo` for `jurre`. Check it's healthy:
-
-```sh
-ssh jurre@10.10.20.11 'hostname; systemctl is-system-running; sudo ceph health'
-```
+For what the API doesn't do: deploys, Ceph changes, secrets, a shell in a
+VM. Key-only, no root login, passwordless `sudo` for `jurre`.
 
 ## VM login
 
@@ -63,15 +74,6 @@ as `KUBECONFIG`. It points at `https://k8s.lan.buunk.org:6443`.
 
     The kubeconfig grants full rights. Never commit it, paste it or copy it to
     a shared machine.
-
-## CLI login
-
-```sh
-labctl login          # paste your API token once
-labctl status
-```
-
-`labctl` is in the dev shell. Getting a token: [Use the CLI → Tokens](../how-to/use-the-cli.md#tokens).
 
 ## Without WARP
 

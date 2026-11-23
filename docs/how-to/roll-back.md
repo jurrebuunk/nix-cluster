@@ -33,7 +33,9 @@ Then, in both cases:
 ## Check it worked
 
 ```sh
-ssh jurre@10.10.20.11 'readlink /run/current-system; systemctl is-system-running'
+labctl status host                                                   # the host is Up again
+labctl metrics query 'node_systemd_unit_state{state="failed"} == 1'  # (no data)
+ssh jurre@10.10.20.11 'readlink /run/current-system'                 # which generation runs
 ```
 
 !!! warning "Generations are not backups"
