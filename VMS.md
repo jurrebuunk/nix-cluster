@@ -85,14 +85,13 @@ is denied; the platform uses its declared TAPs instead.
 
 ## Operate
 
-From the laptop repo (set `JUMP` only while using bootstrap home access):
+From the laptop repo, with WARP connected:
 
 ```sh
-export JUMP=root@192.168.2.12
 scripts/vm.sh list
 scripts/vm.sh hgd1-k8m01 status
 scripts/vm.sh hgd1-k8m01 logs
-ssh -J "$JUMP" jurre@10.10.40.11
+ssh jurre@10.10.40.11
 scripts/vm.sh hgd1-k8m01 restart
 ```
 

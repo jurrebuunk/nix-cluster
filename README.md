@@ -25,7 +25,6 @@ Runtime-key backups are encrypted and decrypt-verified. See [CEPH.md](CEPH.md).
 - **hv02 virtualization:** enable VT-x in BIOS, verify KVM, then enable guests
   there. Its HDD test has passed; use the Ceph one-host maintenance procedure.
 - **k3s (step 4):** not installed. The other four VM definitions remain disabled.
-- **N7:** in progress. Tunnel `hgd1-admin`, routes, WARP settings and the OPNsense rule are in place; next is deploying hv01–03 and testing from outside. Bootstrap WAN management stays until then.
 
 Deployment, VM and storage runbooks are linked below. Ceph uses only the
 reserved HDDs; host/VM disks remain on NVMe. This Ceph rollout did not change
@@ -78,7 +77,7 @@ Status as of 2026-11-23. Network steps `N*` are in
 | – | `hgd1-gpu1` on INFRA `10.10.20.50`, gaming VM on USERS `10.10.100.50`, Sunshine reachable from the home network | **Done** 2026-11-21 |
 | N5 / 1 | Move `hgd1-hv01..03` to their static VLAN 20/30/40 addresses | **Done** 2026-11-22; ports 5/7/9 native 20, tagged 30/40; each host rebooted and verified |
 | N6 | Verify the network | **Done** 2026-11-22; 83/83 probes, router/switch reboots, saved VLANs, node isolation and unrouted storage verified |
-| N7 | Cloudflare Zero Trust remote access, close bootstrap WAN management | **In progress (2026-11-23): Cloudflare side, tunnel secret and OPNsense rule done; deploy to hv01–03 and test pending**; temporary management rules remain |
+| N7 | Cloudflare Zero Trust remote access, close bootstrap WAN management | **Done** 2026-11-23 |
 | 2 | Ceph on the nodes (mon/mgr/osd/rgw) | **Done** 2026-11-23; HEALTH_OK, 3 mons/OSDs/RGWs, replica 3/min_size 2, RBD/S3 and one-host-outage recovery verified |
 | 3 | VM platform (microvm.nix) | **Done** 2026-11-22; one empty VM live, SSH/storage/internet and restart persistence verified; host deploy does not restart guests |
 | 4 | k3s nodes (3 servers, 2 agents) | Planned |
@@ -135,11 +134,15 @@ and working bootloader settings, and don't import the installer's generated
 
 The live hosts are `hgd1-hv01.lan.buunk.org` (`10.10.20.11`),
 `hgd1-hv02.lan.buunk.org` (`10.10.20.12`), and
-`hgd1-hv03.lan.buunk.org` (`10.10.20.13`). From home Wi-Fi before N7:
+`hgd1-hv03.lan.buunk.org` (`10.10.20.13`). With WARP connected (from anywhere, including home Wi-Fi):
 
 ```sh
-ssh -J root@192.168.2.12 jurre@10.10.20.11
+warp-cli connect
+ssh jurre@10.10.20.11
 ```
+
+The WAN side has no management access any more; without WARP, use switch
+port 1 (MGMT) or the OPNsense console.
 
 Only a bootstrap/recovery generation uses DHCP on MGMT VLAN 10. Match its MAC
 against `inventory.nix`; don't assume the old lease still belongs to that node.

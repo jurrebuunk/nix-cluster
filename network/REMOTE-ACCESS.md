@@ -1,5 +1,7 @@
 # Remote access through Cloudflare (network plan N7)
 
+**Status: done 2026-11-23.** Tunnel `hgd1-admin`, 3 connectors on hv01–03.
+
 Reach the whole site network (`10.10.0.0/16`) from anywhere, as if on the LAN:
 SSH, OPNsense and switch web UIs, the k8s API, internal apps and internal names.
 `cloudflared` runs on all three hypervisors (one tunnel, three replicas); the
@@ -37,9 +39,9 @@ cloudflared tunnel route ip add 10.10.0.0/16 hgd1-admin
       EDITOR="cp $HOME/.cloudflared/<UUID>.json" agenix -e cloudflared-tunnel.age
       cd ..
       ```
-- [ ] Keep a copy of the JSON in your password manager, then delete
+- [x] Keep a copy of the JSON in your password manager, then delete
       `~/.cloudflared/<UUID>.json`.
-- [ ] Commit, then deploy one host at a time:
+- [x] Commit, then deploy one host at a time:
       ```sh
       scripts/deploy.sh hgd1-hv01 switch
       ssh jurre@10.10.20.11 'systemctl status "cloudflared-tunnel-*" --no-pager'
@@ -60,15 +62,16 @@ cloudflared tunnel route ip add 10.10.0.0/16 hgd1-admin
       DNS server `10.10.20.1` (OPNsense).
 - [x] Settings → Network → **Proxy**: TCP and UDP on (needed for WARP traffic
       to private networks).
-- [x] Gateway → Firewall policies → Network: allow destination
-      `10.10.0.0/16` for your email; block `10.10.0.0/16` for everyone else.
+- [x] Gateway → Firewall policies → Network: block `10.10.30.0/24` (storage,
+      precedence 500); allow `10.10.0.0/16` for your email; block
+      `10.10.0.0/16` for everyone else.
 
 ## 4. OPNsense
 
 - [x] Firewall → Rules → INFRA: allow source `10.10.20.11–13` to MGMT, K8S and
       USERS (everything internal except storage, which is not routed). Done as aliases
       `HGD1_TUNNEL_HOSTS` → `HGD1_TUNNEL_DESTS`, above the INFRA deny rule.
-- [ ] Once remote access works: remove **only bootstrap management** WAN rules
+- [x] Once remote access works: remove **only bootstrap management** WAN rules
       (router 22/443 from `192.168.2.0/24`, SSH to `10.10.0.0/16`). Preserve the
       permanent Sunshine DNAT/registered pass rules from the whole home subnet
       to `10.10.100.50` (TCP 47984/47989/48010; UDP 47998–48000/48002/48010).
@@ -78,7 +81,7 @@ cloudflared tunnel route ip add 10.10.0.0/16 hgd1-admin
 
 ## 5. Laptop
 
-- [ ] Install the WARP client. On NixOS: `services.cloudflare-warp.enable = true;`
+- [x] Install the WARP client. On NixOS: `services.cloudflare-warp.enable = true;`
       in the laptop config, then `warp-cli registration new <team-name>` and
       `warp-cli connect`. On other systems: the Cloudflare One app.
 

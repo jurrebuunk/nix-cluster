@@ -224,10 +224,13 @@ survived. Fixtures were removed and spare ports 16/18 disabled/native 999 again.
 
 ## N7: Remote access (Cloudflare) and close bootstrap WAN management
 
-**Status: in progress (2026-11-23).** Zero Trust settings, tunnel `hgd1-admin`
-(`2dc8c4e1-ce31-4429-a07a-6b9759648ae1`), route, agenix secret and OPNsense rule
-are done; deploying to hv01–03 and the outside test are next. Ceph and VM
-platform work may proceed without N7. Keep the temporary WAN management rules until replacement access is tested.
+**Status: done 2026-11-23.** Tunnel `hgd1-admin`
+(`2dc8c4e1-ce31-4429-a07a-6b9759648ae1`) runs on hv01–03 (3 connectors).
+Through WARP, SSH, `lan.buunk.org` names, the OPNsense UI and the switch work,
+also with hv01's connector stopped. The three bootstrap WAN rules are removed;
+WAN 22/443 are closed and Sunshine via `192.168.2.12` still answers. Split
+Tunnels uses Include mode (`10.10.0.0/16` only), and a Gateway rule blocks
+`10.10.30.0/24` so storage stays unreachable through the tunnel as well.
 
 Goal: reach the whole internal network from anywhere (school, …) as if on the
 LAN, independent of k3s. Nothing inside the network depends on it.

@@ -59,12 +59,11 @@ independent workload backups remain separate work.
 Authoritative serials, whole-disk by-id paths, OSD IDs/UUIDs and cluster FSID
 live in `inventory.nix`. The NVMe disks must never be handed to Ceph.
 
-From the laptop repo, before N7:
+From the laptop repo, with WARP connected:
 
 ```sh
-export JUMP=root@192.168.2.12
 scripts/ceph-bootstrap.sh check
-ssh -J "$JUMP" jurre@10.10.20.11 'sudo smartctl -a /dev/sda'
+ssh jurre@10.10.20.11 'sudo smartctl -a /dev/sda'
 # Inspect all three hosts, not just hv01.
 ```
 
@@ -105,11 +104,11 @@ S3 DNS alias, TLS ingress or public exposure. Three frontends alone do not give
 a client automatic failover. Workloads with a storage NIC can use them directly;
 a future authenticated/TLS ingress is separate work.
 
-From home Wi-Fi, tunnel through a hypervisor (the router cannot route storage):
+From the laptop, tunnel through a hypervisor with WARP connected (the router
+cannot route storage, and Gateway blocks `10.10.30.0/24` over WARP):
 
 ```sh
-ssh -N -J root@192.168.2.12 \
-  -L 17480:10.10.30.11:7480 jurre@10.10.20.11
+ssh -N -L 17480:10.10.30.11:7480 jurre@10.10.20.11
 ```
 
 Use `http://127.0.0.1:17480` as the endpoint on that laptop while the tunnel

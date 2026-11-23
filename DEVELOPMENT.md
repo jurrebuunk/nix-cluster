@@ -135,7 +135,7 @@ known-good generations until the replacement has been verified.
 
 Step 3 is live; see [VMS.md](VMS.md). Guests are built with their owning host
 and kept on local NVMe. `scripts/vm.sh list` shows enabled versus reserved
-inventory entries. Run `JUMP=root@192.168.2.12 scripts/vm.sh hgd1-k8m01 status`
+inventory entries. With WARP connected, run `scripts/vm.sh hgd1-k8m01 status`
 for the current test VM. Host deployments install updated runners but do not
 restart guests; apply those changes through a deliberate per-VM restart.
 Persistence/SSH identity and unchanged VM PID across host deployment were

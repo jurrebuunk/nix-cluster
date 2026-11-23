@@ -202,9 +202,8 @@ BIOS virtualization prerequisite. No k3s services are installed yet.
 
 ## F. Remote access and closing bootstrap WAN management (network plan N7)
 
-**In progress (2026-11-23).** Steps 1–4 of REMOTE-ACCESS.md are done and
-`remoteAccess.tunnelId` is set; deploy hv01–03, test from outside, and only then
-remove bootstrap WAN management.
+**Done 2026-11-23.** The bootstrap WAN rules are gone, so `JUMP=root@192.168.2.12`
+in the sections above no longer works; drop `-J "$JUMP"` and connect WARP instead.
 
 Follow [network/REMOTE-ACCESS.md](network/REMOTE-ACCESS.md): Zero Trust
 organisation and tunnel (you, in the dashboard and `cloudflared tunnel login`),
