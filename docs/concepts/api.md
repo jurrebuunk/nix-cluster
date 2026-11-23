@@ -20,7 +20,7 @@ to the hosts, Ceph or the monitoring stores directly.
 
 !!! info "At a glance"
 
-    **Status** <span class="status">v1.0.0</span> ·
+    **Status** <span class="status">v1.1.0</span> ·
     **Endpoint** `https://api.lan.buunk.org` (VIP `10.10.20.20`, infra VLAN) ·
     **Configured in** `modules/clusterd/`, `inventory.nix` → `api` ·
     **Reference** [API reference](../reference/api.md)
@@ -51,8 +51,9 @@ flowchart LR
   performs actions on what's there (restart, drain, maintenance). It never
   creates or deletes VMs.
 
-`v1.0.0` runs now: status (as a whole or per part, including disks and S3),
-metrics, logs and the first action, a safe VM restart. `/v1` is stable: only
+`v1.1.0` runs now: status (as a whole or per part, including disks and S3),
+one health verdict (`/v1/checks`), metrics, logs, and actions: VM restart,
+stop and start, node cordon and uncordon, host maintenance and resume. `/v1` is stable: only
 backward-compatible changes; anything breaking would go to `/v2` (see the
 [clusterd plan](https://github.com/jurrebuunk/clusterd/blob/main/PLAN.md)).
 
@@ -204,7 +205,7 @@ repo as a flake input. This repo only configures them:
 
 | File | Owns |
 | --- | --- |
-| `flake.nix` → `inputs.clusterd` | The `clusterd` release in use, pinned to its tag (now `github:jurrebuunk/clusterd/v1.0.0`) |
+| `flake.nix` → `inputs.clusterd` | The `clusterd` release in use, pinned to its tag (now `github:jurrebuunk/clusterd/v1.1.0`) |
 | `inventory.nix` → `api` | Hostname, VIP, VRRP id |
 | `modules/clusterd/default.nix` | Enables `services.clusterd` with settings from the inventory |
 | `modules/clusterd/tls.nix` | ACME certificate through DNS-01 |
@@ -245,6 +246,18 @@ host while developing with `LABCTL_API`.
 See [Troubleshooting → API](../operate/troubleshooting.md#api).
 
 ## Tested
+
+`v1.1.0`:
+
+- `labctl health` exits 0 on the healthy site; with `hgd1-k8w02` stopped it
+  showed `vms` and `nodes` as `fail` and exited 5.
+- `labctl vm stop hgd1-k8w02` drained and stopped it; `vm start` brought it
+  back Ready and uncordoned. Starting a running VM is refused.
+- `labctl vm roll` restarted all five VMs, agents first, in 190 s; the API
+  answered all 163 requests during it.
+- `labctl node cordon` / `uncordon`, and `labctl logs --unit 'ceph-osd*'`.
+- `labctl host maintenance hgd1-hv03 --dry-run --reboot` passes its checks
+  and plans the steps. A real maintenance with reboot hasn't run yet.
 
 `v1.0.0`:
 

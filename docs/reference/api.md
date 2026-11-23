@@ -16,7 +16,7 @@ Endpoints of the [Platform API](../concepts/api.md) at
 `https://api.lan.buunk.org`. All responses are JSON. Every endpoint except
 `/v1/health` needs `Authorization: Bearer <token>`.
 
-<span class="status">v1.0.0</span> · Spec: [`api/openapi.yaml`](https://github.com/jurrebuunk/clusterd/blob/main/api/openapi.yaml)
+<span class="status">v1.1.0</span> · Spec: [`api/openapi.yaml`](https://github.com/jurrebuunk/clusterd/blob/main/api/openapi.yaml)
 
 ## Conventions
 

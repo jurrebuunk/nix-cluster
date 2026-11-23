@@ -20,7 +20,7 @@ platform status, metrics, logs and actions from your terminal, for daily
 management and while developing. Every command is in the
 [CLI reference](../reference/cli.md).
 
-<span class="status">v1.0.0</span>
+<span class="status">v1.1.0</span>
 
 ## Before you start
 

@@ -15,7 +15,7 @@ icon: lucide/square-terminal
 Commands of `labctl`, the client for the [Platform API](../concepts/api.md).
 How to set it up: [Use the CLI](../how-to/use-the-cli.md).
 
-<span class="status">v1.0.0</span>
+<span class="status">v1.1.0</span>
 
 ## Install
 
