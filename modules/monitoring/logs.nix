@@ -11,6 +11,8 @@ in
     journaldAccess = true;
     settings = {
       data_dir = "/var/lib/vector";
+      # Classic syslog carries no timezone; the router and switch log local time.
+      timezone = "Europe/Amsterdam";
       sources = {
         journald.type = "journald";
         syslog_udp = {
@@ -25,7 +27,7 @@ in
         };
         internal_metrics.type = "internal_metrics";
       };
-      transforms.normalized = logs.normalize [
+      transforms.normalized = logs.normalize inventory.site.domain [
         "journald"
         "syslog_udp"
         "syslog_tcp"

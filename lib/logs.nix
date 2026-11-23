@@ -2,12 +2,13 @@
 # records and write them to every host's VictoriaLogs.
 { lib }:
 {
-  # Fields VictoriaLogs groups streams by; host and unit/app name.
-  normalize = inputs: {
+  # Fields VictoriaLogs groups streams by: short host name and unit/app name.
+  normalize = domain: inputs: {
     type = "remap";
     inherit inputs;
     source = ''
       if exists(.hostname) { .host = .hostname }
+      .host = replace(to_string(.host) ?? "unknown", ".${domain}", "")
       .unit = if exists(._SYSTEMD_UNIT) { ._SYSTEMD_UNIT } else if exists(.appname) { .appname } else { "unknown" }
     '';
   };
