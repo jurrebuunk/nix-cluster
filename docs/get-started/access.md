@@ -64,6 +64,15 @@ as `KUBECONFIG`. It points at `https://k8s.lan.buunk.org:6443`.
     The kubeconfig grants full rights. Never commit it, paste it or copy it to
     a shared machine.
 
+## CLI login
+
+```sh
+hgd1 login          # paste your API token once
+hgd1 status
+```
+
+`hgd1` is in the dev shell. Getting a token: [Use the CLI → Tokens](../how-to/use-the-cli.md#tokens).
+
 ## Without WARP
 
 At the site, plug into **switch port 1** (management VLAN, DHCP). From there

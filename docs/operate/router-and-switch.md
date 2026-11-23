@@ -72,7 +72,7 @@ Both devices are part of [monitoring](../concepts/monitoring.md):
 ## Change DNS
 
 Host overrides live in Services → Unbound DNS → Overrides. Keep them in line
-with `inventory.nix`. TTL 60 for floating addresses (`s3`, `k8s`, `mon`).
+with `inventory.nix`. TTL 60 for floating addresses (`s3`, `k8s`, `mon`, `api`).
 
 ## Related
 

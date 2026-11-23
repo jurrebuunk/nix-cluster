@@ -27,6 +27,13 @@ For each VM the script:
 4. Waits up to 10 minutes for a **new boot** of that node to be Ready.
 5. Uncordons it and checks the API.
 
+For a single node you can also use the CLI, which runs the same sequence
+through the [Platform API](../concepts/api.md):
+
+```sh
+hgd1 vm restart hgd1-k8w01
+```
+
 ## Check it worked
 
 ```sh

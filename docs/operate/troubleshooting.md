@@ -94,6 +94,17 @@ ssh jurre@<vm-ip> 'sudo journalctl -u k3s -b --no-pager | tail -50'
 | Router or switch logs missing | Check the syslog destination on OPNsense and `show logging` on the switch; both send to `10.10.20.10:514` |
 | A disk is missing from SMART | The NVMe ACL is set by udev at boot. Without a reboot: `sudo udevadm trigger --subsystem-match=nvme --action=add`, then restart `prometheus-smartctl-exporter` |
 
+## API
+
+| You see | Likely cause and fix |
+| --- | --- |
+| `hgd1` exits with code 3 | API unreachable: check WARP, then `curl -s https://api.lan.buunk.org/v1/health` |
+| `/v1/health` fails | No host passes the VIP check: `systemctl status clusterd keepalived` on each host |
+| 401 / exit code 4 | Token unknown or revoked; `hgd1 whoami`, or create a new one ([Tokens](../how-to/use-the-cli.md#tokens)) |
+| 403 on an action | The token has scope `read`; actions need `manage` |
+| Web UI loads but shows no data | WARP is off, or the browser origin isn't `api.webOrigin` |
+| Metrics or logs empty through the API | Check the stores themselves: [Monitoring](#monitoring) |
+
 ## Disk failed
 
 - **HDD:** its OSD goes down, data stays on two copies.

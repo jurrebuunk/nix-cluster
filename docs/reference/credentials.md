@@ -28,6 +28,8 @@ agenix files, encrypted to my laptop key and the three host keys
 | `k3s-server-token.age` | k3s server join token | `/run/k3s-secrets/server/server-token` |
 | `k3s-agent-token.age` | k3s agent join token | `/run/k3s-secrets/{server,agent}/agent-token` |
 | `snmp-community.age` | snmp_exporter auth file with the switch's read-only community | `/run/agenix/snmp-community` |
+| `api-tokens.age` | Hashes of the Platform API tokens (never the tokens) | `/run/agenix/api-tokens` |
+| `clusterd-kubeconfig.age` | The API's Kubernetes ServiceAccount | `/run/agenix/clusterd-kubeconfig` |
 
 ## On the hosts only
 
@@ -35,6 +37,7 @@ agenix files, encrypted to my laptop key and the three host keys
 | --- | --- | --- |
 | Ceph admin keyring | `/etc/ceph/ceph.client.admin.keyring` on every host | Encrypted, `~/.local/state/nix-hgd1-cluster/ceph-bootstrap/` |
 | Ceph daemon keyrings | `/var/lib/ceph/` on every host | Same archive |
+| Ceph key for the API (`client.clusterd`, read-only) | `/etc/ceph/ceph.client.clusterd.keyring` on every host | Same archive |
 | S3 user `jurre` | `/root/jurre-s3-credentials.json` on hv01 | – |
 | S3 users for apps | `/root/<app>-s3-credentials.json` on the host that created them | – |
 | Let's Encrypt account and certificates | `/var/lib/acme/` on every host | Encrypted, `~/.local/state/nix-hgd1-cluster/s3-ha/` |
@@ -49,6 +52,7 @@ agenix files, encrypted to my laptop key and the three host keys
 | Admin SSH key | `~/.ssh/id_ed25519` | Logins on hosts, VMs and the router; decrypting every agenix secret |
 | Switch SSH key | `~/.ssh/id_rsa_hgd1_network` | `manager` on `hgd1-sw01` |
 | Kubeconfig | `~/.kube/hgd1.yaml` (mode 600) | Cluster admin; recreate with `scripts/kubeconfig.sh` |
+| API token | `~/.config/hgd1/token` (mode 600) | The `hgd1` CLI; the web UI keeps its token in session storage |
 | Router and switch exports | `~/.local/state/nix-cluster/network-rollout/` (mode 600) | Contain password hashes and keys |
 | WARP enrolment | The WARP client | Device registration in team `buunk` |
 
@@ -69,7 +73,8 @@ has passwordless sudo.
 
 ## Future: a KMS
 
-Secrets for workloads on k3s will move to a central secrets manager
+Tokens for the API will be replaced by single sign-on. Secrets for workloads
+on k3s will move to a central secrets manager
 (OpenBao or HashiCorp Vault) with logins through Keycloak (OIDC), and reach
 the apps through the External Secrets Operator. agenix stays for everything
 the hosts and the cluster need to boot, so the platform never depends on the

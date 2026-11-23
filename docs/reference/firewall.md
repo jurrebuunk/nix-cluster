@@ -53,6 +53,8 @@ Source: the whole home network `192.168.2.0/24`, destination the WAN address
 | `enp2s0` | TCP 9428 | VictoriaLogs: queries, ingest from peers |
 | `enp2s0` | TCP/UDP 514 | Syslog from router and switch |
 | `enp2s0` | VRRP | Monitoring VIP, only from the other two hosts, TTL 255 |
+| `enp2s0` | TCP 443 | Platform API (`api.lan.buunk.org`) |
+| `enp2s0` | VRRP | API VIP (id 21), only from the other two hosts, TTL 255 |
 | `127.0.0.1` | 8405, 8429, 9100, 9115, 9116, 9598, 9633, 20241 | Exporters and agents, local only |
 | `br-k8s` | – | All input dropped; no routing between bridges and host |
 

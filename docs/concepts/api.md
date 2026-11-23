@@ -1,0 +1,130 @@
+---
+icon: lucide/webhook
+---
+
+# Platform API
+
+`clusterd` is a small REST API that runs on all three hypervisors behind one
+highly available address, **`https://api.lan.buunk.org`**. It is the single,
+authenticated entry point for managing and developing on the platform: the
+[CLI](../how-to/use-the-cli.md) and the [web UI](web-ui.md) talk to it, never
+to the hosts, Ceph or the monitoring stores directly.
+
+!!! info "At a glance"
+
+    **Status** <span class="status status--partial">In development</span> ·
+    **Endpoint** `https://api.lan.buunk.org` (VIP `10.10.20.20`, infra VLAN) ·
+    **Configured in** `modules/clusterd/`, `inventory.nix` → `api` ·
+    **Reference** [API reference](../reference/api.md)
+
+## Overview
+
+```mermaid
+flowchart LR
+  cli[hgd1 CLI] -- WARP --> vip
+  ui[Web UI in the browser] -- WARP --> vip
+  vip[api.lan.buunk.org<br/>VIP 10.10.20.20] --> c1[clusterd hv01]
+  vip -.-> c2[clusterd hv02]
+  vip -.-> c3[clusterd hv03]
+  c1 --> sd[systemd: microvm@*]
+  c1 --> k8s[k3s API]
+  c1 --> ceph[Ceph status]
+  c1 --> mon[VictoriaMetrics + VictoriaLogs]
+```
+
+- **Same pattern as S3, the k3s API and monitoring:** a Keepalived VIP moves
+  to a host whose `clusterd` answers its health check. A host can die and the
+  API stays up.
+- **Stateless.** Every instance reads live state from systemd, the k3s API,
+  Ceph and the monitoring stores. There is nothing to replicate or back up.
+- **Infra VLAN only.** From outside the site that means WARP, so managing the
+  platform is only possible with WARP connected.
+- **Nix decides what exists.** The API reads the VM list from the inventory and
+  performs actions on what's there (restart, drain, maintenance). It never
+  creates or deletes VMs.
+
+## How it works
+
+### Access and auth
+
+Two layers, both required:
+
+1. **Network.** `api.lan.buunk.org` lives on the infra VLAN. Users, k8s and
+   the internet can't reach it; only the management VLAN and remote access
+   through Cloudflare (my email only, see [Remote access](remote-access.md))
+   can.
+2. **Tokens.** Every request carries a bearer token. Tokens have a scope:
+
+    | Scope | Allows |
+    | --- | --- |
+    | `read` | Status, metrics and logs |
+    | `manage` | Everything in `read`, plus actions that change something |
+
+    Token hashes live in the agenix secret `secrets/api-tokens.age`; the plain
+    token only ever exists on the client. Single sign-on through an identity
+    provider can replace tokens later without changing the clients.
+
+### Metrics and logs proxy
+
+The web UI and the CLI need metrics and logs, but the monitoring stores have no
+auth and must stay read-only. `clusterd` exposes only the **query** endpoints
+of VictoriaMetrics and VictoriaLogs under `/v1/metrics/` and `/v1/logs/`,
+behind the token check. Write, delete and admin endpoints are never proxied.
+Each instance queries its local store first (every host holds a full copy) and
+falls back to a peer.
+
+### Actions
+
+Actions are added one by one as they're needed. Each one wraps an existing,
+safe procedure: for example a VM restart runs the same drain → restart →
+Ready → uncordon sequence as `scripts/k3s-roll.sh`. Every `manage` request is
+written to the journal of `clusterd.service`, so it ends up in VictoriaLogs as
+an audit trail.
+
+### Privileges
+
+| Needs | How it's limited |
+| --- | --- |
+| Restart VMs | A polkit rule lets the `clusterd` user manage only `microvm@*.service` |
+| Kubernetes (drain, uncordon, node status) | Its own ServiceAccount with a narrow role; kubeconfig in `secrets/clusterd-kubeconfig.age` |
+| Ceph status | A read-only client key (`client.clusterd`, `mon 'allow r'`), host-only |
+| Metrics and logs | Plain HTTP to the local stores on `127.0.0.1` |
+
+### TLS
+
+Like the S3 endpoint, every host gets a Let's Encrypt certificate for
+`api.lan.buunk.org` through DNS-01, so clients verify a real certificate with
+no exceptions.
+
+## Configuration
+
+| File | Owns |
+| --- | --- |
+| `inventory.nix` → `api` | Hostname, VIP, VRRP id, allowed web UI origin |
+| `modules/clusterd/default.nix` | Service, user, imports |
+| `modules/clusterd/tls.nix` | ACME certificate through DNS-01 |
+| `modules/clusterd/vip.nix` | Keepalived and the health check |
+| `modules/clusterd/firewall.nix` | HTTPS on the management NIC, VRRP from peers |
+| `modules/clusterd/polkit.nix` | Permission to manage `microvm@*` only |
+| `pkgs/clusterd/` | The API server package |
+| `secrets/api-tokens.age`, `secrets/clusterd-kubeconfig.age` | Token hashes, Kubernetes access |
+
+## Operating
+
+```sh
+hgd1 status                                   # through the API
+curl -s https://api.lan.buunk.org/v1/health   # no token needed
+for h in 11 12 13; do ssh jurre@10.10.20.$h 'systemctl is-active clusterd'; done
+```
+
+- New token: see [Use the CLI → Tokens](../how-to/use-the-cli.md#tokens).
+- Audit trail: `hgd1 logs --unit clusterd.service --since 1d`.
+
+## Troubleshooting
+
+See [Troubleshooting → API](../operate/troubleshooting.md#api).
+
+## Related
+
+- [API reference](../reference/api.md) · [Use the CLI](../how-to/use-the-cli.md) ·
+  [Web UI](web-ui.md) · [Monitoring](monitoring.md)

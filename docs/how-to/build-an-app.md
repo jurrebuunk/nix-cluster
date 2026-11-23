@@ -21,7 +21,7 @@ contract between this repo and your project is a **Kubernetes API**, the
 | Egress | Internet from pods (image registries, APIs) |
 | Internal DNS | `*.lan.buunk.org` names resolve inside pods |
 
-**Not there yet** (step 6, in the workloads repo): ingress, load balancers,
+**Not part of this repo** (they come from the workloads repo): ingress, load balancers,
 cert-manager, ceph-csi (so no `ceph-bulk` StorageClass yet) and the Postgres
 operator. Until then, services only work inside the cluster.
 
@@ -106,8 +106,6 @@ separate design decision.
 
 ## Block storage
 
-<span class="status status--planned">Step 6</span>
-
 
 ceph-csi reads the cluster facts from the ConfigMap, so nothing has to be
 copied by hand:
@@ -123,8 +121,6 @@ key restricted to the `k8s` pool; create it on a host and store it as a
 Kubernetes Secret.
 
 ## Exposing
-
-<span class="status status--planned">Step 6</span>
 
 
 The plan: an ingress controller behind load balancer IPs on VLAN 40
@@ -148,8 +144,10 @@ app).
 
 ## Monitoring
 
-Grafana and k3s monitoring live in the workloads repo. Point Grafana at the
-infrastructure data:
+Your app's own metrics and logs belong to the workloads repo. For the
+platform's data, use the [CLI](use-the-cli.md), the [web UI](../concepts/web-ui.md)
+or the [API](../reference/api.md) (`/v1/metrics`, `/v1/logs`, token auth). A
+Grafana in the workloads repo can also read the stores directly:
 
 | Data source | URL |
 | --- | --- |

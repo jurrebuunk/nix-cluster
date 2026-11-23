@@ -33,6 +33,7 @@ pages.
 
 <div class="grid cards" markdown>
 
+- :lucide-square-terminal: [**Use the CLI**](use-the-cli.md): tokens, status, metrics, logs and actions
 - :lucide-hammer: [**Build an app**](build-an-app.md): what the platform offers and where state goes
 - :lucide-user-plus: [**Create an S3 user**](create-s3-user.md): credentials and a bucket for an app
 

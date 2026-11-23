@@ -25,6 +25,7 @@ Every file in the repo and what it configures. Links open the file on GitHub.
 | [`modules/s3-ha/`](https://github.com/jurrebuunk/nix-hgd1-cluster/tree/main/modules/s3-ha) | S3 endpoint: `tls.nix`, `proxy.nix`, `failover.nix`, `firewall.nix` |
 | [`modules/remote-access.nix`](https://github.com/jurrebuunk/nix-hgd1-cluster/blob/main/modules/remote-access.nix) | `cloudflared` tunnel |
 | [`modules/monitoring/`](https://github.com/jurrebuunk/nix-hgd1-cluster/tree/main/modules/monitoring) | Monitoring: `storage.nix`, `collection.nix`, `logs.nix`, `vip.nix`, `firewall.nix` |
+| [`modules/clusterd/`](https://github.com/jurrebuunk/nix-hgd1-cluster/tree/main/modules/clusterd) | Platform API: service, TLS, VIP, firewall, polkit |
 | [`modules/rollout-safety.nix`](https://github.com/jurrebuunk/nix-hgd1-cluster/blob/main/modules/rollout-safety.nix) | Opt-in self-reverting guard for risky network changes |
 
 ## VMs
@@ -48,6 +49,8 @@ Every file in the repo and what it configures. Links open the file on GitHub.
 | `secrets/k3s-server-token.age` | k3s server token | `/run/k3s-secrets/server/server-token` |
 | `secrets/k3s-agent-token.age` | k3s agent token | `/run/k3s-secrets/{server,agent}/agent-token` |
 | `secrets/snmp-community.age` | snmp_exporter auth file | `/run/agenix/snmp-community` |
+| `secrets/api-tokens.age` | Hashes of the API tokens | `/run/agenix/api-tokens` |
+| `secrets/clusterd-kubeconfig.age` | Kubeconfig of the API's ServiceAccount | `/run/agenix/clusterd-kubeconfig` |
 
 Where everything else lives: [Credentials](credentials.md).
 
@@ -56,6 +59,8 @@ Where everything else lives: [Credentials](credentials.md).
 | File | Purpose |
 | --- | --- |
 | `scripts/*.sh` | See [Scripts](scripts.md) |
+| `pkgs/clusterd/` | The Platform API server ([API reference](api.md)) |
+| `pkgs/hgd1/` | The CLI ([CLI reference](cli.md)), flake output `packages.x86_64-linux.hgd1` |
 | `docs/`, `zensical.toml` | This site |
 | `includes/abbreviations.md` | Glossary tooltips on every page |
 | `.github/workflows/docs.yml` | Builds and publishes this site |

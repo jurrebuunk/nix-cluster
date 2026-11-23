@@ -85,7 +85,8 @@ flowchart TB
   cluster --> vms[microVMs<br/>k3s: 3 servers, 2 agents]
   vms --> ceph
   cluster --> mon[Monitoring<br/>mon.lan.buunk.org]
-  laptop[Laptop + WARP] -. Cloudflare tunnel .-> cluster
+  laptop[Laptop + WARP<br/>hgd1 CLI, web UI] -. Cloudflare tunnel .-> api[Platform API<br/>api.lan.buunk.org]
+  api --> cluster
 ```
 
 | Layer | Status | Read |
@@ -98,7 +99,7 @@ flowchart TB
 | microVMs | <span class="status">Done</span> | [VMs](concepts/vms.md) |
 | k3s cluster: 3 servers, 2 agents | <span class="status">Done</span> | [k3s](concepts/k3s.md) |
 | Monitoring and logs | <span class="status">Done</span> | [Monitoring](concepts/monitoring.md) |
-| Platform add-ons, Grafana, apps (workloads repo) | <span class="status status--planned">Planned</span> | [Roadmap](reference/roadmap.md) |
+| Platform API, CLI and web UI | <span class="status status--partial">In development</span> | [Platform API](concepts/api.md) |
 
 ## I want to…
 
@@ -106,6 +107,8 @@ flowchart TB
 | --- | --- |
 | log in to a host or VM | [Get access](get-started/access.md) |
 | change something and deploy it | [Deploy a change](how-to/deploy.md) |
+| check or manage the platform from my terminal | [Use the CLI](how-to/use-the-cli.md) |
+| see everything in a browser | [Web UI](concepts/web-ui.md) |
 | run an app on the cluster | [Build an app](how-to/build-an-app.md) |
 | check that everything is healthy | [Health check](operate/index.md) |
 | reboot or service a host | [Host maintenance](operate/host-maintenance.md) |

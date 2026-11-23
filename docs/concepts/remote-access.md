@@ -27,7 +27,9 @@ flowchart LR
 ```
 
 Nothing in the cluster depends on this path. If Cloudflare is down, the site
-keeps working; only my remote access is gone.
+keeps working; only my remote access is gone. It is also what makes managing
+possible from outside: the [Platform API](api.md), and so the `hgd1` CLI and
+the web UI, only answer on the infra VLAN.
 
 ## How it works
 

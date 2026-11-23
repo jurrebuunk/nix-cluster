@@ -9,6 +9,14 @@ with WARP connected, unless they say "on a host".
 
 ## Health check
 
+The quick version, through the [Platform API](../concepts/api.md):
+
+```sh
+hgd1 status
+```
+
+The same checks by hand:
+
 ```sh
 # Hosts: running, no failed units
 for h in 11 12 13; do
@@ -85,6 +93,7 @@ Anything else: [Troubleshooting](troubleshooting.md).
 | Encrypted Ceph keyring backups | `~/.local/state/nix-hgd1-cluster/ceph-bootstrap/` |
 | Encrypted ACME/TLS backups | `~/.local/state/nix-hgd1-cluster/s3-ha/` |
 | Kubeconfig | `~/.kube/hgd1.yaml` |
+| API token | `~/.config/hgd1/token` |
 | My S3 keys | `/root/jurre-s3-credentials.json` on hv01 |
 | Tunnel credentials | Password manager, plus `secrets/cloudflared-tunnel.age` |
 

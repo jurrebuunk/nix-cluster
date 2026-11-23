@@ -94,7 +94,8 @@ table is in [Firewall](../reference/firewall.md).
 
 OPNsense runs Unbound with DNSSEC for `lan.buunk.org` and serves NTP. Fixed
 addresses have host overrides such as `hgd1-hv01.lan.buunk.org`,
-`s3.lan.buunk.org`, `k8s.lan.buunk.org` and `mon.lan.buunk.org`. Hosts also keep each other in
+`s3.lan.buunk.org`, `k8s.lan.buunk.org`, `mon.lan.buunk.org`,
+`api.lan.buunk.org` and `console.lan.buunk.org`. Hosts also keep each other in
 `/etc/hosts`, so they resolve each other when the router is down. Ceph needs
 synced clocks, so hosts run chrony and prefer OPNsense.
 

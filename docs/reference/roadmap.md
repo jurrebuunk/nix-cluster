@@ -12,23 +12,21 @@ was only marked done after that check passed on the live system.
 
 | Step | What | Status |
 | --- | --- | --- |
-| N0 | Bootstrap: cabling, OPNsense install, SSH access | <span class="status">Done</span> Done 2026-11-21 |
-| N1 | OPNsense base: firmware, DNS with DNSSEC, NTP, backups | <span class="status">Done</span> Done 2026-11-21 |
-| N2 | VLAN interfaces 20/40/100, DHCP on MGMT and USERS, outbound NAT | <span class="status">Done</span> Done 2026-11-21 |
-| N3 | Switch: VLANs, port roles, management on `10.10.10.2`, key-based SSH | <span class="status">Done</span> Done 2026-11-21 |
-| N4 | Firewall policy between VLANs | <span class="status">Done</span> Done 2026-11-21 |
-| N5 / 1 | Hosts on their static VLAN 20/30/40 addresses | <span class="status">Done</span> Done 2026-11-22 |
-| N6 | Verify the network | <span class="status">Done</span> Done 2026-11-22 |
-| N7 | Remote access through Cloudflare; WAN management closed | <span class="status">Done</span> Done 2026-11-23 |
-| 2 | Ceph on the hosts | <span class="status">Done</span> Done 2026-11-23 |
-| 2.1 | Highly available S3 endpoint with trusted HTTPS | <span class="status">Done</span> Done 2026-11-23 |
-| 3 | VM platform (microvm.nix) | <span class="status">Done</span> Done 2026-11-22 |
+| N0 | Bootstrap: cabling, OPNsense install, SSH access | <span class="status">Done</span> 2026-11-21 |
+| N1 | OPNsense base: firmware, DNS with DNSSEC, NTP, backups | <span class="status">Done</span> 2026-11-21 |
+| N2 | VLAN interfaces 20/40/100, DHCP on MGMT and USERS, outbound NAT | <span class="status">Done</span> 2026-11-21 |
+| N3 | Switch: VLANs, port roles, management on `10.10.10.2`, key-based SSH | <span class="status">Done</span> 2026-11-21 |
+| N4 | Firewall policy between VLANs | <span class="status">Done</span> 2026-11-21 |
+| N5 / 1 | Hosts on their static VLAN 20/30/40 addresses | <span class="status">Done</span> 2026-11-22 |
+| N6 | Verify the network | <span class="status">Done</span> 2026-11-22 |
+| N7 | Remote access through Cloudflare; WAN management closed | <span class="status">Done</span> 2026-11-23 |
+| 2 | Ceph on the hosts | <span class="status">Done</span> 2026-11-23 |
+| 2.1 | Highly available S3 endpoint with trusted HTTPS | <span class="status">Done</span> 2026-11-23 |
+| 3 | VM platform (microvm.nix) | <span class="status">Done</span> 2026-11-22 |
 | 4 | k3s nodes: 3 servers, 2 agents | <span class="status">Done</span> 2026-11-23 |
 | 5 | Operations docs, each procedure run once | <span class="status status--partial">Partial</span> these docs |
-| 6 | Platform add-ons on k3s | Workloads repo: <span class="status status--planned">Planned</span> |
-| 7 | Monitoring and logs for the infrastructure | <span class="status">Done</span> 2026-11-23; k3s monitoring and Grafana follow in the workloads repo |
-| 8 | Apps, Cloudreve first | Workloads repo: <span class="status status--planned">Planned</span> |
-| 9 | My own backend for monitoring and small actions | <span class="status status--planned">Later</span> |
+| 7 | Monitoring and logs for the infrastructure | <span class="status">Done</span> 2026-11-23 |
+| 9 | Platform API, CLI and web UI | <span class="status status--partial">In development</span> |
 
 Outside the repo, still to do:
 
@@ -80,15 +78,12 @@ router and switch, and the query VIP moved when its store stopped. See
 gets run once by following the docs: add a VM, move a VM, roll out VMs, and
 host maintenance.
 
-**Steps 6 and 8** (platform add-ons, Grafana, k3s monitoring and apps) live
-in the separate workloads repo and its own docs. This platform gives them a
-kubeconfig, the [S3 endpoint](../concepts/s3.md), Ceph and the
-[monitoring](../concepts/monitoring.md) data sources.
-
-**Step 9: my own backend.** A small service on the hosts (`services.clusterd`)
-that reads the VM list from the inventory and combines systemd, Kubernetes and
-Ceph status. It can restart a VM, drain and uncordon nodes and put a host in
-maintenance, from a web UI or a laptop CLI. It never defines VMs; Nix does.
+**Step 9: Platform API, CLI and web UI.** `clusterd`, a REST API on all three
+hosts behind `https://api.lan.buunk.org`, with token auth and a read-only
+proxy for metrics and logs; the `hgd1` CLI; and a frontend on k3s at
+`https://console.lan.buunk.org`. What the API can do grows one action at a
+time; it never defines VMs, Nix does. See [Platform API](../concepts/api.md),
+[Use the CLI](../how-to/use-the-cli.md) and [Web UI](../concepts/web-ui.md).
 
 ## Future
 
@@ -97,6 +92,7 @@ maintenance, from a web UI or a laptop CLI. It never defines VMs; Nix does.
 - **Heartbeat:** an always-firing alert to an external service, so silent
   monitoring gets noticed.
 - **Secrets manager (KMS)** for workloads; see [Credentials](credentials.md#future-a-kms).
+- **Single sign-on** for the API, CLI and web UI instead of tokens.
 
 ## Open decisions
 

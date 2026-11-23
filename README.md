@@ -32,13 +32,14 @@ with the OPNsense/Aruba network, remote access and monitoring around them.
 
 ```mermaid
 flowchart TB
-  laptop[Laptop + WARP] -. Cloudflare tunnel .-> hosts
+  laptop[Laptop + WARP<br/>hgd1 CLI · web UI] -. Cloudflare tunnel .-> api
   fw[OPNsense hgd1-fw01] --- sw[Aruba hgd1-sw01] --- hosts
   subgraph hosts [hgd1-hv01 · hgd1-hv02 · hgd1-hv03 — NixOS]
     ceph[(Ceph: 3 HDD OSDs, RBD + S3)]
     s3[S3 endpoint<br/>s3.lan.buunk.org]
     mon[Monitoring<br/>mon.lan.buunk.org]
     vms[microVMs: k3s<br/>3 servers + 2 agents]
+    api[Platform API<br/>api.lan.buunk.org]
   end
   vms --> ceph
   s3 --> ceph
@@ -53,7 +54,8 @@ flowchart TB
 | Object storage | `https://s3.lan.buunk.org`, highly available, Let's Encrypt via DNS-01 | ✅ |
 | Kubernetes | k3s on microVMs, API VIP `k8s.lan.buunk.org`, zone labels per host | ✅ |
 | Monitoring | VictoriaMetrics + VictoriaLogs on every host, router and switch included | ✅ |
-| Workloads | Ingress, Grafana, Postgres, apps: in a separate workloads repo | 🔜 |
+| Platform API | `clusterd` at `api.lan.buunk.org` with the `hgd1` CLI and a web UI on k3s | 🚧 |
+| Workloads | Everything running on k3s lives in a separate workloads repo | ↗️ |
 
 Each layer survives the loss of any one host.
 
@@ -67,6 +69,7 @@ warp-cli connect                     # reach 10.10.0.0/16 from anywhere
 nix flake check --no-build           # evaluate every host and VM, run inventory checks
 scripts/deploy.sh hgd1-hv01 switch   # deploy one host; then the next
 scripts/kubeconfig.sh                # ~/.kube/hgd1.yaml for the k3s cluster
+hgd1 status                          # the platform at a glance, via the API
 ```
 
 New here? Start with
@@ -81,7 +84,7 @@ then read the
 | [`inventory.nix`](inventory.nix) | **Source of truth**: addresses, disks, keys, VMs, k3s and monitoring settings |
 | [`flake.nix`](flake.nix) | One `nixosConfiguration` per host and per VM, plus the dev shell |
 | [`hosts/`](hosts/) | Shared host settings and per-host hardware |
-| [`modules/`](modules/) | Network, Ceph, S3 endpoint, remote access, microVMs, k3s, monitoring |
+| [`modules/`](modules/) | Network, Ceph, S3 endpoint, remote access, microVMs, k3s, monitoring, Platform API |
 | [`lib/`](lib/) | Small pure helpers shared by modules |
 | [`scripts/`](scripts/) | `deploy.sh`, `vm.sh`, `k3s-roll.sh`, `kubeconfig.sh`, `ceph-bootstrap.sh` |
 | [`secrets/`](secrets/) | agenix-encrypted secrets (no plaintext ever) |

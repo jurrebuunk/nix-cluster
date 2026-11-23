@@ -21,6 +21,12 @@ Bootstrap server
 Ceph
 :   Distributed storage that keeps several copies of data across hosts.
 
+CLI (`hgd1`)
+:   The command-line client for the Platform API.
+
+clusterd
+:   The Platform API server that runs on every host.
+
 CRUSH
 :   Ceph's placement algorithm; here it puts each copy on a different host.
 
@@ -55,6 +61,9 @@ OSD
 PG
 :   Placement group: the unit Ceph distributes and recovers.
 
+Platform API
+:   The REST API at `api.lan.buunk.org` for status, metrics, logs and actions.
+
 Probe (blackbox)
 :   A test from the outside: ping, DNS, HTTPS or TLS against a target,
     reported as `probe_success`.
@@ -81,6 +90,9 @@ Syslog
 TAP
 :   A virtual NIC that connects a VM to a host bridge.
 
+Token scope
+:   What an API token may do: `read` (look) or `manage` (also act).
+
 Tunnel (Cloudflare)
 :   An outbound-only connection from `cloudflared` on the hosts to Cloudflare
     that carries remote-access traffic.
@@ -96,7 +108,8 @@ VictoriaMetrics
 
 VIP
 :   A floating IP that Keepalived moves to a healthy machine: `10.10.30.10`
-    (S3), `10.10.40.10` (k3s API) and `10.10.20.10` (monitoring).
+    (S3), `10.10.40.10` (k3s API), `10.10.20.10` (monitoring) and `10.10.20.20`
+    (Platform API).
 
 VLAN
 :   A separate network on shared cables. The third octet of each site address
@@ -110,6 +123,10 @@ VRRP
 
 WARP
 :   Cloudflare's device client (Cloudflare One) used for remote access.
+
+Web UI
+:   The browser dashboard at `console.lan.buunk.org`, a frontend for the
+    Platform API running on k3s.
 
 Zone
 :   The `topology.kubernetes.io/zone` label: the physical host a node runs on.

@@ -28,6 +28,8 @@ nav = [
     "concepts/vms.md",
     "concepts/k3s.md",
     "concepts/monitoring.md",
+    "concepts/api.md",
+    "concepts/web-ui.md",
   ] },
   { "How-to" = [
     "how-to/index.md",
@@ -43,6 +45,7 @@ nav = [
       "how-to/finish-k3s.md",
     ] },
     { "Building on top" = [
+      "how-to/use-the-cli.md",
       "how-to/build-an-app.md",
       "how-to/create-s3-user.md",
     ] },
@@ -63,6 +66,8 @@ nav = [
     "reference/inventory.md",
     "reference/files.md",
     "reference/credentials.md",
+    "reference/api.md",
+    "reference/cli.md",
     "reference/scripts.md",
     "reference/glossary.md",
     "reference/roadmap.md",

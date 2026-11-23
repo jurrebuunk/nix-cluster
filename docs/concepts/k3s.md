@@ -106,6 +106,7 @@ yet.
 scripts/kubeconfig.sh
 kubectl get nodes -L topology.kubernetes.io/zone
 scripts/k3s-roll.sh                 # restart VMs one at a time, safely
+hgd1 vm restart hgd1-k8w01          # one node, through the Platform API
 ```
 
 - [Restart k3s nodes](../how-to/restart-k3s-nodes.md)

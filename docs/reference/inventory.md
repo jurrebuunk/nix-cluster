@@ -20,6 +20,7 @@ secret. Modules and scripts read it; `nix flake check` validates it.
 | `vms` | One entry per VM (below) |
 | `k3s` | Cluster settings (below) |
 | `monitoring` | Monitoring settings (below) |
+| `api` | Platform API settings (below) |
 | `remoteAccess` | `tunnelId` (null turns the module off) and `routes` |
 | `adminKeys` | SSH public keys for login and agenix (my laptop) |
 
@@ -76,6 +77,14 @@ secret. Modules and scripts read it; `nix flake check` validates it.
 | `retention.metrics`, `retention.logs` | `1y`, `90d` |
 | `router`, `switch` | `name` and `ip`; scraped by every host, mapped to names in logs |
 | `pingTargets` | Extra machines to ping, e.g. `hgd1-gpu1` |
+
+## api
+
+| Field | Meaning |
+| --- | --- |
+| `hostname`, `virtualIP` | `api.lan.buunk.org`, `10.10.20.20` |
+| `virtualRouterId` | VRRP ID (21) |
+| `webOrigin` | `https://console.lan.buunk.org`, the only origin allowed for browser calls |
 
 ## Checks
 

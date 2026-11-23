@@ -40,8 +40,9 @@ flowchart LR
   VictoriaMetrics and VictoriaLogs both answer.
 - **Data on local NVMe**, not on Ceph: monitoring must not depend on what it
   monitors.
-- **Dashboards come later.** Grafana will run on k3s from the workloads repo
-  and use the VIP as its data sources. Until then, both stores have a web UI.
+- **Who reads it:** the [Platform API](api.md) proxies the query endpoints with
+  token auth, so the `hgd1` CLI and the [web UI](web-ui.md) never talk to the
+  stores directly. Both stores also have their own web UI over WARP.
 
 ## How it works
 
@@ -124,9 +125,15 @@ curl -s http://mon.lan.buunk.org:9428/select/logsql/query \
 ssh jurre@10.10.20.11 'curl -s 127.0.0.1:8429/api/v1/targets' | jq -r '.data.activeTargets[] | "\(.health) \(.labels.job) \(.labels.instance)"'
 ```
 
-**Grafana later:** add a Prometheus data source
-`http://mon.lan.buunk.org:8428` and a VictoriaLogs data source
-`http://mon.lan.buunk.org:9428`. From k3s this needs one OPNsense rule:
+**Through the API** (token auth), the usual way:
+
+```sh
+hgd1 metrics query 'probe_success == 0'
+hgd1 logs --host hgd1-fw01 --since 1h
+```
+
+A Grafana can also use `http://mon.lan.buunk.org:8428` (Prometheus type) and
+`:9428` (VictoriaLogs) directly; from k3s that needs one OPNsense rule:
 K8S → `10.10.20.10` on TCP 8428 and 9428.
 
 ## Troubleshooting
@@ -149,4 +156,4 @@ See [Troubleshooting → Monitoring](../operate/troubleshooting.md#monitoring).
 
 ## Related
 
-- [Hosts](hosts.md) · [Ceph](ceph.md) · [Health check](../operate/index.md)
+- [Platform API](api.md) · [Hosts](hosts.md) · [Ceph](ceph.md) · [Health check](../operate/index.md)

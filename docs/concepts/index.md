@@ -17,8 +17,8 @@ changing anything; the other concept pages assume you know it.
 - **Ceph on the hosts provides storage** for everything that runs on k3s.
 - **One host may fail at any time** without losing data or the services built
   on top.
-- **Later:** a small self-written backend for monitoring and simple actions
-  (restart a VM, put a host in maintenance), usable from a web UI or a CLI.
+- **One API to manage it all:** the [Platform API](api.md) on every host, used
+  by the `hgd1` CLI and the web UI, with auth and an audit trail.
 
 ## Hardware
 
@@ -58,7 +58,9 @@ flowchart TB
     vm1[microVM: k3s server]
     vm2[microVM: k3s agent]
     mon[Monitoring<br/>VictoriaMetrics + VictoriaLogs]
+    api[Platform API<br/>clusterd]
     os --- mon
+    os --- api
     os --- ceph
     os --- s3
     os --- vm1
@@ -85,7 +87,10 @@ flowchart TB
    [k3s](k3s.md).
 7. **Monitoring.** Metrics and logs for everything above, stored on every
    host and queried through `mon.lan.buunk.org`. See [Monitoring](monitoring.md).
-8. **Workloads.** Everything that runs on Kubernetes lives in a separate
+8. **Platform API.** `clusterd` on every host behind `api.lan.buunk.org`:
+   status, metrics, logs and actions with token auth, for the `hgd1` CLI and
+   the web UI. See [Platform API](api.md).
+9. **Workloads.** Everything that runs on Kubernetes lives in a separate
    repo that only needs a kubeconfig. See [Build on top](../how-to/build-an-app.md).
 
 ## Decisions
@@ -172,5 +177,7 @@ Possible later roles: `st` (storage), `db`, `lb` and `bk` (backup).
 - :lucide-box: [**VMs**](vms.md): microVMs defined in Nix
 - :lucide-ship-wheel: [**k3s**](k3s.md): the Kubernetes cluster
 - :lucide-activity: [**Monitoring**](monitoring.md): metrics and logs for everything above
+- :lucide-webhook: [**Platform API**](api.md): one authenticated endpoint for the CLI and web UI
+- :lucide-layout-dashboard: [**Web UI**](web-ui.md): the browser dashboard on k3s
 
 </div>
