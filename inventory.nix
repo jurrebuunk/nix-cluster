@@ -118,6 +118,20 @@
     bootstrapServer = "hgd1-k8m01";
   };
 
+  # Metrics and logs on the hosts (modules/monitoring/, docs/concepts/monitoring.md).
+  # Every host stores a full copy; the VIP is the query address for Grafana.
+  monitoring = {
+    hostname = "mon.lan.buunk.org";
+    virtualIP = "10.10.20.10";
+    virtualRouterId = 20;
+    retention = { metrics = "1y"; logs = "90d"; };
+    # Scraped by every host; they send syslog to the VIP.
+    router = { name = "hgd1-fw01"; ip = "10.10.10.1"; };
+    switch = { name = "hgd1-sw01"; ip = "10.10.10.2"; };
+    # Machines outside this repo that only get a ping probe.
+    pingTargets = { hgd1-gpu1 = "10.10.20.50"; };
+  };
+
   # Cloudflare Tunnel for remote admin access (modules/remote-access.nix).
   # Tunnel hgd1-admin; null keeps the module off.
   remoteAccess = {

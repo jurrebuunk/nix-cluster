@@ -40,6 +40,7 @@
             ./modules/ceph.nix
             ./modules/s3-ha
             ./modules/remote-access.nix
+            ./modules/monitoring
             (./hosts + "/${host}")
           ];
         }) inventory.hosts) // guestConfigurations;

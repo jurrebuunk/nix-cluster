@@ -9,6 +9,7 @@ in
     ./networking.nix
     ./access.nix
     ./k3s
+    ./monitoring.nix
   ];
 
   # Ceph 20's kernel-client auth cipher needs Linux >= 7. Guest kernel only.

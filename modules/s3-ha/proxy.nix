@@ -39,6 +39,13 @@ lib.mkIf cfg.enable {
         bind 127.0.0.1:9443 ssl crt ${certificate} alpn http/1.1
         http-request return status 200 content-type text/plain string ready
 
+      # Loopback only: metrics for the monitoring (modules/monitoring/).
+      frontend metrics
+        bind 127.0.0.1:8405
+        no log
+        http-request use-service prometheus-exporter if { path /metrics }
+        http-request return status 404
+
       backend rgw
         balance leastconn
         option httpchk
