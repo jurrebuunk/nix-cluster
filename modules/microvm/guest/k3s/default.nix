@@ -49,6 +49,7 @@ in
     extraKubeletConfig.podLogsDir = "/var/lib/kubelet-pod-logs";
     extraFlags = [
       "--flannel-iface=k8s"
+      "--resolv-conf=/etc/k3s-resolv.conf"
     ]
     ++ lib.optionals isServer [
       "--tls-san=${cfg.apiName}"
@@ -58,6 +59,15 @@ in
       "--etcd-snapshot-retention=20"
     ];
   };
+
+  # Pods and CoreDNS resolve through this file, not the VM's: without the
+  # `search lan.buunk.org` the VM has. OPNsense answers NOERROR (no address)
+  # for any name under lan.buunk.org, even ones that don't exist, and musl
+  # (Alpine images) stops searching there, so "svc.svc.cluster.local" names
+  # failed to resolve. Full names like s3.lan.buunk.org still work.
+  environment.etc."k3s-resolv.conf".text = ''
+    nameserver ${inventory.vlans.k8s.gateway}
+  '';
 
   # The node password must survive reboots, or the servers reject the node.
   systemd.tmpfiles.rules = [
