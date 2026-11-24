@@ -1,5 +1,5 @@
-# Query, ingest and syslog ports on the management NIC; log ingest from VMs on
-# the storage bridge; VRRP only from the exact peers.
+# Query, ingest and syslog ports on the management NIC; ingest from VMs (and
+# pods on them) on the storage bridge; VRRP only from the exact peers.
 { config, lib, inventory, ... }:
 let
   host = inventory.hosts.${config.networking.hostName};
@@ -23,8 +23,12 @@ in
       ];
       allowedUDPPorts = [ 514 ];
     };
-    # Log ingest from the VMs' storage NICs.
-    interfaces.br-stor.allowedTCPPorts = [ 9428 ];
+    # Ingest from the VMs' storage NICs: their own logs, and the metrics and
+    # pod logs the k3s cluster's vmagent and Vector send (no router involved).
+    interfaces.br-stor.allowedTCPPorts = [
+      8428
+      9428
+    ];
     extraCommands = vrrpRules;
     extraStopCommands = removeVrrpRules;
   };

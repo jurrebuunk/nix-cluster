@@ -57,7 +57,8 @@ Source: the whole home network `192.168.2.0/24`, destination the WAN address
 | `br-stor` | TCP 9283 | Ceph manager metrics |
 | `br-stor` | TCP 443 | S3 endpoint (HAProxy) |
 | `br-stor` | VRRP | Only from the other two hosts, TTL 255 |
-| `br-stor` | TCP 9428 | VictoriaLogs ingest from the VMs |
+| `br-stor` | TCP 8428 | VictoriaMetrics remote write from k3s (vmagent in `hgd1-k8s`) |
+| `br-stor` | TCP 9428 | VictoriaLogs ingest from the VMs and from k3s (Vector in `hgd1-k8s`) |
 | `enp2s0` | TCP 8428 | VictoriaMetrics: queries, remote write from peers |
 | `enp2s0` | TCP 9428 | VictoriaLogs: queries, ingest from peers |
 | `enp2s0` | TCP/UDP 514 | Syslog from router and switch |
