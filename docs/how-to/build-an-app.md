@@ -152,6 +152,21 @@ chart's external-database settings at the Cluster and its Secret.
 
 Removing the app removes its database; its backups stay in S3 for 14 days.
 
+## Logins
+
+Public apps with users log in through Keycloak (`https://auth.buunk.org`,
+realm `hgd1`) over OIDC: issuer `https://auth.buunk.org/realms/hgd1`.
+
+- **The app's client** (client ID, secret, redirect addresses, its roles,
+  and which group gets which role) is code in `hgd1-k8s`, in the same commit
+  as the app.
+- **People** are not code: accounts and their groups (`admins`, `family`,
+  `friends`) are managed in the admin console
+  (`kubectl -n keycloak port-forward svc/keycloak-service 8080`, then
+  `http://localhost:8080/admin/`; it is not public).
+- The app turns groups and roles from the login token into its own
+  permissions; check that it supports reading them.
+
 ## Exposing
 
 Public apps go out through a Cloudflare Tunnel that runs in the cluster

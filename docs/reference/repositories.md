@@ -43,6 +43,13 @@ flowchart LR
 - **Nix or Flux.** What has to exist before Kubernetes works, or keep
   working when it's broken, comes from this repo (hosts, Ceph, S3, k3s with
   CoreDNS, `clusterd`); what runs as pods comes from `hgd1-k8s` through Flux.
+- **Inside `hgd1-k8s`, layers by dependency:** `infrastructure` (controllers
+  and operators), `config`, `platform` (shared services such as Keycloak),
+  `apps`. Flux applies each after the one before.
+- **Off-the-shelf software or your own.** Software that is only configured
+  (Keycloak, Cloudreve) lives in `hgd1-k8s` as manifests or a HelmRelease.
+  Your own software (`lab-console`, new projects) has its own repo with the
+  code, CI and a `deploy/` folder; `hgd1-k8s/apps/` only points Flux at it.
 - **Package and module in the tool's repo, configuration here.** `clusterd`
   exports `packages.clusterd`, `packages.labctl` and `nixosModules.clusterd`;
   this repo sets the options.
