@@ -35,10 +35,14 @@ in
     nodeIP = vm.ip.k8s;
     # Registration-time only: a moved VM is deleted and rejoins (docs/concepts/k3s.md).
     nodeLabel = [ "topology.kubernetes.io/zone=${vm.host}" ];
-    # Ingress and load balancers come from the workloads repo.
+    # Ingress and load balancers come from the workloads repo; metrics-server
+    # and local-path are installed by Flux from hgd1-k8s. CoreDNS stays: Flux
+    # needs it to start.
     disable = lib.optionals isServer [
       "traefik"
       "servicelb"
+      "metrics-server"
+      "local-storage"
     ];
     gracefulNodeShutdown.enable = true;
     # Root is tmpfs: keep container logs on the NVMe volume, not in RAM.

@@ -30,10 +30,11 @@ builds the cluster; what runs on it lives in [`hgd1-k8s`](../reference/repositor
   spread over three zones needs a schedulable node in each.
 - **Networking:** flannel VXLAN over the `k8s` NIC; pods `10.42.0.0/16`,
   services `10.43.0.0/16`.
-- **Add-ons:** CoreDNS stays with k3s (Flux needs DNS to start).
-  metrics-server and `local-path` still come from k3s, until `hgd1-k8s`
-  takes them over with Flux. Traefik and ServiceLB are off; public access
-  (a Cloudflare Tunnel) and later local ingress come from `hgd1-k8s`.
+- **Add-ons:** only CoreDNS comes with k3s (Flux needs DNS to start).
+  metrics-server, `local-path` (same name and path,
+  `/var/lib/rancher/k3s/storage`), public access (a Cloudflare Tunnel) and
+  later local ingress come from `hgd1-k8s`. Traefik, ServiceLB,
+  metrics-server and local-storage are disabled in k3s.
 
 ## How it works
 
