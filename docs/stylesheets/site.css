@@ -1,0 +1,7 @@
+/* This site's colour (the three are defined in flatwork.css). */
+:root {
+  --site: var(--cluster);
+  --site-light: var(--cluster-light);
+  --site-dark: var(--cluster-dark);
+  --site-soft: var(--cluster-soft);
+}

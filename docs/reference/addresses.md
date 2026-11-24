@@ -4,10 +4,16 @@ icon: lucide/map-pin
 
 # Addresses
 
-Every fixed address in one place. The source of truth is
-[`inventory.nix`](https://github.com/jurrebuunk/nix-hgd1-cluster/blob/main/inventory.nix)
-for hosts and VMs, and [`hgd1-network`](https://github.com/jurrebuunk/hgd1-network) for the router, switch and DNS. DNS names are
-in `lan.buunk.org`.
+Every address of the hosts, VMs and their services. The source of truth is
+[`inventory.nix`](https://github.com/jurrebuunk/nix-hgd1-cluster/blob/main/inventory.nix).
+DNS names are in `lan.buunk.org`.
+
+!!! network "On the network docs: router, switch and ports"
+
+    The router and switch addresses, switch ports, reserved ranges and DHCP.
+
+    [Network addresses](https://github.com/jurrebuunk/hgd1-network/blob/main/docs/addresses.md){ .md-button }
+
 
 ## VLANs
 
@@ -26,8 +32,6 @@ Kept free: `10.42.0.0/16` (k3s pods) and `10.43.0.0/16` (k3s services).
 
 | Name | mgmt (10) | infra (20) | storage (30) | k8s (40) | other |
 | --- | --- | --- | --- | --- | --- |
-| `hgd1-fw01` (OPNsense) | `10.10.10.1` | `10.10.20.1` | – | `10.10.40.1` | users `10.10.100.1`, WAN `192.168.2.12` |
-| `hgd1-sw01` (Aruba) | `10.10.10.2` | – | – | – | – |
 | `hgd1-hv01` | – | `10.10.20.11` | `10.10.30.11` | – | – |
 | `hgd1-hv02` | – | `10.10.20.12` | `10.10.30.12` | – | – |
 | `hgd1-hv03` | – | `10.10.20.13` | `10.10.30.13` | – | – |
@@ -48,7 +52,7 @@ Kept free: `10.42.0.0/16` (k3s pods) and `10.43.0.0/16` (k3s services).
 | `mon.lan.buunk.org` | `10.10.20.10`: metrics `:8428`, logs `:9428`, syslog `:514` | Keepalived on the hosts (VRRP id 20) |
 | `api.lan.buunk.org` | `10.10.20.20:443` | Keepalived on the hosts (VRRP id 21), `clusterd` |
 | `lab.buunk.org` | A load balancer IP in `10.10.40.200–249` (internal DNS for now) | Web UI (`lab-console`) on k3s |
-| Kubernetes load balancers | `10.10.40.200–249` | Reserved for MetalLB in `hgd1-k8s`, for later LAN-only services; public apps use the tunnel |
+| Kubernetes load balancers | `10.10.40.200–249` | Reserved for MetalLB in `hgd1-k8s`, for later LAN-only services; public apps use the [tunnel](https://jurrebuunk.github.io/hgd1-k8s/concepts/public-access/) |
 | Ceph monitors | `10.10.30.11–13`, ports 3300 (v2) and 6789 (v1) | Ceph |
 | RGW (direct, diagnostics) | `10.10.30.11–13:7480` | Ceph |
 | Ceph manager metrics | `<storage-ip>:9283` | Active manager |
@@ -61,21 +65,9 @@ Kept free: `10.42.0.0/16` (k3s pods) and `10.43.0.0/16` (k3s services).
 | `hgd1-hv01` `enp2s0` | `fc:3f:db:10:c6:c9` |
 | `hgd1-hv02` `enp2s0` | `fc:3f:db:0a:b1:c3` |
 | `hgd1-hv03` `enp2s0` | `fc:3f:db:0a:c1:42` |
-| OPNsense WAN (`re0`) | `90:1b:0e:fa:70:dd` |
 | `win11-gaming` | `52:54:00:39:2c:95` |
 | VM k8s NIC | `02:00:00:40:00:<id in hex>` |
 | VM storage NIC | `02:00:00:30:00:<id in hex>` |
-
-## Switch ports
-
-| Port | Connected to |
-| --- | --- |
-| 1 | Management recovery (untagged 10) |
-| 2, 4, 48 | Wired users (untagged 100) |
-| 5 / 7 / 9 | `hgd1-hv01` / `hgd1-hv02` / `hgd1-hv03` (untagged 20, tagged 30, 40) |
-| 14 | OPNsense trunk `igb0` (untagged 10, tagged 20, 40, 100) |
-| 16, 18 | Spare router links, disabled |
-| 19 | `hgd1-gpu1` (untagged 20, tagged 100) |
 
 ## Remote access
 

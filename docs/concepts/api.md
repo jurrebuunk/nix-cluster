@@ -15,7 +15,7 @@ icon: lucide/webhook
 `clusterd` is a small REST API that runs on all three hypervisors behind one
 highly available address, **`https://api.lan.buunk.org`**. It is the single,
 authenticated entry point for managing and developing on the platform: the
-[CLI](../how-to/use-the-cli.md) and the [web UI](web-ui.md) talk to it, never
+[CLI](../how-to/use-the-cli.md) and the [web UI](https://jurrebuunk.github.io/hgd1-k8s/concepts/web-ui/) talk to it, never
 to the hosts, Ceph or the monitoring stores directly.
 
 !!! info "At a glance"
@@ -74,7 +74,7 @@ Two layers, both required:
     | Scope | For | Allows |
     | --- | --- | --- |
     | `read` | Dashboards, scripts | Status, metrics and logs |
-    | `operator` | The [web UI](web-ui.md)'s proxy | `read` plus a few safe actions |
+    | `operator` | The [web UI](https://jurrebuunk.github.io/hgd1-k8s/concepts/web-ui/)'s proxy | `read` plus a few safe actions |
     | `manage` | The CLI over WARP | Everything |
 
     Token hashes live in the agenix secret `secrets/api-tokens.age`; the plain
@@ -320,4 +320,4 @@ See [Troubleshooting → API](../operate/troubleshooting.md#api).
 ## Related
 
 - [API reference](../reference/api.md) · [Use the CLI](../how-to/use-the-cli.md) ·
-  [Web UI](web-ui.md) · [Monitoring](monitoring.md)
+  [Web UI](https://jurrebuunk.github.io/hgd1-k8s/concepts/web-ui/) · [Monitoring](monitoring.md)

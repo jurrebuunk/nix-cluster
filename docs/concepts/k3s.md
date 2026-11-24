@@ -135,4 +135,4 @@ See [Troubleshooting → k3s node](../operate/troubleshooting.md#k3s-node-not-re
 
 ## Related
 
-- [Build an app](../how-to/build-an-app.md) · [VMs](vms.md)
+- [Build an app](https://jurrebuunk.github.io/hgd1-k8s/how-to/build-an-app/) · [VMs](vms.md)

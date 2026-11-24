@@ -136,4 +136,4 @@ for what each warning means.
 
 ## Related
 
-- [S3 endpoint](s3.md) · [Build an app](../how-to/build-an-app.md)
+- [S3 endpoint](s3.md) · [Build an app](https://jurrebuunk.github.io/hgd1-k8s/how-to/build-an-app/)

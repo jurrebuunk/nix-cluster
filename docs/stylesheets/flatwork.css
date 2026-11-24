@@ -1,5 +1,15 @@
-/* Two colours from jurrebuunk/flatwork-ui (theme hue-gradient-design):
-   the background #1b1818 and the primary technical blue #8aa1a8. */
+/* The hgd1 docs: three sites with one look, each in its own colour from
+   jurrebuunk/flatwork-ui (theme hue-gradient-design) on the background
+   #1b1818. This file is IDENTICAL in nix-hgd1-cluster, hgd1-k8s and
+   hgd1-network (docs/stylesheets/flatwork.css): change it in all three.
+   Each site picks its colour in its own stylesheets/site.css. */
+
+/* The three sites. */
+:root {
+  --cluster: #8aa1a8;  --cluster-light: #a5bbc2;  --cluster-dark: #6f868d;  --cluster-soft: #8aa1a81a;
+  --k8s: #8fae9a;      --k8s-light: #a9c9b4;      --k8s-dark: #74917e;      --k8s-soft: #8fae9a1a;
+  --network: #c2a27d;  --network-light: #d8bb96;  --network-dark: #a38663;  --network-soft: #c2a27d1a;
+}
 [data-md-color-scheme="slate"] {
   --md-default-bg-color: #1b1818;
   --md-default-bg-color--light: #1b1818e6;
@@ -7,15 +17,15 @@
   --md-default-bg-color--lightest: #1b18181f;
   --md-footer-bg-color--dark: #1b1818;
 
-  --md-primary-fg-color: #8aa1a8;
-  --md-primary-fg-color--light: #a5bbc2;
-  --md-primary-fg-color--dark: #6f868d;
+  --md-primary-fg-color: var(--site);
+  --md-primary-fg-color--light: var(--site-light);
+  --md-primary-fg-color--dark: var(--site-dark);
   --md-primary-bg-color: #1b1818;
   --md-primary-bg-color--light: #1b1818b3;
-  --md-accent-fg-color: #8aa1a8;
-  --md-accent-fg-color--transparent: #8aa1a81a;
+  --md-accent-fg-color: var(--site);
+  --md-accent-fg-color--transparent: var(--site-soft);
   --md-accent-bg-color: #1b1818;
-  --md-typeset-a-color: #8aa1a8;
+  --md-typeset-a-color: var(--site);
 
   /* Code surfaces: a lighter shade of the background instead of the
      theme's cold blue tint. */
@@ -67,7 +77,7 @@
 
 .md-typeset .repo > .admonition-title,
 .md-typeset .repo > summary {
-  background-color: #8aa1a81a;
+  background-color: var(--site-soft);
 }
 
 .md-typeset .repo > .admonition-title::before,
@@ -75,4 +85,97 @@
   background-color: var(--md-primary-fg-color);
   -webkit-mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNMjE2LjUgMzYyLjVjLTY2LTgtMTEyLjUtNTUuNS0xMTIuNS0xMTcgMC0yNSA5LTUyIDI0LTcwLTYuNS0xNi41LTUuNS01MS41IDItNjYgMjAtMi41IDQ3IDggNjMgMjIuNSAxOS02IDM5LTkgNjMuNS05czQ0LjUgMyA2Mi41IDguNWMxNS41LTE0IDQzLTI0LjUgNjMtMjIgNyAxMy41IDggNDguNSAxLjUgNjUuNSAxNiAxOSAyNC41IDQ0LjUgMjQuNSA3MC41IDAgNjEuNS00Ni41IDEwOC0xMTMuNSAxMTYuNSAxNyAxMSAyOC41IDM1IDI4LjUgNjIuNXY1MmMwIDE1IDEyLjUgMjMuNSAyNy41IDE3LjVDNDQxIDQ1OS41IDUxMiAzNjkgNTEyIDI1NyA1MTIgMTE1LjUgMzk3IDAgMjU1LjUgMFMwIDExNS41IDAgMjU3YzAgMTExIDcwLjUgMjAzIDE2NS41IDIzNy41IDEzLjUgNSAyNi41LTQgMjYuNS0xNy41di00MGMtNyAzLTE2IDUtMjQgNS0zMyAwLTUyLjUtMTgtNjYuNS01MS41LTUuNS0xMy41LTExLjUtMjEuNS0yMy0yMy02LS41LTgtMy04LTYgMC02IDEwLTEwLjUgMjAtMTAuNSAxNC41IDAgMjcgOSA0MCAyNy41IDEwIDE0LjUgMjAuNSAyMSAzMyAyMXMyMC41LTQuNSAzMi0xNmM4LjUtOC41IDE1LTE2IDIxLTIxIi8+PC9zdmc+");
   mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNMjE2LjUgMzYyLjVjLTY2LTgtMTEyLjUtNTUuNS0xMTIuNS0xMTcgMC0yNSA5LTUyIDI0LTcwLTYuNS0xNi41LTUuNS01MS41IDItNjYgMjAtMi41IDQ3IDggNjMgMjIuNSAxOS02IDM5LTkgNjMuNS05czQ0LjUgMyA2Mi41IDguNWMxNS41LTE0IDQzLTI0LjUgNjMtMjIgNyAxMy41IDggNDguNSAxLjUgNjUuNSAxNiAxOSAyNC41IDQ0LjUgMjQuNSA3MC41IDAgNjEuNS00Ni41IDEwOC0xMTMuNSAxMTYuNSAxNyAxMSAyOC41IDM1IDI4LjUgNjIuNXY1MmMwIDE1IDEyLjUgMjMuNSAyNy41IDE3LjVDNDQxIDQ1OS41IDUxMiAzNjkgNTEyIDI1NyA1MTIgMTE1LjUgMzk3IDAgMjU1LjUgMFMwIDExNS41IDAgMjU3YzAgMTExIDcwLjUgMjAzIDE2NS41IDIzNy41IDEzLjUgNSAyNi41LTQgMjYuNS0xNy41di00MGMtNyAzLTE2IDUtMjQgNS0zMyAwLTUyLjUtMTgtNjYuNS01MS41LTUuNS0xMy41LTExLjUtMjEuNS0yMy0yMy02LS41LTgtMy04LTYgMC02IDEwLTEwLjUgMjAtMTAuNSAxNC41IDAgMjcgOSA0MCAyNy41IDEwIDE0LjUgMjAuNSAyMSAzMyAyMXMyMC41LTQuNSAzMi0xNmM4LjUtOC41IDE1LTE2IDIxLTIxIi8+PC9zdmc+");
+}
+
+/* Header: which docs these are. The site name ("hgd1 Cluster") in the
+   site's colour and a line in that colour under the header. */
+.md-header {
+  border-bottom: 3px solid var(--site);
+}
+
+.md-header__title .md-header__topic:first-child {
+  color: var(--site);
+  font-weight: 700;
+}
+
+.md-header .md-logo {
+  color: var(--site);
+}
+
+/* Links and buttons to another site take that site's colour, so it's clear
+   before clicking that the page is on other docs. */
+.md-typeset a[href^="https://jurrebuunk.github.io/nix-hgd1-cluster"],
+.md-tabs__link[href^="https://jurrebuunk.github.io/nix-hgd1-cluster"] {
+  --site-link: var(--cluster);
+  --site-link-light: var(--cluster-light);
+}
+
+.md-typeset a[href^="https://jurrebuunk.github.io/hgd1-k8s"],
+.md-tabs__link[href^="https://jurrebuunk.github.io/hgd1-k8s"] {
+  --site-link: var(--k8s);
+  --site-link-light: var(--k8s-light);
+}
+
+/* The network docs aren't hosted yet; until then they're read on GitHub. */
+.md-typeset a[href^="https://github.com/jurrebuunk/hgd1-network/blob/main/docs"],
+.md-tabs__link[href^="https://github.com/jurrebuunk/hgd1-network/blob/main/docs"] {
+  --site-link: var(--network);
+  --site-link-light: var(--network-light);
+}
+
+.md-typeset a[href^="https://jurrebuunk.github.io/nix-hgd1-cluster"]:not(.md-button),
+.md-typeset a[href^="https://jurrebuunk.github.io/hgd1-k8s"]:not(.md-button),
+.md-typeset a[href^="https://github.com/jurrebuunk/hgd1-network/blob/main/docs"]:not(.md-button) {
+  color: var(--site-link);
+  text-decoration: underline dotted;
+  text-underline-offset: 0.2em;
+}
+
+.md-typeset a[href^="https://jurrebuunk.github.io/nix-hgd1-cluster"]:not(.md-button):hover,
+.md-typeset a[href^="https://jurrebuunk.github.io/hgd1-k8s"]:not(.md-button):hover,
+.md-typeset a[href^="https://github.com/jurrebuunk/hgd1-network/blob/main/docs"]:not(.md-button):hover {
+  color: var(--site-link-light);
+}
+
+.md-typeset .md-button[href^="https://jurrebuunk.github.io/nix-hgd1-cluster"],
+.md-typeset .md-button[href^="https://jurrebuunk.github.io/hgd1-k8s"],
+.md-typeset .md-button[href^="https://github.com/jurrebuunk/hgd1-network/blob/main/docs"] {
+  border-color: var(--site-link);
+  background-color: var(--site-link);
+  color: #1b1818;
+}
+
+.md-typeset .md-button[href^="https://jurrebuunk.github.io/nix-hgd1-cluster"]:hover,
+.md-typeset .md-button[href^="https://jurrebuunk.github.io/hgd1-k8s"]:hover,
+.md-typeset .md-button[href^="https://github.com/jurrebuunk/hgd1-network/blob/main/docs"]:hover {
+  border-color: var(--site-link-light);
+  background-color: var(--site-link-light);
+}
+
+/* The other sites in the tab bar. */
+.md-tabs__link[href^="https://"] {
+  color: var(--site-link);
+  opacity: 1;
+}
+
+/* "On other docs" card: !!! cluster|k8s|network "…" with a button to the
+   page. Drawn in that site's colour. */
+.md-typeset .admonition.cluster, .md-typeset details.cluster { --card: var(--cluster); --card-soft: var(--cluster-soft); }
+.md-typeset .admonition.k8s, .md-typeset details.k8s { --card: var(--k8s); --card-soft: var(--k8s-soft); }
+.md-typeset .admonition.network, .md-typeset details.network { --card: var(--network); --card-soft: var(--network-soft); }
+
+.md-typeset .admonition:is(.cluster, .k8s, .network),
+.md-typeset details:is(.cluster, .k8s, .network) {
+  border-color: var(--card);
+}
+
+.md-typeset :is(.cluster, .k8s, .network) > :is(.admonition-title, summary) {
+  background-color: var(--card-soft);
+}
+
+.md-typeset :is(.cluster, .k8s, .network) > :is(.admonition-title, summary)::before {
+  background-color: var(--card);
+  --card-icon: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik0xNSAzaDZ2NiIvPjxwYXRoIGQ9Ik0xMCAxNCAyMSAzIi8+PHBhdGggZD0iTTE4IDEzdjZhMiAyIDAgMCAxLTIgMkg1YTIgMiAwIDAgMS0yLTJWOGEyIDIgMCAwIDEgMi0yaDYiLz48L3N2Zz4=");
+  -webkit-mask-image: var(--card-icon);
+  mask-image: var(--card-icon);
 }

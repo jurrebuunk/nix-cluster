@@ -41,7 +41,7 @@ flowchart LR
 - **Data on local NVMe**, not on Ceph: monitoring must not depend on what it
   monitors.
 - **Who reads it:** the [Platform API](api.md) proxies the query endpoints with
-  token auth, so the `labctl` CLI and the [web UI](web-ui.md) never talk to the
+  token auth, so the `labctl` CLI and the [web UI](https://jurrebuunk.github.io/hgd1-k8s/concepts/web-ui/) never talk to the
   stores directly. Both stores also have their own web UI over WARP.
 
 ## How it works
@@ -78,14 +78,15 @@ time they arrive, because classic syslog carries no timezone.
 
 ### From k3s
 
-`hgd1-k8s` runs its own collectors in the cluster, writing into these same
-stores: vmagent (kubelets, cAdvisor, kube-state-metrics, and pods or services
-annotated with `prometheus.io/scrape`) with the label `cluster="hgd1-k8s"`,
-and Vector with every container's output (`host` = node, `unit` = container,
-plus `namespace` and `pod`). Both write to each host's storage IP
-(`10.10.30.11–13`, ports 8428 and 9428), the way the VMs ship their own
-logs, so no router rule is involved and a host that is down catches up
-later.
+Collectors in the cluster (vmagent, kube-state-metrics, Vector) write pod
+metrics and logs into these same stores, through each host's storage IP
+(`10.10.30.11–13`, ports 8428 and 9428), with `cluster="hgd1-k8s"`.
+
+!!! k8s "On the Kubernetes docs: monitoring"
+
+    What the cluster collects and how an app gets its metrics scraped.
+
+    [Kubernetes monitoring](https://jurrebuunk.github.io/hgd1-k8s/concepts/monitoring/){ .md-button }
 
 ### Query address
 
@@ -106,7 +107,7 @@ between the three hosts). Returning hosts don't take it back.
 | `lib/logs.nix` | Shared Vector pieces: field cleanup, one buffered sink per host |
 | `secrets/snmp-community.age` | snmp_exporter auth file with the switch's read-only community |
 
-On the devices, configured through [`hgd1-network`](https://github.com/jurrebuunk/hgd1-network): OPNsense has the
+On the devices, configured as described on the [network docs](https://github.com/jurrebuunk/hgd1-network/blob/main/docs/router-and-switch.md): OPNsense has the
 `os-node_exporter` plugin (listening on `10.10.10.1`) and a syslog destination
 to `10.10.20.10`; the Aruba has a read-only SNMP community and
 `logging 10.10.20.10`.

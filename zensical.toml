@@ -1,8 +1,10 @@
-# Documentation site (Zensical). Preview: nix develop, then zensical serve.
+# The cluster docs (Zensical), one of the three hgd1 doc sites:
+# Kubernetes (hgd1-k8s), network (hgd1-network) and this one.
+# Preview: nix develop, then zensical serve.
 # Published to GitHub Pages by .github/workflows/docs.yml on every push to main.
 [project]
-site_name = "hgd1 homelab"
-site_description = "NixOS, Ceph and k3s on three small nodes, with the site network around them"
+site_name = "hgd1 Cluster"
+site_description = "NixOS, Ceph, the S3 endpoint, microVMs and k3s on three small nodes"
 site_author = "Jurre Buunk"
 site_url = "https://jurrebuunk.github.io/nix-hgd1-cluster/"
 repo_url = "https://github.com/jurrebuunk/nix-hgd1-cluster"
@@ -29,7 +31,6 @@ nav = [
     "concepts/k3s.md",
     "concepts/monitoring.md",
     "concepts/api.md",
-    "concepts/web-ui.md",
   ] },
   { "How-to" = [
     "how-to/index.md",
@@ -45,18 +46,15 @@ nav = [
     ] },
     { "Building on top" = [
       "how-to/use-the-cli.md",
-      "how-to/build-an-app.md",
       "how-to/create-s3-user.md",
     ] },
   ] },
   { "Operate" = [
     "operate/index.md",
     "operate/host-maintenance.md",
-    "operate/router-and-switch.md",
     "operate/disk-replacement.md",
     "operate/troubleshooting.md",
     "operate/disaster-recovery.md",
-    "operate/rebuild-network.md",
   ] },
   { "Reference" = [
     "reference/index.md",
@@ -72,10 +70,15 @@ nav = [
     "reference/glossary.md",
     "reference/roadmap.md",
   ] },
+  # The other two doc sites, in their own colour. The network docs aren't
+  # hosted yet (private repo): GitHub until then.
+  { "Kubernetes docs ↗" = "https://jurrebuunk.github.io/hgd1-k8s/" },
+  { "Network docs ↗" = "https://github.com/jurrebuunk/hgd1-network/blob/main/docs/index.md" },
 ]
 
-# Bump ?v= when the stylesheet changes, so browsers drop their cached copy.
-extra_css = ["stylesheets/flatwork.css?v=2"]
+# flatwork.css is the same on all three sites; site.css sets this site's colour.
+# Bump ?v= when a stylesheet changes, so browsers drop their cached copy.
+extra_css = ["stylesheets/flatwork.css?v=3", "stylesheets/site.css?v=1"]
 
 [project.theme]
 language = "en"
@@ -104,7 +107,7 @@ features = [
 logo = "lucide/server"
 repo = "fontawesome/brands/github"
 
-# One dark scheme; background and primary colour come from stylesheets/flatwork.css.
+# One dark scheme; background and colours come from the stylesheets.
 [[project.theme.palette]]
 scheme = "slate"
 primary = "custom"

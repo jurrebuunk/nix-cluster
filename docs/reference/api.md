@@ -25,7 +25,7 @@ Endpoints of the [Platform API](../concepts/api.md) at
 | Base URL | `https://api.lan.buunk.org/v1` |
 | Auth | Bearer token, scope `read`, `operator` or `manage` |
 | Errors | HTTP status plus `{"error": "<message>"}` |
-| Browsers | Never call the API directly; the [web UI](../concepts/web-ui.md) proxies with its own token |
+| Browsers | Never call the API directly; the [web UI](https://jurrebuunk.github.io/hgd1-k8s/concepts/web-ui/) proxies with its own token |
 | Request IDs | Every response has `X-Request-Id`; the same ID is in the access log |
 | Collections | `{"items": […], "errors": […]}`; `errors` lists parts that couldn't be read, the rest is still there. `/{name}` is one item, or 404 |
 | Audit | Every request is in the journal of `clusterd.service` (path, token name, status); actions and S3 writes also get `msg=audit` records, which `/v1/operations` reads |

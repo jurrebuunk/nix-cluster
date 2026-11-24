@@ -72,7 +72,8 @@ flowchart TB
 
 1. **Network.** Every host has one cable. The untagged VLAN 20 carries host
    management; VLAN 30 (storage) and VLAN 40 (k8s) arrive tagged and end in
-   two bridges, `br-stor` and `br-k8s`. See [Network](network.md).
+   two bridges, `br-stor` and `br-k8s`. See [Host network](network.md); the
+   router and switch are on the [network docs](https://github.com/jurrebuunk/hgd1-network/blob/main/docs/index.md).
 2. **NixOS host.** The same configuration on all three, with per-host facts
    from the inventory. Deployed from the laptop; the host builds its own
    system. See [Hosts](hosts.md).
@@ -90,8 +91,9 @@ flowchart TB
 8. **Platform API.** `clusterd` on every host behind `api.lan.buunk.org`:
    status, metrics, logs and actions with token auth, for the `labctl` CLI and
    the web UI. See [Platform API](api.md).
-9. **Workloads.** Everything that runs on Kubernetes lives in a separate
-   repo that only needs a kubeconfig. See [Build on top](../how-to/build-an-app.md).
+9. **Workloads.** Everything that runs on Kubernetes comes from
+   `hgd1-k8s` and app repos through Flux, and only needs a kubeconfig. See
+   the [Kubernetes docs](https://jurrebuunk.github.io/hgd1-k8s/).
 
 ## Decisions
 
@@ -169,7 +171,7 @@ Possible later roles: `st` (storage), `db`, `lb` and `bk` (backup).
 
 <div class="grid cards" markdown>
 
-- :lucide-network: [**Network**](network.md): VLANs, switch, firewall, DNS
+- :lucide-network: [**Host network**](network.md): VLANs and bridges on the hosts
 - :lucide-globe-lock: [**Remote access**](remote-access.md): Cloudflare tunnel and WARP
 - :lucide-server: [**Hosts**](hosts.md): the three NixOS machines
 - :lucide-database: [**Ceph**](ceph.md): replicated storage on the HDDs
@@ -178,6 +180,5 @@ Possible later roles: `st` (storage), `db`, `lb` and `bk` (backup).
 - :lucide-ship-wheel: [**k3s**](k3s.md): the Kubernetes cluster
 - :lucide-activity: [**Monitoring**](monitoring.md): metrics and logs for everything above
 - :lucide-webhook: [**Platform API**](api.md): one authenticated endpoint for the CLI and web UI
-- :lucide-layout-dashboard: [**Web UI**](web-ui.md): the browser dashboard on k3s
 
 </div>

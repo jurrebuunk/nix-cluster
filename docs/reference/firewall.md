@@ -4,46 +4,15 @@ icon: lucide/shield
 
 # Firewall
 
-!!! repo "Lives in its own repo: hgd1-network"
+The ports the hosts and VMs open, each on one interface (NixOS firewalls in
+this repo), and the Cloudflare Gateway rules for remote access. What may
+talk between VLANs is decided by the router.
 
-    This page covers **the firewall policy** on the hgd1 cluster: how it fits in and how I
-    use it here. Code, development, releases and the full documentation are in
-    the repo (private).
+!!! network "On the network docs: VLAN policy"
 
-    [:fontawesome-brands-github: jurrebuunk/hgd1-network](https://github.com/jurrebuunk/hgd1-network){ .md-button .md-button--primary }
+    What each VLAN may reach, the WAN forwards and the router and switch monitoring access, enforced by OPNsense.
 
-What may talk to what. OPNsense enforces the VLAN policy (its rules are code in
-[`hgd1-network`](https://github.com/jurrebuunk/hgd1-network)); NixOS firewalls on the hosts and VMs open only the ports below, each
-on one interface (this repo).
-
-## VLAN policy
-
-Everything between VLANs is denied unless listed.
-
-| From | Allowed | Blocked |
-| --- | --- | --- |
-| mgmt (10) | Everything internal, internet | – |
-| infra (20) | Internet, DNS and NTP on OPNsense | Other internal |
-| infra: `10.10.20.11–13` only | mgmt, k8s, users (remote access) | storage (not routed) |
-| k8s (40) | Internet, DNS and NTP on OPNsense | mgmt, infra, users |
-| users (100) | Internet; TCP 80/443 to k8s load balancers `.200–.249` | mgmt, infra, k8s nodes |
-| WAN (home) | Sunshine forwards to `10.10.100.50` (below) | Everything else |
-
-The remote-access exception uses the OPNsense aliases `HGD1_TUNNEL_HOSTS`
-(`10.10.20.11–13`) and `HGD1_TUNNEL_DESTS` (`10.10.10.0/24`,
-`10.10.40.0/24`, `10.10.100.0/24`), in a rule placed above "INFRA deny other
-private destinations".
-
-## WAN forwards
-
-| Proto | Ports | To |
-| --- | --- | --- |
-| TCP | 47984, 47989, 48010 | `10.10.100.50` (Sunshine) |
-| UDP | 47998–48000, 48002, 48010 | `10.10.100.50` |
-
-Source: the whole home network `192.168.2.0/24`, destination the WAN address
-`192.168.2.12`. Not forwarded: 47990 (Sunshine admin), RDP, discovery.
-"Block private networks" stays **off** on WAN.
+    [Network firewall](https://github.com/jurrebuunk/hgd1-network/blob/main/docs/firewall.md){ .md-button }
 
 ## Hosts
 
@@ -91,12 +60,5 @@ Source: the whole home network `192.168.2.0/24`, destination the WAN address
 
 ICMP is proxied but can't be filtered by Gateway.
 
-## Devices
-
-| Device | Open for monitoring |
-| --- | --- |
-| OPNsense | `10.10.10.1:9100` node_exporter (reached by the hosts through the remote-access rule) |
-| Aruba | SNMP v2c read-only (`operator restricted`), community in `secrets/snmp-community.age` |
-
-Rules for k3s workloads (for example K8S → `10.10.20.20:443` for the web UI)
-are added in `hgd1-network` too.
+Pods reach the hosts' storage IPs on 8428 and 9428 for monitoring
+(collectors in `hgd1-k8s`, see the [Kubernetes docs](https://jurrebuunk.github.io/hgd1-k8s/concepts/monitoring/)).

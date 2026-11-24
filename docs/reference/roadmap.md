@@ -88,7 +88,7 @@ time; it never defines VMs, Nix does. **Done:** `clusterd` `v1.1.0` runs on all 
 (including disks and S3), metrics, logs, `labctl health`, and VM
 restart/stop/start/roll, node cordon and host maintenance through `labctl`.
 **Next:** the web UI. See [Platform API](../concepts/api.md),
-[Use the CLI](../how-to/use-the-cli.md) and [Web UI](../concepts/web-ui.md).
+[Use the CLI](../how-to/use-the-cli.md) and [Web UI](https://jurrebuunk.github.io/hgd1-k8s/concepts/web-ui/).
 
 ## Future
 

@@ -41,7 +41,7 @@ For a dead NVMe or a broken OS on one host:
 Each step depends on the one before:
 
 1. **Network:** restore the router and switch with [`hgd1-network`](https://github.com/jurrebuunk/hgd1-network) (backups or a
-   fresh run), after the by-hand bootstrap in [Rebuild the network](rebuild-network.md).
+   fresh run), after the by-hand bootstrap in [Rebuild the network](https://github.com/jurrebuunk/hgd1-network/blob/main/docs/rebuild.md).
 2. **Hosts:** install NixOS on all three and deploy this repo (new host keys
    mean re-encrypting the secrets).
 3. **Ceph:** a new cluster with `ceph-bootstrap`, or restore its
@@ -50,7 +50,10 @@ Each step depends on the one before:
 5. **k3s:** the VMs come up with the hosts. Set `k3s.bootstrapServer` back to
    `hgd1-k8m01` so it creates a new cluster, then set it to `null` again once
    all three servers have joined ([k3s → Joining](../concepts/k3s.md#joining)).
-6. **Cluster components and apps** come back through Flux from `hgd1-k8s`, then **data** from backups.
+6. **Cluster components and apps** come back through Flux from `hgd1-k8s`
+   (bootstrap Flux again and restore its age key from
+   `secrets/flux-sops-age.age`), then **data** from backups: Postgres from
+   S3, see [Postgres](https://jurrebuunk.github.io/hgd1-k8s/concepts/postgres/#operating) on the Kubernetes docs.
 
 !!! danger "Replication is not a backup"
 

@@ -63,11 +63,17 @@ and every secret. Keep an offline backup of it.
 
 ## In other repos
 
-| Credential | Where |
-| --- | --- |
-| Web UI `operator` token | Kubernetes Secret, encrypted with sops in `hgd1-k8s` |
-| Secrets of cluster components (Cloudflare DNS token for cert-manager, …) | sops in `hgd1-k8s` |
-| OPNsense API key, SNMP community, switch login for Ansible | sops (or ansible-vault) in `hgd1-network` |
+!!! k8s "On the Kubernetes docs: cluster secrets"
+
+    sops-encrypted Secrets in `hgd1-k8s` and the app repos: tunnel credentials, S3 keys, database and Keycloak secrets.
+
+    [Manage secrets (sops)](https://jurrebuunk.github.io/hgd1-k8s/how-to/manage-secrets/){ .md-button }
+
+!!! network "On the network docs: router and switch"
+
+    Logins and keys for OPNsense and the Aruba, and their backups.
+
+    [Router and switch](https://github.com/jurrebuunk/hgd1-network/blob/main/docs/router-and-switch.md){ .md-button }
 
 ## Password manager
 
