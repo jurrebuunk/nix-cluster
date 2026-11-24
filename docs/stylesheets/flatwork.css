@@ -6,6 +6,7 @@
 
 /* The three sites. */
 :root {
+  --cluster-tint: #8aa1a82e;  --k8s-tint: #8fae9a2e;  --network-tint: #c2a27d2e;
   --cluster: #8aa1a8;  --cluster-light: #a5bbc2;  --cluster-dark: #6f868d;  --cluster-soft: #8aa1a81a;
   --k8s: #8fae9a;      --k8s-light: #a9c9b4;      --k8s-dark: #74917e;      --k8s-soft: #8fae9a1a;
   --network: #c2a27d;  --network-light: #d8bb96;  --network-dark: #a38663;  --network-soft: #c2a27d1a;
@@ -88,19 +89,24 @@
 }
 
 /* Header: which docs these are. The site name ("hgd1 Cluster") as a label
-   in the site's colour, and a line in that colour under the header. */
-.md-header {
-  border-bottom: 3px solid var(--site);
-}
-
+   in the site's colour. Inline, so it keeps the header's line height and
+   stays level with the logo. */
 .md-header__title .md-header__topic:first-child .md-ellipsis {
-  display: inline-block;
-  padding: 0.1em 0.6em;
+  display: inline;
+  padding: 0.3em 0.6em;
   border-radius: 0.2rem;
   background-color: var(--site);
   color: #1b1818;
   font-weight: 700;
-  line-height: 1.6;
+}
+
+/* The section you're in: its tab in the site's colour, underlined. */
+.md-tabs__item--active {
+  border-bottom: 2px solid var(--site);
+}
+
+.md-tabs__item--active .md-tabs__link {
+  color: var(--site);
 }
 
 .md-header .md-logo {
@@ -121,30 +127,29 @@
   --site-link-light: var(--k8s-light);
 }
 
-/* The network docs aren't hosted yet; until then they're read on GitHub. */
-.md-typeset a[href^="https://github.com/jurrebuunk/hgd1-network/blob/main/docs"],
-.md-tabs__link[href^="https://github.com/jurrebuunk/hgd1-network/blob/main/docs"] {
+.md-typeset a[href^="https://jurrebuunk.github.io/hgd1-network"],
+.md-tabs__link[href^="https://jurrebuunk.github.io/hgd1-network"] {
   --site-link: var(--network);
   --site-link-light: var(--network-light);
 }
 
-.md-typeset a[href^="https://jurrebuunk.github.io/nix-hgd1-cluster"]:not(.md-button),
-.md-typeset a[href^="https://jurrebuunk.github.io/hgd1-k8s"]:not(.md-button),
-.md-typeset a[href^="https://github.com/jurrebuunk/hgd1-network/blob/main/docs"]:not(.md-button) {
+.md-typeset a[href^="https://jurrebuunk.github.io/nix-hgd1-cluster"]:not(.md-button):not(.site),
+.md-typeset a[href^="https://jurrebuunk.github.io/hgd1-k8s"]:not(.md-button):not(.site),
+.md-typeset a[href^="https://jurrebuunk.github.io/hgd1-network"]:not(.md-button):not(.site) {
   color: var(--site-link);
   text-decoration: underline dotted;
   text-underline-offset: 0.2em;
 }
 
-.md-typeset a[href^="https://jurrebuunk.github.io/nix-hgd1-cluster"]:not(.md-button):hover,
-.md-typeset a[href^="https://jurrebuunk.github.io/hgd1-k8s"]:not(.md-button):hover,
-.md-typeset a[href^="https://github.com/jurrebuunk/hgd1-network/blob/main/docs"]:not(.md-button):hover {
+.md-typeset a[href^="https://jurrebuunk.github.io/nix-hgd1-cluster"]:not(.md-button):not(.site):hover,
+.md-typeset a[href^="https://jurrebuunk.github.io/hgd1-k8s"]:not(.md-button):not(.site):hover,
+.md-typeset a[href^="https://jurrebuunk.github.io/hgd1-network"]:not(.md-button):not(.site):hover {
   color: var(--site-link-light);
 }
 
 .md-typeset .md-button[href^="https://jurrebuunk.github.io/nix-hgd1-cluster"],
 .md-typeset .md-button[href^="https://jurrebuunk.github.io/hgd1-k8s"],
-.md-typeset .md-button[href^="https://github.com/jurrebuunk/hgd1-network/blob/main/docs"] {
+.md-typeset .md-button[href^="https://jurrebuunk.github.io/hgd1-network"] {
   border-color: var(--site-link);
   background-color: var(--site-link);
   color: #1b1818;
@@ -152,7 +157,7 @@
 
 .md-typeset .md-button[href^="https://jurrebuunk.github.io/nix-hgd1-cluster"]:hover,
 .md-typeset .md-button[href^="https://jurrebuunk.github.io/hgd1-k8s"]:hover,
-.md-typeset .md-button[href^="https://github.com/jurrebuunk/hgd1-network/blob/main/docs"]:hover {
+.md-typeset .md-button[href^="https://jurrebuunk.github.io/hgd1-network"]:hover {
   border-color: var(--site-link-light);
   background-color: var(--site-link-light);
 }
@@ -187,4 +192,109 @@
   --card-icon: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik0xNSAzaDZ2NiIvPjxwYXRoIGQ9Ik0xMCAxNCAyMSAzIi8+PHBhdGggZD0iTTE4IDEzdjZhMiAyIDAgMCAxLTIgMkg1YTIgMiAwIDAgMS0yLTJWOGEyIDIgMCAwIDEgMi0yaDYiLz48L3N2Zz4=");
   -webkit-mask-image: var(--card-icon);
   mask-image: var(--card-icon);
+}
+
+/* The three sites on each home page: <div class="sites"> with one
+   <a class="site site--cluster|k8s|network"> per site; the current one is
+   a <div class="site … is-current">. Three across, stacked on a phone. */
+.md-typeset .sites {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+  margin: 1.5em 0 2em;
+}
+
+@media screen and (max-width: 44.9375em) {
+  .md-typeset .sites {
+    grid-template-columns: 1fr;
+  }
+}
+
+.md-typeset .site--cluster { --c: var(--cluster); --c-light: var(--cluster-light); --c-tint: var(--cluster-tint); }
+.md-typeset .site--k8s { --c: var(--k8s); --c-light: var(--k8s-light); --c-tint: var(--k8s-tint); }
+.md-typeset .site--network { --c: var(--network); --c-light: var(--network-light); --c-tint: var(--network-tint); }
+
+.md-typeset .site {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 1rem 1rem 0.9rem;
+  border: 1px solid #3a3434;
+  border-top: 3px solid var(--c);
+  border-radius: 0.3rem;
+  background: linear-gradient(180deg, var(--c-tint), transparent 70%), #221e1e;
+  color: var(--md-default-fg-color);
+  text-decoration: none;
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.md-typeset a.site:hover,
+.md-typeset a.site:focus-visible {
+  border-color: var(--c);
+  color: var(--md-default-fg-color);
+  transform: translateY(-2px);
+}
+
+.md-typeset .site__icon {
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  margin-bottom: 0.3rem;
+  border-radius: 0.3rem;
+  background-color: var(--c-tint);
+  color: var(--c);
+}
+
+.md-typeset .site__icon svg {
+  width: 1.4rem;
+  height: 1.4rem;
+}
+
+.md-typeset .site__name {
+  color: var(--c);
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.md-typeset .site__repo {
+  color: var(--md-default-fg-color--light);
+  font-family: var(--md-code-font-family);
+  font-size: 0.6rem;
+}
+
+.md-typeset .site__text {
+  flex: 1;
+  margin-top: 0.2rem;
+  font-size: 0.68rem;
+  line-height: 1.55;
+}
+
+.md-typeset .site__go {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.4rem;
+  color: var(--c);
+  font-size: 0.65rem;
+  font-weight: 600;
+}
+
+.md-typeset .site__go svg {
+  width: 0.9rem;
+  height: 0.9rem;
+  transition: transform 0.15s;
+}
+
+.md-typeset a.site:hover .site__go svg {
+  transform: translateX(3px);
+}
+
+.md-typeset .site.is-current .site__go {
+  align-self: flex-start;
+  padding: 0.15em 0.6em;
+  border-radius: 0.2rem;
+  background-color: var(--c);
+  color: #1b1818;
 }

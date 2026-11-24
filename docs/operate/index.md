@@ -64,11 +64,11 @@ Anything else: [Troubleshooting](troubleshooting.md).
 <div class="grid cards" markdown>
 
 - :lucide-power: [**Host maintenance**](host-maintenance.md): reboot or service a host safely
-- :lucide-router: [**Router and switch**](https://github.com/jurrebuunk/hgd1-network/blob/main/docs/router-and-switch.md): what's configured, access, reboot impact
+- :lucide-router: [**Router and switch**](https://jurrebuunk.github.io/hgd1-network/router-and-switch/): what's configured, access, reboot impact
 - :lucide-hard-drive: [**Disk replacement**](disk-replacement.md): swap a failed HDD
 - :lucide-life-buoy: [**Troubleshooting**](troubleshooting.md): find the fix by symptom
 - :lucide-siren: [**Disaster recovery**](disaster-recovery.md): reinstall a host, rebuild the site
-- :lucide-cable: [**Rebuild the network**](https://github.com/jurrebuunk/hgd1-network/blob/main/docs/rebuild.md): bring the network up from scratch
+- :lucide-cable: [**Rebuild the network**](https://jurrebuunk.github.io/hgd1-network/rebuild/): bring the network up from scratch
 
 </div>
 

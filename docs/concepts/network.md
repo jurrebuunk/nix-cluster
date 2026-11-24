@@ -12,7 +12,7 @@ firewall between VLANs, DNS) has its own docs.
 
     The OPNsense router and Aruba switch, the VLAN design, the firewall policy between VLANs, DNS overrides and the Sunshine forwards.
 
-    [Network](https://github.com/jurrebuunk/hgd1-network/blob/main/docs/index.md){ .md-button }
+    [Network](https://jurrebuunk.github.io/hgd1-network/){ .md-button }
 
 !!! info "At a glance"
 
@@ -78,7 +78,7 @@ synced clocks, so hosts run chrony and prefer OPNsense.
 | Addresses | `inventory.nix` → `vlans`, `hosts`, `vms` |
 
 A new address in the inventory usually needs a DNS override on the router
-too (network docs, [Router and switch](https://github.com/jurrebuunk/hgd1-network/blob/main/docs/router-and-switch.md)).
+too (network docs, [Router and switch](https://jurrebuunk.github.io/hgd1-network/router-and-switch/)).
 
 ## Troubleshooting
 

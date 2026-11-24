@@ -12,7 +12,7 @@ talk between VLANs is decided by the router.
 
     What each VLAN may reach, the WAN forwards and the router and switch monitoring access, enforced by OPNsense.
 
-    [Network firewall](https://github.com/jurrebuunk/hgd1-network/blob/main/docs/firewall.md){ .md-button }
+    [Network firewall](https://jurrebuunk.github.io/hgd1-network/firewall/){ .md-button }
 
 ## Hosts
 

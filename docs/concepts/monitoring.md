@@ -107,7 +107,7 @@ between the three hosts). Returning hosts don't take it back.
 | `lib/logs.nix` | Shared Vector pieces: field cleanup, one buffered sink per host |
 | `secrets/snmp-community.age` | snmp_exporter auth file with the switch's read-only community |
 
-On the devices, configured as described on the [network docs](https://github.com/jurrebuunk/hgd1-network/blob/main/docs/router-and-switch.md): OPNsense has the
+On the devices, configured as described on the [network docs](https://jurrebuunk.github.io/hgd1-network/router-and-switch/): OPNsense has the
 `os-node_exporter` plugin (listening on `10.10.10.1`) and a syslog destination
 to `10.10.20.10`; the Aruba has a read-only SNMP community and
 `logging 10.10.20.10`.

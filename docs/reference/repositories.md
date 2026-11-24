@@ -17,7 +17,7 @@ in their own colour. A link or card in another site's colour leads there.
 | --- | --- | --- | --- |
 | **Cluster** (this one) | `nix-hgd1-cluster` | Hosts, Ceph, S3, VMs, k3s nodes, monitoring, remote access, `clusterd`/`labctl` | [GitHub Pages](https://jurrebuunk.github.io/nix-hgd1-cluster/) |
 | **Kubernetes** | `hgd1-k8s` | Flux, public access, Postgres, Keycloak, pod monitoring, building an app, the web UI | [GitHub Pages](https://jurrebuunk.github.io/hgd1-k8s/) |
-| **Network** | `hgd1-network` | Router, switch, VLANs, firewall policy, rebuilding the network | Not yet (private repo); [read on GitHub](https://github.com/jurrebuunk/hgd1-network/blob/main/docs/index.md) |
+| **Network** | `hgd1-network` | Router, switch, VLANs, firewall policy, rebuilding the network | [GitHub Pages](https://jurrebuunk.github.io/hgd1-network/) |
 
 `docs/stylesheets/flatwork.css` is identical in the three repos; each
 site's colour is in its own `docs/stylesheets/site.css`.
@@ -31,7 +31,7 @@ site's colour is in its own `docs/stylesheets/site.css`.
 | [`lab-console`](https://github.com/jurrebuunk/lab-console) | The [web UI](https://jurrebuunk.github.io/hgd1-k8s/concepts/web-ui/) at `lab.buunk.org`: frontend and its thin API proxy | CI image to GHCR, deployed by Flux | Public |
 | [`hgd1-k8s`](https://github.com/jurrebuunk/hgd1-k8s) | Base components on the k3s cluster: Flux, sops, metrics-server, local-path, the public Cloudflare Tunnel, CloudNativePG, k3s monitoring, Keycloak; later local ingress | Flux (pull-based GitOps) | Public |
 | [`hgd1-cloudreve`](https://github.com/jurrebuunk/hgd1-cloudreve) | Cloudreve at `cloudreve.buunk.org`: its manifests, database, bucket gateway and secrets | Flux, through a pointer in `hgd1-k8s/apps/` | Public |
-| `hgd1-network` | Ansible for the router `hgd1-fw01` and the switch `hgd1-sw01` | `ansible-playbook` from the laptop over WARP | Private |
+| [`hgd1-network`](https://github.com/jurrebuunk/hgd1-network) | Ansible for the router `hgd1-fw01` and the switch `hgd1-sw01` | `ansible-playbook` from the laptop over WARP | Public |
 
 ## How they fit
 

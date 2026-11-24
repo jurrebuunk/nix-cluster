@@ -12,7 +12,7 @@ DNS names are in `lan.buunk.org`.
 
     The router and switch addresses, switch ports, reserved ranges and DHCP.
 
-    [Network addresses](https://github.com/jurrebuunk/hgd1-network/blob/main/docs/addresses.md){ .md-button }
+    [Network addresses](https://jurrebuunk.github.io/hgd1-network/addresses/){ .md-button }
 
 
 ## VLANs
