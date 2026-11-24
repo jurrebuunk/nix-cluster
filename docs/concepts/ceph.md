@@ -40,7 +40,7 @@ Every host runs the same four daemons, all on the storage VLAN (`br-stor`):
 
 | Pool | Use |
 | --- | --- |
-| `k8s` | RBD block devices for Kubernetes |
+| `k8s` | Meant for RBD volumes of Kubernetes; unused, since pods keep state in Postgres or S3 (no ceph-csi) |
 | RGW pools (`.rgw.root`, `default.rgw.*`) | S3, created by the gateways |
 | `.mgr` | Manager state |
 

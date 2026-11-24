@@ -101,7 +101,7 @@ restart/stop/start/roll, node cordon and host maintenance through `labctl`.
 
 ## Other repos
 
-Cluster components (Flux, ingress, storage, Postgres) live in `hgd1-k8s`, the
+Cluster components (Flux, public access, Postgres, Keycloak) live in `hgd1-k8s`, the
 router and switch move to Ansible in `hgd1-network`. Each has a `PLAN.md`
 with its next steps; see [Repositories](repositories.md).
 

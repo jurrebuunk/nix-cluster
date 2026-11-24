@@ -49,7 +49,7 @@ sequenceDiagram
 | Stage | How you reach it |
 | --- | --- |
 | Now | Internal only: `lab.buunk.org` points to a load balancer IP in VLAN 40 (`10.10.40.200–249`); reachable over WARP |
-| Later | Public through a Cloudflare Tunnel from `hgd1-k8s`, with login through **Keycloak** (OIDC). It only goes public once Keycloak is in front of it |
+| Later | Public through the Cloudflare Tunnel in `hgd1-k8s`, with login through **Keycloak** (OIDC), after Cloudreve. It only goes public once Keycloak is in front of it |
 
 ## How it works
 
