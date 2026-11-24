@@ -88,20 +88,10 @@
   mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNMjE2LjUgMzYyLjVjLTY2LTgtMTEyLjUtNTUuNS0xMTIuNS0xMTcgMC0yNSA5LTUyIDI0LTcwLTYuNS0xNi41LTUuNS01MS41IDItNjYgMjAtMi41IDQ3IDggNjMgMjIuNSAxOS02IDM5LTkgNjMuNS05czQ0LjUgMyA2Mi41IDguNWMxNS41LTE0IDQzLTI0LjUgNjMtMjIgNyAxMy41IDggNDguNSAxLjUgNjUuNSAxNiAxOSAyNC41IDQ0LjUgMjQuNSA3MC41IDAgNjEuNS00Ni41IDEwOC0xMTMuNSAxMTYuNSAxNyAxMSAyOC41IDM1IDI4LjUgNjIuNXY1MmMwIDE1IDEyLjUgMjMuNSAyNy41IDE3LjVDNDQxIDQ1OS41IDUxMiAzNjkgNTEyIDI1NyA1MTIgMTE1LjUgMzk3IDAgMjU1LjUgMFMwIDExNS41IDAgMjU3YzAgMTExIDcwLjUgMjAzIDE2NS41IDIzNy41IDEzLjUgNSAyNi41LTQgMjYuNS0xNy41di00MGMtNyAzLTE2IDUtMjQgNS0zMyAwLTUyLjUtMTgtNjYuNS01MS41LTUuNS0xMy41LTExLjUtMjEuNS0yMy0yMy02LS41LTgtMy04LTYgMC02IDEwLTEwLjUgMjAtMTAuNSAxNC41IDAgMjcgOSA0MCAyNy41IDEwIDE0LjUgMjAuNSAyMSAzMyAyMXMyMC41LTQuNSAzMi0xNmM4LjUtOC41IDE1LTE2IDIxLTIxIi8+PC9zdmc+");
 }
 
-/* Header: which docs these are. The site name ("hgd1 Cluster") as a label
-   in the site's colour, centred in the header's height so it's level with
-   the logo. */
+/* Header: which docs these are. The site name ("hgd1 Cluster") in the
+   site's colour; the theme's own layout keeps it level with the logo. */
 .md-header__title .md-header__topic:first-child {
-  height: 2.4rem;
-  align-items: center;
-}
-
-.md-header__title .md-header__topic:first-child .md-ellipsis {
-  padding: 0.1rem 0.6rem;
-  line-height: 1.5;
-  border-radius: 0.2rem;
-  background-color: var(--site);
-  color: #1b1818;
+  color: var(--site);
   font-weight: 700;
 }
 

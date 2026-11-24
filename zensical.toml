@@ -77,7 +77,7 @@ nav = [
 
 # flatwork.css is the same on all three sites; site.css sets this site's colour.
 # Bump ?v= when a stylesheet changes, so browsers drop their cached copy.
-extra_css = ["stylesheets/flatwork.css?v=7", "stylesheets/site.css?v=1"]
+extra_css = ["stylesheets/flatwork.css?v=8", "stylesheets/site.css?v=1"]
 
 [project.theme]
 language = "en"
