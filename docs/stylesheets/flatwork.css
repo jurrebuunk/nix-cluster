@@ -89,11 +89,16 @@
 }
 
 /* Header: which docs these are. The site name ("hgd1 Cluster") as a label
-   in the site's colour. Inline, so it keeps the header's line height and
-   stays level with the logo. */
+   in the site's colour, centred in the header's height so it's level with
+   the logo. */
+.md-header__title .md-header__topic:first-child {
+  height: 2.4rem;
+  align-items: center;
+}
+
 .md-header__title .md-header__topic:first-child .md-ellipsis {
-  display: inline;
-  padding: 0.3em 0.6em;
+  padding: 0.1rem 0.6rem;
+  line-height: 1.5;
   border-radius: 0.2rem;
   background-color: var(--site);
   color: #1b1818;
