@@ -30,6 +30,12 @@ builds the cluster; what runs on it lives in [`hgd1-k8s`](../reference/repositor
   spread over three zones needs a schedulable node in each.
 - **Networking:** flannel VXLAN over the `k8s` NIC; pods `10.42.0.0/16`,
   services `10.43.0.0/16`.
+- **DNS in pods:** kubelet uses `/etc/k3s-resolv.conf` (only the gateway as
+  nameserver), not the VM's, so pods search only cluster names. With the
+  VM's `search lan.buunk.org`, Alpine-based images couldn't resolve service
+  names: OPNsense answers "no address" instead of "no such name" for any
+  name under `lan.buunk.org`. Full names like `s3.lan.buunk.org` resolve as
+  always.
 - **Add-ons:** only CoreDNS comes with k3s (Flux needs DNS to start).
   metrics-server, `local-path` (same name and path,
   `/var/lib/rancher/k3s/storage`), public access (a Cloudflare Tunnel) and
