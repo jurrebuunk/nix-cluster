@@ -4,7 +4,7 @@ icon: lucide/git-fork
 
 # Repositories
 
-The lab is split over five repos. Each has one job and its own way of
+The lab is split over five core repos plus one repo per app. Each has one job and its own way of
 delivering changes. This handbook (in `nix-hgd1-cluster`) explains the whole
 picture; every other repo has a `README.md` and a `PLAN.md` with its details.
 
@@ -14,6 +14,7 @@ picture; every other repo has a `README.md` and a `PLAN.md` with its details.
 | [`clusterd`](https://github.com/jurrebuunk/clusterd) | The [Platform API](../concepts/api.md) server and the `labctl` CLI, plus their NixOS module | Flake input of `nix-hgd1-cluster` | Public |
 | [`lab-console`](https://github.com/jurrebuunk/lab-console) | The [web UI](../concepts/web-ui.md) at `lab.buunk.org`: frontend and its thin API proxy | CI image to GHCR, deployed by Flux | Public |
 | [`hgd1-k8s`](https://github.com/jurrebuunk/hgd1-k8s) | Base components on the k3s cluster: Flux, sops, metrics-server, local-path, the public Cloudflare Tunnel, CloudNativePG, k3s monitoring, Keycloak; later local ingress | Flux (pull-based GitOps) | Public |
+| [`hgd1-cloudreve`](https://github.com/jurrebuunk/hgd1-cloudreve) | Cloudreve at `cloudreve.buunk.org`: its manifests, database, bucket gateway and secrets | Flux, through a pointer in `hgd1-k8s/apps/` | Public |
 | `hgd1-network` | Ansible for the router `hgd1-fw01` and the switch `hgd1-sw01` | `ansible-playbook` from the laptop over WARP | Private |
 
 ## How they fit
@@ -24,10 +25,12 @@ flowchart LR
   clusterd[clusterd<br/>API + CLI]
   k8s[hgd1-k8s<br/>cluster components]
   console[lab-console<br/>web UI]
+  apps[hgd1-cloudreve, ...<br/>one repo per app]
   net[hgd1-network<br/>router + switch]
   clusterd -- flake input --> cluster
   cluster -- kubeconfig, Ceph, S3, monitoring --> k8s
   k8s -- Flux deploys --> console
+  k8s -- Flux deploys --> apps
   console -- operator token --> clusterd
   net -. VLANs, firewall, DNS .- cluster
 ```
@@ -46,10 +49,11 @@ flowchart LR
 - **Inside `hgd1-k8s`, layers by dependency:** `infrastructure` (controllers
   and operators), `config`, `platform` (shared services such as Keycloak),
   `apps`. Flux applies each after the one before.
-- **Off-the-shelf software or your own.** Software that is only configured
-  (Keycloak, Cloudreve) lives in `hgd1-k8s` as manifests or a HelmRelease.
-  Your own software (`lab-console`, new projects) has its own repo with the
-  code, CI and a `deploy/` folder; `hgd1-k8s/apps/` only points Flux at it.
+- **Every app has its own repo.** Off-the-shelf (`hgd1-cloudreve`: only
+  manifests) or your own (`lab-console`: code, CI and manifests), Flux
+  deploys its `deploy/` folder. `hgd1-k8s/apps/` holds only the pointers;
+  `hgd1-k8s` itself has the platform (operators, Keycloak, the tunnel and
+  its routes), never an app.
 - **Package and module in the tool's repo, configuration here.** `clusterd`
   exports `packages.clusterd`, `packages.labctl` and `nixosModules.clusterd`;
   this repo sets the options.

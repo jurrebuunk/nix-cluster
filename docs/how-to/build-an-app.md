@@ -172,20 +172,28 @@ realm `hgd1`) over OIDC: issuer `https://auth.buunk.org/realms/hgd1`.
 Public apps go out through a Cloudflare Tunnel that runs in the cluster
 (`hgd1-k8s`): a route "hostname → Service" in Git publishes it, Cloudflare
 handles TLS, and no port on the network is opened. Apps that need a login
-use Keycloak (`auth.buunk.org`) over OIDC. The first one is Cloudreve.
+use Keycloak (`auth.buunk.org`) over OIDC. The first one is Cloudreve
+(`cloudreve.buunk.org`).
 
 Services that only need to be reachable on the LAN come later, with an
 ingress controller on load balancer IPs in VLAN 40 (`10.10.40.200–249`).
 
 ## Checklist
 
+- [ ] Its own repo with a `deploy/` folder (kustomize), plus a pointer in
+      `hgd1-k8s/apps/` (copy `apps/cloudreve.yaml`). Example:
+      [hgd1-cloudreve](https://github.com/jurrebuunk/hgd1-cloudreve).
 - [ ] Where does its state go (the diagram above)?
 - [ ] Deployment with at least two replicas if it must survive a host loss,
       with a zone spread constraint.
 - [ ] Its own S3 user and bucket if it stores files (`labctl s3 user create`,
       `labctl s3 bucket create`).
-- [ ] Public? A tunnel route in `hgd1-k8s`, and a Keycloak client if it has
-      users.
+- [ ] Public? A tunnel route in `hgd1-k8s`
+      (`infrastructure/cloudflared/config.yaml`), a proxied CNAME
+      `<name>.buunk.org` to the tunnel, and a Keycloak client if it has users.
+- [ ] Browsers upload straight to S3? Cloudflare allows 100 MB per request,
+      so chunks of 25 MB, and only that one bucket published
+      (see the gateway in `hgd1-cloudreve`).
 - [ ] Its own Postgres `Cluster` with `components/postgres` if it needs a
       database (never a chart's built-in one).
 - [ ] Secrets through sops (`hgd1-k8s`) or your app repo's secret handling, never plain text.
