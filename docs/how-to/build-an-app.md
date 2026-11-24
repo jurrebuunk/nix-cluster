@@ -29,9 +29,9 @@ contract between this repo and your project is a **Kubernetes API**, the
 | Internal DNS | `*.lan.buunk.org` names resolve inside pods |
 
 **Not part of this repo** (they come from `hgd1-k8s`): public access
-through a Cloudflare Tunnel, the Postgres operator with its template,
-Keycloak for logins, and monitoring of pods. Until those exist, services only
-work inside the cluster. Local ingress for LAN-only services comes later.
+through a Cloudflare Tunnel, Postgres (CloudNativePG, with S3 backups),
+monitoring of pods, and later Keycloak for logins and local ingress for
+LAN-only services.
 
 ## Access
 
@@ -56,7 +56,7 @@ Ask this for every new app. The answer is almost always "Postgres", "S3" or
 flowchart TD
   q{What kind of state?}
   q -- none --> stateless[Deployment, runs anywhere]
-  q -- relational data --> pg[Postgres from the template<br/>3 instances on local-path, one per zone<br/>backups to S3]
+  q -- relational data --> pg[Its own Postgres cluster<br/>2–3 servers on local-path, different zones<br/>backups to S3]
   q -- files, uploads, media --> s3[S3 bucket with its own user]
   q -- cache --> cache[emptyDir or local disk,<br/>allowed to lose data]
 ```
@@ -64,9 +64,9 @@ flowchart TD
 The rules behind it:
 
 1. Stateless apps can run anywhere.
-2. Databases use a replicating operator (CloudNativePG): three instances on
-   `local-path`, spread over zones, with continuous backups to S3. Use the
-   shared template once it exists.
+2. Databases: every app gets its own small Postgres cluster from
+   CloudNativePG (below), with servers on `local-path` in different zones and
+   continuous backups to S3.
 3. Files and user data go to S3, never `local-path`.
 4. Caches may use local storage and may lose data.
 5. **Never** put a single, non-replicated volume on `local-path`. When that
@@ -111,6 +111,47 @@ The endpoint is only reachable inside the network. A public app must pass
 uploads and downloads through itself (Cloudreve's proxy setting, for
 example), never hand browsers presigned URLs to `s3.lan.buunk.org`.
 
+## Database
+
+An app's Postgres is a CloudNativePG `Cluster` in the app's own namespace,
+next to its Deployment. The defaults (zones, `local-path`, backups to
+`s3://pg-backups/<cluster>/`, metrics, resources) come from
+`components/postgres` in `hgd1-k8s`:
+
+```yaml
+# kustomization.yaml of the app
+components: [../../components/postgres]
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata: { name: notes-db }
+spec:
+  instances: 2           # 1: no copy (S3 only); 3: apps everyone needs
+  storage: { size: 2Gi }
+  bootstrap: { initdb: { database: notes, owner: notes } }
+```
+
+CloudNativePG creates the database, the user and the Secret `notes-db-app`
+(`uri`, `host`, `port`, `dbname`, `username`, `password`); the app connects
+to `notes-db-rw`, which always points at the primary. If a host dies, a copy
+takes over within seconds.
+
+```yaml
+env:
+  - name: DATABASE_URL
+    valueFrom: { secretKeyRef: { name: notes-db-app, key: uri } }
+```
+
+The app itself has no data, so one replica is fine: Kubernetes starts it
+elsewhere after a host loss (a few minutes); two replicas avoid even that,
+if the app supports it.
+
+**Helm charts:** never use a chart's built-in Postgres (`postgresql.enabled`):
+it is a single server without failover or backups. Turn it off and point the
+chart's external-database settings at the Cluster and its Secret.
+
+Removing the app removes its database; its backups stay in S3 for 14 days.
+
 ## Exposing
 
 Public apps go out through a Cloudflare Tunnel that runs in the cluster
@@ -130,7 +171,8 @@ ingress controller on load balancer IPs in VLAN 40 (`10.10.40.200–249`).
       `labctl s3 bucket create`).
 - [ ] Public? A tunnel route in `hgd1-k8s`, and a Keycloak client if it has
       users.
-- [ ] Postgres from the template if it needs a database.
+- [ ] Its own Postgres `Cluster` with `components/postgres` if it needs a
+      database (never a chart's built-in one).
 - [ ] Secrets through sops (`hgd1-k8s`) or your app repo's secret handling, never plain text.
 - [ ] Requests and limits set: a node has 4 GiB of RAM in total.
 - [ ] Tested: `labctl vm stop <vm>` on the VM it runs on, check the app keeps
@@ -138,18 +180,30 @@ ingress controller on load balancer IPs in VLAN 40 (`10.10.40.200–249`).
 
 ## Monitoring
 
-Your app's own metrics and logs are collected by `hgd1-k8s` (vmagent and Vector). For the
-platform's data, use the [CLI](use-the-cli.md), the [web UI](../concepts/web-ui.md)
-or the [API](../reference/api.md) (`/v1/metrics`, `/v1/logs`, token auth). A
-Grafana in `hgd1-k8s` can also read the stores directly:
+`hgd1-k8s` collects your app's logs and metrics into the same stores as the
+platform's:
+
+- **Logs:** every container's output, with `host` = node and `unit` =
+  container name: `labctl logs --unit <container> --since 1h`, or
+  `labctl logs 'namespace:notes'`.
+- **Metrics:** annotate the pod with `prometheus.io/scrape: "true"` and
+  `prometheus.io/port: "<port>"` (and `prometheus.io/path` if it isn't
+  `/metrics`). Everything from k3s carries `cluster="hgd1-k8s"`; Postgres
+  clusters are scraped automatically.
+
+Use the [CLI](use-the-cli.md), the [web UI](../concepts/web-ui.md) or the
+[API](../reference/api.md) (`/v1/metrics`, `/v1/logs`, token auth) to read
+them. A Grafana in `hgd1-k8s` can also read the stores directly:
 
 | Data source | URL |
 | --- | --- |
 | Prometheus (VictoriaMetrics) | `http://mon.lan.buunk.org:8428` |
 | VictoriaLogs (plugin) | `http://mon.lan.buunk.org:9428` |
 
-From k3s that needs one OPNsense rule in [`hgd1-network`](https://github.com/jurrebuunk/hgd1-network): K8S → `10.10.20.10` on TCP 8428 and
-9428. See [Monitoring](../concepts/monitoring.md).
+From k3s, use a host's storage IP (`http://10.10.30.11:8428`, `:9428`;
+also `.12` and `.13`), the way vmagent and Vector do: `mon.lan.buunk.org` is
+on the infra VLAN, which k3s can't reach. See
+[Monitoring](../concepts/monitoring.md).
 
 ## Platform changes
 

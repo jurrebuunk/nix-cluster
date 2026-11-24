@@ -76,6 +76,17 @@ router and switch on the VIP (UDP and TCP 514). Every record gets a `host`
 (short name) and a `unit` (systemd unit or syslog app). Syslog records use the
 time they arrive, because classic syslog carries no timezone.
 
+### From k3s
+
+`hgd1-k8s` runs its own collectors in the cluster, writing into these same
+stores: vmagent (kubelets, cAdvisor, kube-state-metrics, and pods or services
+annotated with `prometheus.io/scrape`) with the label `cluster="hgd1-k8s"`,
+and Vector with every container's output (`host` = node, `unit` = container,
+plus `namespace` and `pod`). Both write to each host's storage IP
+(`10.10.30.11–13`, ports 8428 and 9428), the way the VMs ship their own
+logs, so no router rule is involved and a host that is down catches up
+later.
+
 ### Query address
 
 `10.10.20.10` is a Keepalived VIP on the management NIC (VRRP id 20, unicast
@@ -135,8 +146,9 @@ labctl logs --host hgd1-fw01 --since 1h
 ```
 
 A Grafana can also use `http://mon.lan.buunk.org:8428` (Prometheus type) and
-`:9428` (VictoriaLogs) directly; from k3s that needs one OPNsense rule in [`hgd1-network`](https://github.com/jurrebuunk/hgd1-network):
-K8S → `10.10.20.10` on TCP 8428 and 9428.
+`:9428` (VictoriaLogs) directly; from k3s, use a host's storage IP
+(`http://10.10.30.11:8428`) instead, since the infra VLAN isn't reachable
+from there.
 
 ## Troubleshooting
 
