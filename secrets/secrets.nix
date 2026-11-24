@@ -21,4 +21,7 @@ in
   # RGW user `clusterd` (caps buckets/users/usage/metadata=read, no buckets of
   # its own): {"access_key": …, "secret_key": …} for the admin API.
   "clusterd-s3-admin.age".publicKeys = all;
+  # Backup of the age key Flux decrypts hgd1-k8s secrets with (the cluster
+  # holds it as Secret flux-system/sops-age). Never deployed: admins only.
+  "flux-sops-age.age".publicKeys = inventory.adminKeys;
 }

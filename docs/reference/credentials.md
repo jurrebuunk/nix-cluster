@@ -32,6 +32,7 @@ agenix files, encrypted to my laptop key and the three host keys
 | `clusterd-kubeconfig.age` | The API's Kubernetes ServiceAccount (read-only) | `/run/agenix/clusterd-kubeconfig` |
 | `clusterd-ceph-keyring.age` | The API's Ceph key `client.clusterd` (`mon 'allow r'` plus `osd set-group`/`unset-group` for [host maintenance](../operate/host-maintenance.md), `mgr 'allow r'`) | `/run/agenix/clusterd-ceph-keyring` |
 | `clusterd-s3-admin.age` | Keys of the RGW user `clusterd` (admin API: `users=*`, `buckets=*`, `usage` and `metadata` read) | `/run/agenix/clusterd-s3-admin` |
+| `flux-sops-age.age` | Backup of the age key Flux decrypts `hgd1-k8s` secrets with (in the cluster as Secret `flux-system/sops-age`). Admins only, never deployed | – |
 
 ## On the hosts only
 
