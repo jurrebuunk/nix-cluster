@@ -11,17 +11,17 @@ storage, an S3 endpoint and the VMs of a k3s cluster. Everything here is
 code in [`nix-hgd1-cluster`](https://github.com/jurrebuunk/nix-hgd1-cluster),
 deployed from my laptop.
 
-The homelab's docs are three sites, each covering only what its repo owns:
+I wrote these docs mainly for myself, to maintain the setup months from now
+without rediscovering it. They're also written so anyone can understand the
+whole project, build on top of it or take over its maintenance.
+
+The hgd1 docs are three sites, each covering only what its repo owns:
 
 <div class="sites">
 <div class="site site--cluster is-current"><span class="site__icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"/><rect width="20" height="8" x="2" y="14" rx="2" ry="2"/><path d="M6 6h.01M6 18h.01"/></svg></span><span class="site__name">Cluster</span><span class="site__repo">nix-hgd1-cluster</span><span class="site__text">Hosts, Ceph, S3, microVMs, the k3s nodes, monitoring, remote access, the Platform API and <code>labctl</code>.</span><span class="site__go">You're here</span></div>
 <a class="site site--k8s" href="https://jurrebuunk.github.io/hgd1-k8s/"><span class="site__icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 2v7.5M19 5l-5.23 5.23M22 12h-7.5M19 19l-5.23-5.23M12 14.5V22M10.23 13.77 5 19M9.5 12H2M10.23 10.23 5 5"/><circle cx="12" cy="12" r="2.5"/></svg></span><span class="site__name">Kubernetes</span><span class="site__repo">hgd1-k8s</span><span class="site__text">What runs on k3s: Flux, public access, Postgres, Keycloak, and how to run an app.</span><span class="site__go">Open the docs <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></a>
 <a class="site site--network" href="https://jurrebuunk.github.io/hgd1-network/"><span class="site__icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24"><rect width="6" height="6" x="16" y="16" rx="1"/><rect width="6" height="6" x="2" y="16" rx="1"/><rect width="6" height="6" x="9" y="2" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3M12 12V8"/></svg></span><span class="site__name">Network</span><span class="site__repo">hgd1-network</span><span class="site__text">The OPNsense router, the Aruba switch, the VLANs and the firewall between them.</span><span class="site__go">Open the docs <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></a>
 </div>
-
-I wrote these docs mainly for myself, to maintain the setup months from now
-without rediscovering it. They're also written so anyone can understand the
-whole project, build on top of it or take over its maintenance.
 
 <div class="grid cards" markdown>
 
@@ -37,7 +37,7 @@ whole project, build on top of it or take over its maintenance.
 
     ---
 
-    How the network, hosts, storage and Kubernetes fit together, and why.
+    How the hosts, storage, VMs, k3s nodes and the API fit together, and why.
 
     [:octicons-arrow-right-24: Concepts](concepts/index.md)
 
@@ -53,7 +53,7 @@ whole project, build on top of it or take over its maintenance.
 
     ---
 
-    Health checks, maintenance, troubleshooting and disaster recovery.
+    The health check, host maintenance, disk replacement and disaster recovery.
 
     [:octicons-arrow-right-24: Operate](operate/index.md)
 
@@ -61,9 +61,17 @@ whole project, build on top of it or take over its maintenance.
 
     ---
 
-    Every address, port, script, inventory field and term in one place.
+    Every address, port, script, inventory field and credential in one place.
 
     [:octicons-arrow-right-24: Reference](reference/index.md)
+
+-   :lucide-life-buoy:{ .lg .middle } **Troubleshooting**
+
+    ---
+
+    Find the fix by symptom: hosts, Ceph, S3, nodes, the API, monitoring.
+
+    [:octicons-arrow-right-24: Troubleshooting](operate/troubleshooting.md)
 
 </div>
 

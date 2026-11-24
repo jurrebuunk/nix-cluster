@@ -53,7 +53,7 @@ Each step depends on the one before:
 6. **Cluster components and apps** come back through Flux from `hgd1-k8s`
    (bootstrap Flux again and restore its age key from
    `secrets/flux-sops-age.age`), then **data** from backups: Postgres from
-   S3, see [Postgres](https://jurrebuunk.github.io/hgd1-k8s/concepts/postgres/#operating) on the Kubernetes docs.
+   S3, see [Add a database → Restore from S3](https://jurrebuunk.github.io/hgd1-k8s/how-to/add-a-database/#restore-from-s3) on the Kubernetes docs.
 
 !!! danger "Replication is not a backup"
 
