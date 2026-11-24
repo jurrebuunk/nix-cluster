@@ -259,6 +259,16 @@ See [Troubleshooting → API](../operate/troubleshooting.md#api).
 
 ## Tested
 
+`v1.2.1`:
+
+- An S3 user and bucket made with `labctl s3`, a 1 GB quota set, a 5 MB
+  file uploaded with `aws s3` from a pod and seen in `labctl s3 bucket list`
+  (1 object, 0.5% of the quota), the key rotated, the bucket refused for
+  deletion while it held the file and deleted with `--force`, the user
+  deleted. All of it showed in `labctl operation list` with who did it.
+- During the rollout, `labctl health` warned that the hosts ran different
+  commits and clusterd versions, and cleared after the last host.
+
 `v1.1.0`:
 
 - `labctl health` exits 0 on the healthy site; with `hgd1-k8w02` stopped it
