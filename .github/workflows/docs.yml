@@ -17,10 +17,9 @@ concurrency:
   group: pages
   cancel-in-progress: true
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  # Build and deploy as separate jobs (GitHub's own pattern): the deploy job
+  # starts once the artifact is fully uploaded, so it always finds exactly one.
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/configure-pages@v6
@@ -33,5 +32,12 @@ jobs:
       - uses: actions/upload-pages-artifact@v5
         with:
           path: site
+  deploy:
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
       - uses: actions/deploy-pages@v5
         id: deployment
