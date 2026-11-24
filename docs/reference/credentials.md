@@ -73,7 +73,7 @@ and every secret. Keep an offline backup of it.
 
     Logins and keys for OPNsense and the Aruba, and their backups.
 
-    [Router and switch](https://jurrebuunk.github.io/hgd1-network/router-and-switch/){ .md-button }
+    [Router and switch](https://jurrebuunk.github.io/hgd1-network/operate/router-and-switch/){ .md-button }
 
 ## Password manager
 

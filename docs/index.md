@@ -112,7 +112,7 @@ flowchart TB
 | reboot or service a host | [Host maintenance](operate/host-maintenance.md) |
 | fix something that's broken | [Troubleshooting](operate/troubleshooting.md) |
 | look up an IP address | [Addresses](reference/addresses.md) |
-| change the router or switch | [Router and switch](https://jurrebuunk.github.io/hgd1-network/router-and-switch/) (network docs) |
+| change the router or switch | [Router and switch](https://jurrebuunk.github.io/hgd1-network/operate/router-and-switch/) (network docs) |
 | work on the API, CLI or web UI | [`clusterd`](https://github.com/jurrebuunk/clusterd), [`lab-console`](https://github.com/jurrebuunk/lab-console) |
 | see which repo owns what | [Repositories](reference/repositories.md) |
 | find metrics or logs | [Monitoring](concepts/monitoring.md#operating) |

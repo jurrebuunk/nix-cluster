@@ -73,7 +73,7 @@ flowchart TB
 1. **Network.** Every host has one cable. The untagged VLAN 20 carries host
    management; VLAN 30 (storage) and VLAN 40 (k8s) arrive tagged and end in
    two bridges, `br-stor` and `br-k8s`. See [Host network](network.md); the
-   router and switch are on the [network docs](https://jurrebuunk.github.io/hgd1-network/).
+   router and switch are on the [network docs](https://jurrebuunk.github.io/hgd1-network/concepts/design/).
 2. **NixOS host.** The same configuration on all three, with per-host facts
    from the inventory. Deployed from the laptop; the host builds its own
    system. See [Hosts](hosts.md).

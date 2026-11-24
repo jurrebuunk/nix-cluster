@@ -41,7 +41,7 @@ For a dead NVMe or a broken OS on one host:
 Each step depends on the one before:
 
 1. **Network:** restore the router and switch with [`hgd1-network`](https://github.com/jurrebuunk/hgd1-network) (backups or a
-   fresh run), after the by-hand bootstrap in [Rebuild the network](https://jurrebuunk.github.io/hgd1-network/rebuild/).
+   fresh run), after the by-hand bootstrap in [Rebuild the network](https://jurrebuunk.github.io/hgd1-network/operate/rebuild/).
 2. **Hosts:** install NixOS on all three and deploy this repo (new host keys
    mean re-encrypting the secrets).
 3. **Ceph:** a new cluster with `ceph-bootstrap`, or restore its

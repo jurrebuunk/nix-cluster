@@ -49,4 +49,4 @@ ssh jurre@10.10.20.11 'readlink /run/current-system'                 # which gen
 For a change that could cut a host off the network, arm the self-reverting
 guard before deploying. It boots the old generation if you don't confirm
 within ten minutes. See
-[Rebuild the network → Moving a host](https://jurrebuunk.github.io/hgd1-network/rebuild/#moving-a-host).
+[Rebuild the network → Moving a host](https://jurrebuunk.github.io/hgd1-network/operate/rebuild/#moving-a-host).
