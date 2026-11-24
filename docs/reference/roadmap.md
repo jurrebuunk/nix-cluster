@@ -107,12 +107,15 @@ with its next steps; see [Repositories](repositories.md).
 
 ## Open issues
 
-Problems found and worked around, with the real fix still to do.
+Problems found and worked around, with the real fix still to do. Each has a
+GitHub issue in the repo that owns the fix.
 
 | Issue | Workaround now | Real fix | Where |
 | --- | --- | --- | --- |
-| OPNsense's Unbound answers "no address" (NOERROR) instead of "no such name" (NXDOMAIN) for names under `lan.buunk.org` that don't exist (found 2026-11-24) | k3s pods use their own resolver file without `search lan.buunk.org` ([k3s](../concepts/k3s.md)) | Make Unbound answer NXDOMAIN for unknown names in the zone (local-zone type) | [`hgd1-network`](repositories.md) |
-| Host maintenance with a reboot has never run on a real host | The manual steps on [Host maintenance](../operate/host-maintenance.md) | One real `labctl host maintenance <host> --reboot` and `resume` | This repo |
+| OPNsense's Unbound answers "no address" (NOERROR) instead of "no such name" (NXDOMAIN) for names under `lan.buunk.org` that don't exist (found 2026-11-24) | k3s pods use their own resolver file without `search lan.buunk.org` ([k3s](../concepts/k3s.md)) | Make Unbound answer NXDOMAIN for unknown names in the zone (local-zone type) | [hgd1-network#1](https://github.com/jurrebuunk/hgd1-network/issues/1) (private repo) |
+| Host maintenance with a reboot has never run on a real host | The manual steps on [Host maintenance](../operate/host-maintenance.md) | One real `labctl host maintenance <host> --reboot` and `resume` | [#2](https://github.com/jurrebuunk/nix-hgd1-cluster/issues/2) |
+| Tunnel hostnames get their DNS record by hand (`test.buunk.org` through the Cloudflare API) | One record per app, made by hand | external-dns in the cluster, records in Git next to the routes | [hgd1-k8s#1](https://github.com/jurrebuunk/hgd1-k8s/issues/1) |
+| Old public names (`drive`, `crm`, `matrix`, …) point at tunnels from the Proxmox era that are down | – | Move what should live on to `hgd1-apps`, delete the rest | [#3](https://github.com/jurrebuunk/nix-hgd1-cluster/issues/3) |
 
 ## Open decisions
 
