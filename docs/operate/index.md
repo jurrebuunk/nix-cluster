@@ -77,7 +77,7 @@ Anything else: [Troubleshooting](troubleshooting.md).
 | How often | What |
 | --- | --- |
 | Weekly | The health check above (`labctl health`) |
-| Monthly | `labctl status disk` (fullness, wear, SMART) and `labctl status s3` (buckets, room); `smartctl -a` on a drive that warns; [update dependencies](../how-to/update-dependencies.md) |
+| Monthly | `labctl disk list` (wear, SMART), `labctl fs list` (fullness) and `labctl s3 bucket list` (buckets, quotas); `smartctl -a` on a drive that warns; [update dependencies](../how-to/update-dependencies.md) |
 | Every few months | Decrypt the latest backups as a restore test; check remote access with one host stopped |
 | Yearly | Rotate Cloudflare and S3 credentials; review the Gateway rules |
 

@@ -98,9 +98,9 @@ Every phase skips work that already exists, so rerunning is safe.
 ## Operating
 
 ```sh
-labctl status ceph                     # health, every check, OSDs up/in, PGs, raw capacity
-labctl status disk                     # each OSD's drive: size, how full, SMART
-labctl status s3                       # the object store on top: buckets and room left
+labctl ceph status                         # health, every check, OSDs up/in, PGs, raw capacity
+labctl disk list                           # each OSD's drive: size, how full, SMART
+labctl s3 status                           # the object store on top: room left
 labctl logs --since 1h 'unit:"ceph-osd"*'  # what the OSDs said
 ```
 

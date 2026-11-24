@@ -63,10 +63,11 @@ whose key doesn't match, and agenix encrypts secrets to these keys.
 ## Operating
 
 ```sh
-labctl status host                                                     # up, uptime, load, memory
-labctl metrics query 'node_systemd_unit_state{state="failed"} == 1'    # failed units
-labctl metrics query 'node_os_info'                                    # NixOS version per host and VM
-labctl status disk                                                     # drives and filesystems
+labctl host list                                                     # up, uptime, load, memory
+labctl metrics query 'node_systemd_unit_state{state="failed"} == 1'  # failed units
+labctl metrics query 'node_os_info'                                  # NixOS version per host and VM
+labctl disk list                                                     # drives
+labctl fs list                                                       # filesystems
 ```
 
 - Changes: [Deploy a change](../how-to/deploy.md), [Roll back](../how-to/roll-back.md).
@@ -84,7 +85,7 @@ history still matters:
   before the test (hour 14214).
 - **hv03 HDD:** reports `Runtime_Bad_Block = 1`.
 - **NVMe wear** (`smartctl_device_percentage_used`): hv01 47%, hv02 7%,
-  hv03 60%. hv01 and hv03 are the ones to replace first. `labctl status disk`
+  hv03 60%. hv01 and hv03 are the ones to replace first. `labctl disk list`
   shows the current values, with size and how full every drive is.
 
 I've accepted these used disks for a homelab. Ceph keeps three copies, but

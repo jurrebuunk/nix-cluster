@@ -11,8 +11,8 @@ first time you do it.
 
 ## Before you start
 
-- Only one disk is out (`labctl status disk`: which drive, its SMART state;
-  `labctl status ceph`: which OSD is down). With two hosts' disks gone, I/O
+- Only one disk is out (`labctl disk list`: which drive, its SMART state;
+  `labctl ceph status`: which OSD is down). With two hosts' disks gone, I/O
   has already stopped.
 - A replacement 2.5" SATA disk, and time for an extended SMART test (hours).
 
@@ -22,7 +22,7 @@ first time you do it.
 
     ```sh
     ssh jurre@<host> 'sudo ceph osd out <id>'
-    labctl status ceph            # wait until all PGs are clean again
+    labctl ceph status            # wait until all PGs are clean again
     ```
 
     With three hosts, the third copy can only come back on the new disk; until
@@ -60,8 +60,8 @@ first time you do it.
 ## Check it worked
 
 ```sh
-labctl status ceph      # HEALTH_OK, 3/3 up and in, all PGs clean
-labctl status disk      # the new drive: its serial, osd.<id>, SMART OK
+labctl ceph status  # HEALTH_OK, 3/3 up and in, all PGs clean
+labctl disk list    # the new drive: its serial, osd.<id>, SMART OK
 ```
 
 ## Related

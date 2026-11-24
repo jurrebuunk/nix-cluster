@@ -20,7 +20,7 @@ to the hosts, Ceph or the monitoring stores directly.
 
 !!! info "At a glance"
 
-    **Status** <span class="status">v1.1.0</span> ·
+    **Status** <span class="status">v1.2.0</span> ·
     **Endpoint** `https://api.lan.buunk.org` (VIP `10.10.20.20`, infra VLAN) ·
     **Configured in** `modules/clusterd/`, `inventory.nix` → `api` ·
     **Reference** [API reference](../reference/api.md)
@@ -51,10 +51,12 @@ flowchart LR
   performs actions on what's there (restart, drain, maintenance). It never
   creates or deletes VMs.
 
-`v1.1.0` runs now: status (as a whole or per part, including disks and S3),
-one health verdict (`/v1/checks`), metrics, logs, and actions: VM restart,
-stop and start, node cordon and uncordon, host maintenance and resume. `/v1` is stable: only
-backward-compatible changes; anything breaking would go to `/v2` (see the
+`v1.2.0` runs now: the site as resources (hosts, VMs, nodes, pods, Ceph,
+disks, VIPs, S3 buckets and users), one health verdict (`/v1/checks`),
+metrics, logs, the history of every action, and actions: VM restart, stop
+and start, node cordon and uncordon, host maintenance and resume, and S3
+users and buckets. `/v1` is stable from `2.0.0` on: only backward-compatible
+changes; anything breaking would go to `/v2` (see the
 [clusterd plan](https://github.com/jurrebuunk/clusterd/blob/main/PLAN.md)).
 
 ## How it works
@@ -89,15 +91,22 @@ Two layers, both required:
   comes from a copy refreshed every 10 seconds (the `ceph` CLI takes half a
   second; asking it per request made `status` slow); `as_of` and the AGE
   column say how old it is. It reads k3s
-  and Ceph itself and asks every peer's `/v1/node` (that host's uptime, load,
-  memory, VMs and VIPs) **with the caller's own token**. The instances share
+  and Ceph itself and asks every peer's `/v1/internal/node` (that host's
+  uptime, load, memory, VMs, VIPs and NixOS system) **with the caller's own
+  token**. The instances share
   no credential of their own, and a peer only tells a caller what it would
   tell them directly. An unreachable peer shows up as `unreachable`; its VMs
   and any VIP it may hold as `unknown`.
 
-- **Every part on its own.** `/v1/status/hosts`, `vms`, `k3s`, `ceph`,
-  `vips`, `disks` and `s3` answer just that part, so a script or the web UI
-  only asks for what it shows; `labctl status disk` uses them.
+- **Resources, like real APIs.** Every part is its own collection
+  (`/v1/hosts`, `/v1/vms`, `/v1/nodes`, `/v1/pods`, `/v1/disks`,
+  `/v1/s3/buckets`, …) with `/{name}` for one item, and actions are a `POST`
+  on the item (`/v1/vms/{name}/stop`), as in GitHub's or Proxmox's API. A
+  script or the web UI only asks for what it shows.
+- **What each host runs.** The cluster sets `system.configurationRevision`
+  to the git commit, so `labctl host list` shows which commit each host
+  runs and whether a new kernel waits for a reboot; `labctl health` warns
+  when the hosts differ.
 
 ### Disks and S3
 
@@ -131,6 +140,7 @@ procedure that used to be a script or SSH session:
 | VM restart, stop, start (`labctl vm …`, `vm roll`) | operator | `scripts/vm.sh`, `scripts/k3s-roll.sh` |
 | Node cordon, uncordon | operator | `kubectl cordon/uncordon` |
 | Host maintenance and resume | manage | drains, `ceph osd set noout`, reboot and uncordon by hand |
+| S3 users (create, rotate keys, delete) and buckets (create, quota, delete) | manage | `radosgw-admin` over SSH |
 
 The VM restart shows how they work:
 
@@ -140,10 +150,10 @@ sequenceDiagram
   participant a as clusterd (VIP owner)
   participant h as clusterd on the VM's host
   participant k as k3s API
-  cli->>a: POST …/vms/hgd1-k8w02/restart?dry_run=1
+  cli->>a: POST /v1/vms/hgd1-k8w02/restart?dry_run=true
   a->>h: same request, same token
   h-->>cli: plan (pods to evict, steps)
-  cli->>a: POST …/vms/hgd1-k8w02/restart
+  cli->>a: POST /v1/vms/hgd1-k8w02/restart?wait=true
   a->>h: forwarded
   h->>k: take the lock (Lease), check nodes and etcd quorum
   h->>k: cordon, evict pods
@@ -165,13 +175,15 @@ sequenceDiagram
   expires two minutes after a crash.
 - **Safe when it fails.** A failed drain uncordons the node again; a VM that
   doesn't come back stays cordoned, so nothing gets scheduled on it.
-- **Finishes on its own.** Progress streams back as JSON lines, but the action
-  doesn't depend on the client: if WARP drops, it completes and the journal
+- **Finishes on its own.** Every action is an operation with an ID. `labctl`
+  follows its progress as JSON lines, but the action doesn't depend on the
+  client: if WARP drops, it completes, and `labctl operation show <id>`
   has the result.
-- **Audit.** Start and end of every action are `msg=audit` lines in the
+- **History without new state.** Start, progress and end of every action
+  (and every S3 write) are `msg=audit` and `action progress` lines in the
   journal of `clusterd.service` (action, target, token, scope, request ID,
-  result, duration), and so in VictoriaLogs:
-  `labctl logs --unit clusterd audit`.
+  result), and so in VictoriaLogs. `/v1/operations` is a query over those:
+  `labctl operation list` shows who did what, when, and how it ended.
 
 ### Privileges
 
@@ -183,7 +195,7 @@ sequenceDiagram
 | Reboot its own host | Only for host maintenance with `--reboot` (scope `manage`): a polkit rule (`services.clusterd.allowReboot`) allows the `clusterd` user logind's reboot actions, not power-off |
 | Kubernetes | ServiceAccount `clusterd/clusterd`: read nodes and pods, patch nodes (cordon), create evictions, and manage Leases in its own namespace only. Declared in `modules/microvm/guest/k3s/clusterd.nix`; kubeconfig in `secrets/clusterd-kubeconfig.age` |
 | Ceph status, OSD usage, maintenance flag | Client key `client.clusterd`: `mon 'allow r'` plus only the commands `osd set-group` and `osd unset-group` (per-host `noout`), and `mgr 'allow r'` (for `osd df`); in `secrets/clusterd-ceph-keyring.age` |
-| S3 buckets and users | RGW user `clusterd`: caps `buckets`, `users`, `usage`, `metadata` all `read`, no buckets of its own; keys in `secrets/clusterd-s3-admin.age`. It talks to each host's RGW on the storage VLAN (`:7480`) |
+| S3 buckets and users | RGW user `clusterd`: caps `buckets=*` and `users=*` (create and delete users, keys, bucket quotas), `usage` and `metadata` `read`, no buckets of its own; keys in `secrets/clusterd-s3-admin.age`. Buckets are created with their owner's key, so they belong to the owner. It talks to each host's RGW on the storage VLAN (`:7480`) |
 | Metrics and logs | Plain HTTP to the local stores on `127.0.0.1`, peers on the infra VLAN |
 
 Secrets reach the service as systemd credentials (`/run/credentials/clusterd.service/`),
@@ -205,7 +217,7 @@ repo as a flake input. This repo only configures them:
 
 | File | Owns |
 | --- | --- |
-| `flake.nix` → `inputs.clusterd` | The `clusterd` release in use, pinned to its tag (now `github:jurrebuunk/clusterd/v1.1.0`) |
+| `flake.nix` → `inputs.clusterd` | The `clusterd` release in use, pinned to its tag (now `github:jurrebuunk/clusterd/v1.2.0`) |
 | `inventory.nix` → `api` | Hostname, VIP, VRRP id |
 | `modules/clusterd/default.nix` | Enables `services.clusterd` with settings from the inventory |
 | `modules/clusterd/tls.nix` | ACME certificate through DNS-01 |
@@ -217,8 +229,8 @@ repo as a flake input. This repo only configures them:
 ## Operating
 
 ```sh
-labctl status host                              # every instance and its version (CLUSTERD)
-labctl status vip                               # who holds api
+labctl host list                              # every instance and its version (CLUSTERD)
+labctl vip list                               # who holds api
 curl -s https://api.lan.buunk.org/v1/health   # no token needed
 ```
 

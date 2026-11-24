@@ -9,7 +9,7 @@ after a deploy (deploys never restart VMs) and for any planned VM restart.
 
 ## Before you start
 
-- Every enabled VM is a Ready node: `labctl status node`.
+- Every enabled VM is a Ready node: `labctl node list`.
 - An API token with at least `operator` scope; no kubeconfig needed.
 
 ## Steps
@@ -35,7 +35,7 @@ failure. It refuses when it can't see which nodes are servers.
 ## Check it worked
 
 ```sh
-labctl status node
+labctl node list
 ```
 
 All nodes are `Ready` and none shows `SchedulingDisabled`.

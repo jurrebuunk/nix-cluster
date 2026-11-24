@@ -31,23 +31,23 @@ The other two keep the site running:
 
 `labctl status` shows it as `Unreachable`, its VMs as `Unknown` and any VIP
 it held as moved. Bring it back (console, power), then check with
-`labctl status host`, `labctl status ceph` (OSD up, no new checks) and
-`labctl status node` (its VMs Ready). Ceph catches up by itself.
+`labctl host list`, `labctl ceph status` (OSD up, no new checks) and
+`labctl node list` (its VMs Ready). Ceph catches up by itself.
 
 ## Ceph not healthy
 
 ```sh
-labctl status ceph                       # each check is a warning: line
-labctl logs --since 1h 'unit:"ceph-mon"*'   # what the monitors said
+labctl ceph status                         # each check is a warning: line
+labctl logs --since 1h 'unit:"ceph-mon"*'  # what the monitors said
 ```
 
 | Message | Meaning and fix |
 | --- | --- |
-| `noout flag(s) set` | A host is still in maintenance (`labctl status host` shows `Maintenance`): `labctl host resume <host>`. A global flag set by hand: `ssh jurre@10.10.20.11 'sudo ceph osd unset noout'` |
+| `noout flag(s) set` | A host is still in maintenance (`labctl host list` shows `Maintenance`): `labctl host resume <host>`. A global flag set by hand: `ssh jurre@10.10.20.11 'sudo ceph osd unset noout'` |
 | `osds down`, `Degraded data redundancy` | A host or disk is out; data is on two copies until it returns |
 | `mon … down, quorum …` | One monitor is gone; fine while two are in quorum |
 | `clock skew detected` | `labctl metrics query 'node_timex_offset_seconds'` shows the offset per host and VM; then `chronyc sources` on that host |
-| `nearfull` / `full` | `labctl status disk` and `labctl status s3` show what fills up. Delete data or add capacity; at `full`, writes stop |
+| `nearfull` / `full` | `labctl fs list`, `labctl osd list` and `labctl s3 bucket list` show what fills up. Delete data or add capacity; at `full`, writes stop |
 
 With two hosts down, I/O stops until one returns. Don't force anything;
 bring a host back.
@@ -55,9 +55,9 @@ bring a host back.
 ## S3 not answering
 
 ```sh
-labctl status vip                        # who owns 10.10.30.10
-labctl status s3                         # gateways, certificate, room
-labctl logs --unit keepalived --since 1h # VIP moves and failing checks
+labctl vip list                           # who owns 10.10.30.10
+labctl s3 status                          # gateways, certificate, room
+labctl logs --unit keepalived --since 1h  # VIP moves and failing checks
 labctl logs --unit haproxy --since 1h
 ```
 
@@ -65,17 +65,17 @@ labctl logs --unit haproxy --since 1h
 | --- | --- |
 | `s3` owner `<none>` | No proxy passes the health check; usually the certificate. The `CERT` column and `labctl logs --since 1d 'unit:"acme"* error'` tell |
 | More than one owner (split brain warning) | They can't see each other's VRRP on the storage VLAN; check the switch ports (VLAN 30 tagged) and host firewalls |
-| VIP fine, requests fail | Ceph or the gateways: `labctl status ceph`, the `GATEWAYS` column of `labctl status s3`, `labctl logs --since 1h 'unit:"ceph-rgw"*'` |
+| VIP fine, requests fail | Ceph or the gateways: `labctl ceph status`, the `GATEWAYS` column of `labctl s3 status`, `labctl logs --since 1h 'unit:"ceph-rgw"*'` |
 
 ## k3s node not ready
 
 ```sh
-labctl status node                                # Ready, cordoned?
-labctl status vm                                  # is the VM itself running?
-labctl logs --host <vm> --unit k3s --since 30m    # k3s inside the VM
-labctl logs --unit microvm@<vm> --since 1h        # the VM's console, from its host
-kubectl describe node <node>                      # conditions and events
-labctl vm restart <vm>                            # often the fix; safe and refuses when it isn't
+labctl node list                                # Ready, cordoned?
+labctl vm list                                  # is the VM itself running?
+labctl logs --host <vm> --unit k3s --since 30m  # k3s inside the VM
+labctl logs --unit microvm@<vm> --since 1h      # the VM's console, from its host
+kubectl describe node <node>                    # conditions and events
+labctl vm restart <vm>                          # often the fix; safe and refuses when it isn't
 ```
 
 | Symptom | Fix |
@@ -87,7 +87,7 @@ labctl vm restart <vm>                            # often the fix; safe and refu
 
 ## API unreachable
 
-1. `labctl status node`: if it answers, the API is up for clusterd and the
+1. `labctl node list`: if it answers, the API is up for clusterd and the
    problem is between you and `k8s.lan.buunk.org` (WARP, DNS).
 2. Who has the VIP? `labctl logs --unit keepalived --since 1h 'k8s'` shows
    which server entered `MASTER` last. `labctl metrics query
@@ -100,7 +100,7 @@ labctl vm restart <vm>                            # often the fix; safe and refu
 
 | You see | Likely cause and fix |
 | --- | --- |
-| `mon.lan.buunk.org` doesn't answer | No host passes the VIP check. `labctl status host` shows `MetricsDown`/`LogsDown` per host; `labctl metrics` and `labctl logs` keep working through the other hosts' stores |
+| `mon.lan.buunk.org` doesn't answer | No host passes the VIP check. `labctl host list` shows `MetricsDown`/`LogsDown` per host; `labctl metrics` and `labctl logs` keep working through the other hosts' stores |
 | A target is `down` | `labctl metrics query 'up == 0'` names it; `labctl logs --unit vmagent --since 1h` says why. On a host, `curl -s 127.0.0.1:8429/api/v1/targets` gives the `lastError`. Router: is `os-node_exporter` running? VMs: was the VM restarted after the monitoring deploy? |
 | One copy has fewer series | vmagent is still catching up from its disk buffer; give it a few minutes |
 | No logs from a VM | `labctl metrics query 'up{job="vm-node"}'` (is the VM reachable at all?), then `ssh jurre@<vm> systemctl status vector`; it ships over the storage VLAN |
@@ -113,13 +113,13 @@ labctl vm restart <vm>                            # often the fix; safe and refu
 | --- | --- |
 | `labctl` exits with code 3 | API unreachable: check WARP, then `curl -s https://api.lan.buunk.org/v1/health` |
 | `/v1/health` fails | No host passes the VIP check: `systemctl status clusterd keepalived` on each host (this one needs SSH: the API is what's broken) |
-| 401 / exit code 4 | Token unknown or revoked; `labctl whoami`, or create a new one ([Tokens](../how-to/use-the-cli.md#tokens)) |
+| 401 / exit code 4 | Token unknown or revoked; `labctl auth status`, or create a new one ([Tokens](../how-to/use-the-cli.md#tokens)) |
 | 403 on an action | The token's scope is too low: VM and node actions need `operator`, host maintenance `manage` |
 | 409 on an action | Another action runs (the message names it). Wait, or if its clusterd crashed, the lock frees itself within two minutes |
 | 412 on a VM restart | It would be unsafe now; the message says why (a node not Ready, etcd quorum, a pod without a controller). Fix that first |
 | A restart ended with the node `SchedulingDisabled` | The VM didn't come back Ready in 10 minutes; it was left cordoned on purpose. Check `labctl logs --unit microvm@<vm> --since 30m`, then `labctl node uncordon <node>`; then `kubectl uncordon` |
 | `warning: disks: ceph osds: … EACCES` | The Ceph key lacks `mgr 'allow r'`: `ceph auth caps client.clusterd mon 'allow r' mgr 'allow r'` (it prints the key: send the output to `/dev/null`) |
-| `warning: s3: buckets: … 403` | The RGW user `clusterd` is missing its caps, or `secrets/clusterd-s3-admin.age` doesn't match it: `radosgw-admin user info --uid=clusterd` |
+| `warning: s3: buckets: … 403` | The RGW user `clusterd` is missing its caps, or `secrets/clusterd-s3-admin.age` doesn't match it: `sudo radosgw-admin user info --uid=clusterd \| jq .caps` (never without the `jq`: it prints the keys) |
 | VM restart fails with `Interactive authentication required` | The polkit rule is missing: is `services.clusterd.manageUnitPrefixes` set, and `/etc/polkit-1/rules.d/10-nixos.rules` present? |
 | A host shows `Unreachable` in `labctl status` | `clusterd` is down there or port 443 is blocked: `labctl logs --host <host> --unit clusterd --since 1h`, then `systemctl status clusterd` on that host |
 | `k3s: unreachable` in the status | The ServiceAccount token or CA no longer matches (a rebuilt cluster): recreate `secrets/clusterd-kubeconfig.age` from the `clusterd-token` Secret in namespace `clusterd` |

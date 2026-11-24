@@ -33,7 +33,7 @@ Reboot, update or open up a host without an outage. One host at a time.
     data. With `--reboot` the host reboots right after.
 
 2. **Do the work.** For hardware, power it off now (`ssh jurre@10.10.20.11 'sudo
-   poweroff'`) and back on after. `labctl status host` shows it as
+   poweroff'`) and back on after. `labctl host list` shows it as
    `Up,Maintenance` once it's back.
 3. **Bring it back:**
 

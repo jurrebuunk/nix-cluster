@@ -48,7 +48,7 @@ Keep an odd number of k3s servers.
 1. Drain and stop it, then delete its node object:
 
     ```sh
-    labctl vm stop hgd1-k8w02          # cordon, drain, stop; labctl status vm shows Stopped
+    labctl vm stop hgd1-k8w02          # cordon, drain, stop; labctl vm list shows Stopped
     kubectl delete node hgd1-k8w02
     ```
 
@@ -73,8 +73,8 @@ has to be deleted.
 ## Check it worked
 
 ```sh
-labctl status vm        # Running on the right host
-labctl status node      # Ready, with the right zone
+labctl vm list        # Running on the right host
+labctl node list      # Ready, with the right zone
 ```
 
 !!! note "Disk size"

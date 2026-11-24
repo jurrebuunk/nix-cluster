@@ -110,11 +110,11 @@ to `10.10.20.10`; the Aruba has a read-only SNMP community and
 **Query from the command line:**
 
 ```sh
-labctl metrics query 'probe_success == 0'               # which probes fail
-labctl metrics query 'up == 0'                          # which targets are down
-labctl status disk                                      # wear, SMART, fullness of every drive
-labctl logs --host hgd1-hv01 --unit ceph-osd-0 --since 1h   # one unit; 'unit:"ceph-osd"*' for all
-labctl logs -f --host hgd1-fw01                         # follow the router
+labctl metrics query 'probe_success == 0'                  # which probes fail
+labctl metrics query 'up == 0'                             # which targets are down
+labctl disk list                                           # wear, SMART, fullness of every drive
+labctl logs --host hgd1-hv01 --unit ceph-osd-0 --since 1h  # one unit; 'unit:"ceph-osd"*' for all
+labctl logs -f --host hgd1-fw01                            # follow the router
 ```
 
 `labctl` goes through the [Platform API](api.md), which asks this host's store

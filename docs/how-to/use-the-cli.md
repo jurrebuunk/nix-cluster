@@ -40,7 +40,7 @@ live in an agenix secret.
    the command prints only the hash line:
 
     ```sh
-    labctl token new --name laptop-jurre --scope manage --out ~/.config/labctl/tokens/hgd1
+    labctl auth token create --name laptop-jurre --scope manage --out ~/.config/labctl/tokens/hgd1
     # laptop-jurre manage sha256:…
     ```
 
@@ -60,7 +60,7 @@ live in an agenix secret.
    `~/.config/labctl/tokens/hgd1` (mode 600):
 
     ```sh
-    labctl login --token-file ~/.config/labctl/tokens/hgd1   # or: labctl login, and paste it
+    labctl auth login --token-file ~/.config/labctl/tokens/hgd1   # or: labctl auth login, and paste it
     ```
 
 Use `--scope read` for tokens that only look (dashboards, scripts) and
@@ -70,11 +70,17 @@ from the secret and deploying.
 ## Steps
 
 ```sh
-labctl status                                   # hosts, VMs, k3s, Ceph, VIPs at a glance
-labctl status disk                              # drives: size, how full, wear, SMART; filesystems
-labctl status s3                                # gateways, buckets, quotas, room left
+labctl status                          # hosts, VMs, k3s, Ceph, VIPs at a glance
+labctl health                          # one verdict per area
+labctl host list                       # which commit each host runs, reboots pending
+labctl pod list --failing              # pods that need a look
+labctl operation list                  # what was done lately, by whom
+labctl disk list                       # drives: size, how full, wear, SMART
+labctl fs list                         # filesystems of hosts and VMs, how full
+labctl s3 status                       # gateways, users, room left, certificate
+labctl s3 bucket list                  # buckets: owner, size, quota
 labctl logs --host hgd1-hv01 --unit ceph-osd-0.service --since 1h
-labctl logs --follow --host hgd1-fw01           # live router log
+labctl logs --follow --host hgd1-fw01  # live router log
 ```
 
 Actions need at least an `operator` token and ask for confirmation:
@@ -87,7 +93,7 @@ labctl vm restart hgd1-k8w01                    # cordon → drain → restart �
 Output is compact, like `kubectl`:
 
 ```text
-$ labctl status nodes
+$ labctl node list
 NODE        STATUS  ROLES               VERSION       ZONE
 hgd1-k8m01  Ready   control-plane,etcd  v1.35.8+k3s1  hgd1-hv01
 …
@@ -105,19 +111,22 @@ vm restart hgd1-k8w02 done
 ## Check it worked
 
 ```sh
-labctl whoami        # token name and scope
-labctl status        # everything green
+labctl auth status  # token name and scope
+labctl status       # everything green
 ```
 
 ## Good to know
 
+- Commands are a noun and a verb (`labctl vm stop`, `labctl s3 bucket
+  list`); `labctl <noun> --help` lists the verbs, and Tab completes them and
+  the names of VMs, hosts and buckets.
 - `--unit` takes a unit or syslog app name, with or without `.service`
-  (`--unit clusterd`). For several units, or names with dots, use a LogsQL
-  filter as the query: `labctl logs --since 1h 'unit:"ceph-osd"*'`.
-- Output is a table by default; add `--json` for scripts
-  (`labctl --json status | jq .ceph`).
-- Another site: `labctl login --site <name> --api https://…`, then
-  `labctl use <name>` or `--site <name>`.
+  (`--unit clusterd`), or a prefix (`--unit 'ceph-osd*'`).
+- Output is a table by default; `-o json` for scripts
+  (`labctl -o json status | jq .ceph`), `-o name` for one name per line
+  (`labctl vm list -o name`).
+- Another site: `labctl auth login --site <name> --api https://…`, then
+  `labctl site use <name>` or `--site <name>`.
 - `LABCTL_API` overrides the endpoint (default `https://api.lan.buunk.org`),
   handy when developing `clusterd` against a single host.
 - If a command fails with a connection error, check WARP first.

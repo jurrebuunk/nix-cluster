@@ -80,7 +80,7 @@ step 1.
 | Cloudflare DNS token | New token limited to DNS edit, re-encrypt, deploy, check a renewal, revoke the old one |
 | k3s agent token | Replace the secret, deploy, restart the agents |
 | k3s server token | Needs `k3s token rotate` on a running cluster; read the k3s docs first |
-| S3 user keys | `radosgw-admin key create`, update the app, remove the old key |
+| S3 user keys | `labctl s3 user rotate-keys <user> --out <file>`, then update the app |
 
 ## Never in Git
 

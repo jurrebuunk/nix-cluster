@@ -35,7 +35,7 @@ The main way in. `labctl` shows and operates the whole site through the
 host and VM, and safe VM restarts.
 
 ```sh
-labctl login          # paste your API token once
+labctl auth login          # paste your API token once
 labctl status
 ```
 

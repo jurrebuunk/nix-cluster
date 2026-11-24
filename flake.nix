@@ -13,12 +13,12 @@
     };
     # Platform API and CLI; always a release tag (docs/concepts/api.md).
     clusterd = {
-      url = "github:jurrebuunk/clusterd/v1.1.0";
+      url = "github:jurrebuunk/clusterd/v1.2.0";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = { nixpkgs, agenix, microvm, clusterd, ... }:
+  outputs = { self, nixpkgs, agenix, microvm, clusterd, ... }:
     let
       system = "x86_64-linux";
       inventory = import ./inventory.nix;
@@ -49,6 +49,9 @@
             clusterd.nixosModules.clusterd
             ./modules/clusterd
             (./hosts + "/${host}")
+            # The commit a host was built from; clusterd reports it, so
+            # `labctl host list` shows whether every host runs the same one.
+            { system.configurationRevision = self.rev or self.dirtyRev or null; }
           ];
         }) inventory.hosts) // guestConfigurations;
 

@@ -13,7 +13,7 @@ only because the inventory says so.
 
     **Status** <span class="status">Done</span> · **Configured in**
     `inventory.nix` → `vms`, `modules/microvm/` · **Operate**
-    `labctl status vm`, `labctl vm restart` · **How-to** [Manage VMs](../how-to/manage-vms.md)
+    `labctl vm list`, `labctl vm restart` · **How-to** [Manage VMs](../how-to/manage-vms.md)
 
 ## Overview
 
@@ -112,8 +112,8 @@ guests on a host without KVM.
 ## Operating
 
 ```sh
-labctl status vm                                  # every VM and its state
-labctl status disk                                # their /var/lib filesystems, how full
+labctl vm list                                    # every VM and its state
+labctl fs list                                    # their /var/lib filesystems, how full
 labctl logs --unit microvm@hgd1-k8m01 --since 1h  # the VM's console, from its host
 labctl logs --host hgd1-k8m01 --since 1h          # inside the VM
 labctl vm restart hgd1-k8m01                      # drain, restart, Ready, uncordon

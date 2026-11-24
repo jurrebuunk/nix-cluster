@@ -67,7 +67,7 @@ verify, next host. Deploys are manual and deliberately one host at a time.
     minutes of OSD heartbeat failures on hv01 and hv02 and a `SLOW_OPS`
     warning. No OSD went down and it cleared by itself. Later deploys,
     including other firewall reloads, didn't do this; the cause isn't known
-    yet. After a deploy, check `labctl status ceph` before the next host.
+    yet. After a deploy, check `labctl ceph status` before the next host.
 
 ## Actions
 
