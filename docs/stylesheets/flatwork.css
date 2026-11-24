@@ -169,13 +169,17 @@
 .md-typeset .admonition.k8s, .md-typeset details.k8s { --card: var(--k8s); --card-soft: var(--k8s-soft); }
 .md-typeset .admonition.network, .md-typeset details.network { --card: var(--network); --card-soft: var(--network-soft); }
 
+/* The theme draws callouts as a tinted box without a border: tint it with
+   the site's colour and add an edge and title in that colour. */
 .md-typeset .admonition:is(.cluster, .k8s, .network),
 .md-typeset details:is(.cluster, .k8s, .network) {
-  border-color: var(--card);
+  background-color: var(--card-soft);
+  border-left: 0.2rem solid var(--card);
 }
 
 .md-typeset :is(.cluster, .k8s, .network) > :is(.admonition-title, summary) {
-  background-color: var(--card-soft);
+  background-color: transparent;
+  color: var(--card);
 }
 
 .md-typeset :is(.cluster, .k8s, .network) > :is(.admonition-title, summary)::before {
