@@ -20,7 +20,7 @@ to the hosts, Ceph or the monitoring stores directly.
 
 !!! info "At a glance"
 
-    **Status** <span class="status">v1.2.0</span> ·
+    **Status** <span class="status">v1.2.1</span> ·
     **Endpoint** `https://api.lan.buunk.org` (VIP `10.10.20.20`, infra VLAN) ·
     **Configured in** `modules/clusterd/`, `inventory.nix` → `api` ·
     **Reference** [API reference](../reference/api.md)
@@ -51,7 +51,7 @@ flowchart LR
   performs actions on what's there (restart, drain, maintenance). It never
   creates or deletes VMs.
 
-`v1.2.0` runs now: the site as resources (hosts, VMs, nodes, pods, Ceph,
+`v1.2.1` runs now: the site as resources (hosts, VMs, nodes, pods, Ceph,
 disks, VIPs, S3 buckets and users), one health verdict (`/v1/checks`),
 metrics, logs, the history of every action, and actions: VM restart, stop
 and start, node cordon and uncordon, host maintenance and resume, and S3
@@ -217,7 +217,7 @@ repo as a flake input. This repo only configures them:
 
 | File | Owns |
 | --- | --- |
-| `flake.nix` → `inputs.clusterd` | The `clusterd` release in use, pinned to its tag (now `github:jurrebuunk/clusterd/v1.2.0`) |
+| `flake.nix` → `inputs.clusterd` | The `clusterd` release in use, pinned to its tag (now `github:jurrebuunk/clusterd/v1.2.1`) |
 | `inventory.nix` → `api` | Hostname, VIP, VRRP id |
 | `modules/clusterd/default.nix` | Enables `services.clusterd` with settings from the inventory |
 | `modules/clusterd/tls.nix` | ACME certificate through DNS-01 |
