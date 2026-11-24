@@ -105,6 +105,15 @@ Cluster components (Flux, public access, Postgres, Keycloak) live in `hgd1-k8s`,
 router and switch move to Ansible in `hgd1-network`. Each has a `PLAN.md`
 with its next steps; see [Repositories](repositories.md).
 
+## Open issues
+
+Problems found and worked around, with the real fix still to do.
+
+| Issue | Workaround now | Real fix | Where |
+| --- | --- | --- | --- |
+| OPNsense's Unbound answers "no address" (NOERROR) instead of "no such name" (NXDOMAIN) for names under `lan.buunk.org` that don't exist (found 2026-11-24) | k3s pods use their own resolver file without `search lan.buunk.org` ([k3s](../concepts/k3s.md)) | Make Unbound answer NXDOMAIN for unknown names in the zone (local-zone type) | [`hgd1-network`](repositories.md) |
+| Host maintenance with a reboot has never run on a real host | The manual steps on [Host maintenance](../operate/host-maintenance.md) | One real `labctl host maintenance <host> --reboot` and `resume` | This repo |
+
 ## Open decisions
 
 - What happens to the old Proxmox-era repos (`k3s-infra`,
