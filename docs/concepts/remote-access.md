@@ -55,7 +55,7 @@ the web UI, only answer on the infra VLAN.
 
 | Layer | Rule |
 | --- | --- |
-| Enrolment | Access policy: only my email, one-time PIN login |
+| Enrolment | My email only through the one-time PIN (so admin access never depends on Keycloak); family enrol through Keycloak and get no access to the site ([Internal access](https://jurrebuunk.github.io/hgd1-k8s/concepts/internal-access/#signing-in-to-warp)) |
 | Gateway | Block storage `10.10.30.0/24` for everyone; allow `10.10.0.0/16` for my email; block it for everyone else (rules 500, 1000, 2000; the internal apps' rules are 1100 and 2100) |
 | OPNsense | Only `10.10.20.11–13` may forward into mgmt, k8s and users |
 | Storage | Not routed at all, and blocked in Gateway as a second line |
