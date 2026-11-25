@@ -51,8 +51,8 @@ Kept free: `10.42.0.0/16` (k3s pods) and `10.43.0.0/16` (k3s services).
 | `k8s.lan.buunk.org` | `10.10.40.10:6443` | Keepalived on the k3s servers (VRRP id 40) |
 | `mon.lan.buunk.org` | `10.10.20.10`: metrics `:8428`, logs `:9428`, syslog `:514` | Keepalived on the hosts (VRRP id 20) |
 | `api.lan.buunk.org` | `10.10.20.20:443` | Keepalived on the hosts (VRRP id 21), `clusterd` |
-| `lab.buunk.org` | A load balancer IP in `10.10.40.200–249` (internal DNS for now) | Web UI (`lab-console`) on k3s |
-| Kubernetes load balancers | `10.10.40.200–249` | Reserved for MetalLB in `hgd1-k8s`, for later LAN-only services; public apps use the [tunnel](https://jurrebuunk.github.io/hgd1-k8s/concepts/public-access/) |
+| `lab.buunk.org` | Over WARP through `hgd1-k8s`'s tunnel `hgd1-internal` (planned) | Web UI (`lab-console`) on k3s |
+| Kubernetes load balancers | `10.10.40.200–249` | Reserved, unused: internal apps go over WARP ([Internal access](https://jurrebuunk.github.io/hgd1-k8s/concepts/internal-access/)), public apps through the [tunnel](https://jurrebuunk.github.io/hgd1-k8s/concepts/public-access/) |
 | Ceph monitors | `10.10.30.11–13`, ports 3300 (v2) and 6789 (v1) | Ceph |
 | RGW (direct, diagnostics) | `10.10.30.11–13:7480` | Ceph |
 | Ceph manager metrics | `<storage-ip>:9283` | Active manager |
@@ -75,4 +75,4 @@ Kept free: `10.42.0.0/16` (k3s pods) and `10.43.0.0/16` (k3s services).
 | --- | --- |
 | Zero Trust team | `buunk` (`buunk.cloudflareaccess.com`) |
 | Tunnel | `hgd1-admin`, ID in `inventory.nix` → `remoteAccess.tunnelId` |
-| Routed through the tunnel | `10.10.0.0/16` (storage blocked in Gateway) |
+| Routed through the tunnel | `10.10.0.0/16` in virtual network `hgd1-admin` (storage blocked in Gateway) |

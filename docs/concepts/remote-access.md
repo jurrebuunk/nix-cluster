@@ -35,8 +35,13 @@ the web UI, only answer on the infra VLAN.
 
 - **One tunnel, three connectors.** Tunnel `hgd1-admin` runs on all three
   hypervisors. Each connector dials out to Cloudflare; any one keeps access up.
-- **The tunnel announces `10.10.0.0/16`.** Cloudflare sends my traffic to a
-  healthy connector, and the hypervisor forwards it through OPNsense.
+- **The tunnel announces `10.10.0.0/16`**, in the virtual network
+  `hgd1-admin`. Cloudflare sends my traffic to a healthy connector, and the
+  hypervisor forwards it through OPNsense.
+- **Admin only when needed.** The WARP client stays on the virtual network
+  `default` all day (internal apps of `hgd1-k8s` work there, see
+  [Internal access](https://jurrebuunk.github.io/hgd1-k8s/concepts/internal-access/));
+  I switch to `hgd1-admin` to reach the site.
 - **The WARP client** on my laptop is enrolled in the Zero Trust
   organisation. Only my email address can enrol.
 - **Split tunnel, Include mode.** Only `10.10.0.0/16` and the team domain go
@@ -51,7 +56,7 @@ the web UI, only answer on the infra VLAN.
 | Layer | Rule |
 | --- | --- |
 | Enrolment | Access policy: only my email, one-time PIN login |
-| Gateway | Block storage `10.10.30.0/24` for everyone; allow `10.10.0.0/16` for my email; block it for everyone else |
+| Gateway | Block storage `10.10.30.0/24` for everyone; allow `10.10.0.0/16` for my email; block it for everyone else (rules 500, 1000, 2000; the internal apps' rules are 1100 and 2100) |
 | OPNsense | Only `10.10.20.11–13` may forward into mgmt, k8s and users |
 | Storage | Not routed at all, and blocked in Gateway as a second line |
 
@@ -73,13 +78,16 @@ stay blocked.
 ## Operating
 
 ```sh
-warp-cli connect                                          # away, or managing the site from home
-warp-cli disconnect                                       # normal use at home
+warp-cli connect                                          # always on
+warp-cli vnet 84c40b26-4fac-4131-a48a-9db3ca63267c        # hgd1-admin: manage the site
+warp-cli vnet 21a5b1d6-194b-4826-963d-d3352e64dfe5        # default: day to day
 labctl metrics query 'cloudflared_tunnel_ha_connections'  # 4 per host is healthy
 ```
 
-On the users VLAN at home, disconnect WARP; otherwise site traffic goes out to
-Cloudflare and back instead of straight through OPNsense.
+On the users VLAN at home, stay on `default` unless managing: on
+`hgd1-admin` site traffic goes out to Cloudflare and back instead of
+straight through OPNsense. `*.lan.buunk.org` names only resolve on
+`hgd1-admin` (Local Domain Fallback to `10.10.20.1`, reached through the route).
 
 ### Setting it up again
 
@@ -92,7 +100,8 @@ Only after the hosts are on their static addresses:
     ```sh
     cloudflared tunnel login
     cloudflared tunnel create hgd1-admin
-    cloudflared tunnel route ip add 10.10.0.0/16 hgd1-admin
+    cloudflared tunnel vnet add hgd1-admin
+    cloudflared tunnel route ip add --vnet hgd1-admin 10.10.0.0/16 hgd1-admin
     ```
 
     Put the UUID in `inventory.nix` → `remoteAccess.tunnelId`.
@@ -115,7 +124,8 @@ stop `cloudflared` on one host and check again.
 
 - **Nothing reachable:** `warp-cli status`, then the tunnel's connectors in
   the dashboard. See [Troubleshooting → No access](../operate/troubleshooting.md#no-access).
-- **Names don't resolve:** check Local Domain Fallback in the device profile.
+- **Names don't resolve:** on the virtual network `default`? Switch to
+  `hgd1-admin`. Otherwise check Local Domain Fallback in the device profile.
 - **Storage unreachable:** that's intended. Use an SSH forward
   ([S3 endpoint](s3.md#from-the-laptop)).
 
