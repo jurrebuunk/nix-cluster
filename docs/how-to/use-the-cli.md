@@ -24,7 +24,7 @@ management and while developing. Every command is in the
 
 ## Before you start
 
-- WARP connected (or a cable into the management VLAN).
+- WARP connected on `hgd1-admin` (or a cable into the management VLAN).
 - `labctl` installed: in this repo's dev shell, ad hoc with
   `nix run github:jurrebuunk/clusterd#labctl -- <command>`, or permanently on
   the laptop through the `clusterd` flake input of `~/nixos` (see the

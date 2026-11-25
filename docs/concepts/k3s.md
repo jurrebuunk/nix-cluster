@@ -39,7 +39,8 @@ builds the cluster; what runs on it lives in [`hgd1-k8s`](../reference/repositor
 - **Add-ons:** only CoreDNS comes with k3s (Flux needs DNS to start).
   metrics-server, `local-path` (same name and path,
   `/var/lib/rancher/k3s/storage`), public access (a Cloudflare Tunnel) and
-  later local ingress come from `hgd1-k8s`. Traefik, ServiceLB,
+  internal access over WARP (a second tunnel and its own Traefik) come
+  from `hgd1-k8s`. Traefik, ServiceLB,
   metrics-server and local-storage are disabled in k3s.
 
 ## How it works

@@ -15,11 +15,13 @@ Unless you're plugged into the site network, connect the Cloudflare One
 ```sh
 warp-cli connect
 warp-cli status          # Connected
+warp-cli vnet 84c40b26-4fac-4131-a48a-9db3ca63267c   # hgd1-admin: the site
 ```
 
-Only `10.10.0.0/16` goes through WARP; the rest of your traffic is
-unaffected. On the users VLAN at home, disconnect it instead, so site traffic
-goes straight through the router. Details: [Remote access](../concepts/remote-access.md).
+The site (`10.10.0.0/16`) is only on the virtual network `hgd1-admin`; day
+to day WARP stays on `default` (internal and public apps). The rest of your
+traffic is unaffected. On the users VLAN at home, stay on `default`, so site
+traffic goes straight through the router. Details: [Remote access](../concepts/remote-access.md).
 
 ??? note "Enrolling a new device"
 

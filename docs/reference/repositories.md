@@ -29,7 +29,7 @@ site's colour is in its own `docs/stylesheets/site.css`.
 | [`nix-hgd1-cluster`](https://github.com/jurrebuunk/nix-hgd1-cluster) | Hosts, Ceph, S3 endpoint, VMs, the k3s nodes, monitoring, remote access, the cluster docs | `deploy`, host by host | Public |
 | [`clusterd`](https://github.com/jurrebuunk/clusterd) | The [Platform API](../concepts/api.md) server and the `labctl` CLI, plus their NixOS module | Flake input of `nix-hgd1-cluster` | Public |
 | [`lab-console`](https://github.com/jurrebuunk/lab-console) | The [web UI](https://jurrebuunk.github.io/hgd1-k8s/concepts/web-ui/) at `lab.buunk.org`: frontend and its thin API proxy | CI image to GHCR, deployed by Flux | Public |
-| [`hgd1-k8s`](https://github.com/jurrebuunk/hgd1-k8s) | Base components on the k3s cluster: Flux, sops, metrics-server, local-path, the public Cloudflare Tunnel, CloudNativePG, k3s monitoring, Keycloak; later local ingress | Flux (pull-based GitOps) | Public |
+| [`hgd1-k8s`](https://github.com/jurrebuunk/hgd1-k8s) | Base components on the k3s cluster: Flux, sops, metrics-server, local-path, the public Cloudflare Tunnel, CloudNativePG, k3s monitoring, Keycloak, internal apps over WARP (second tunnel, internal Traefik, Let's Encrypt) | Flux (pull-based GitOps) | Public |
 | [`hgd1-cloudreve`](https://github.com/jurrebuunk/hgd1-cloudreve) | Cloudreve at `cloudreve.buunk.org`: its manifests, database, bucket gateway and secrets | Flux, through a pointer in `hgd1-k8s/apps/` | Public |
 | [`hgd1-network`](https://github.com/jurrebuunk/hgd1-network) | Ansible for the router `hgd1-fw01` and the switch `hgd1-sw01` | `ansible-playbook` from the laptop over WARP | Public |
 

@@ -129,7 +129,7 @@ flowchart TB
 ## Conventions
 
 - *I* is me, the owner. *You* is whoever does the work, usually also me.
-- Commands run from the repository root on the laptop, with WARP connected,
+- Commands run from the repository root on the laptop, with WARP on `hgd1-admin`,
   unless they say otherwise.
 - `inventory.nix` is the source of truth. If the docs disagree with it, the
   docs are wrong.

@@ -43,7 +43,8 @@ the web UI, only answer on the infra VLAN.
   [Internal access](https://jurrebuunk.github.io/hgd1-k8s/concepts/internal-access/));
   I switch to `hgd1-admin` to reach the site.
 - **The WARP client** on my laptop is enrolled in the Zero Trust
-  organisation. Only my email address can enrol.
+  organisation with my email and the one-time PIN; that login (not
+  Keycloak) is what the admin rules allow.
 - **Split tunnel, Include mode.** Only `10.10.0.0/16` and the team domain go
   through WARP. Everything else uses the normal connection.
 - **Internal names work.** Local Domain Fallback sends `lan.buunk.org`
@@ -113,8 +114,10 @@ Only after the hosts are on their static addresses:
 5. **Device profile:** Include mode with `10.10.0.0/16` and the team domain;
    Local Domain Fallback for `lan.buunk.org` to `10.10.20.1`.
 6. **Gateway:** proxy TCP, UDP and ICMP on; add the three network rules.
+   Put the route in the virtual network `hgd1-admin`.
 7. **OPNsense:** the two aliases and the INFRA rule above the INFRA deny, through [`hgd1-network`](https://github.com/jurrebuunk/hgd1-network).
-8. **Laptop:** `warp-cli registration new buunk`, `warp-cli connect`.
+8. **Laptop:** `warp-cli registration new buunk` (log in with the one-time
+   PIN), `warp-cli connect`, `warp-cli vnet <hgd1-admin id>` to check.
 
 Verify from outside (a phone hotspot): `ssh jurre@10.10.20.11 hostname`,
 `getent hosts hgd1-hv02.lan.buunk.org`, `curl -k https://10.10.10.1`. Then
